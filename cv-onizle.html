@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>CV Önizleme Ekranı</title>
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "primary-dark": "#0f2cb8",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "sans-serif"]
+
+                    },
+
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+<style>.no-scrollbar::-webkit-scrollbar {
+
+            display: none;
+
+        }
+
+        .no-scrollbar {
+
+            -ms-overflow-style: none;
+
+            scrollbar-width: none;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+
+            width: 8px;
+
+            height: 8px;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+
+            background-color: #cbd5e1;
+
+            border-radius: 4px;
+
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+
+            background-color: #334155;
+
+        }
+
+        .a4-paper {
+
+            width: 210mm;
+
+            min-height: 297mm;
+
+            background: white;
+
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+            transform: scale(0.85);
+
+            transform-origin: top center;
+
+            position: relative;
+
+            overflow: hidden;
+
+        }
+
+        @media (max-width: 850px) {
+
+            .a4-paper {
+
+                transform: scale(0.6) !important;
+
+                transform-origin: top center;
+
+                margin-bottom: -40%;
+
+            }
+
+        }
+
+        /* PRINT STYLES - Browser native PDF generation */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            /* Hide all UI elements during print */
+            header,
+            nav,
+            aside:not(#cv-preview-container),
+            footer,
+            button,
+            .no-print,
+            #zoom-decrease,
+            #zoom-increase,
+            #zoom-level,
+            #fit-screen-btn {
+                display: none !important;
+                visibility: hidden !important;
+            }
+
+            /* Show only CV preview container */
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+            }
+
+            .flex-1.overflow-auto {
+                padding: 0 !important;
+                margin: 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: flex-start !important;
+                background: white !important;
+            }
+
+            /* CV container - exact A4 size */
+            #cv-preview-container {
+                position: relative !important;
+                left: auto !important;
+                top: auto !important;
+                transform: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                max-width: 210mm !important;
+                margin: 0 !important;
+                padding: 32px !important;
+                background: white !important;
+                box-shadow: none !important;
+                page-break-inside: avoid !important;
+                overflow: visible !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Ensure all content is visible */
+            #cv-preview-container * {
+                visibility: visible !important;
+                color: inherit !important;
+            }
+
+            /* Prevent page breaks inside sections */
+            section {
+                page-break-inside: avoid !important;
+            }
+
+            /* Text rendering */
+            * {
+                text-rendering: optimizeLegibility !important;
+                -webkit-font-smoothing: antialiased !important;
+                -moz-osx-font-smoothing: grayscale !important;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen flex flex-col overflow-hidden">
+
+<header class="flex shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a1d2d] px-6 py-3 z-20 shadow-sm no-print">
+
+<div class="flex items-center gap-6 text-slate-900 dark:text-white">
+
+<button id="back-btn" class="flex items-center gap-2 text-slate-500 hover:text-primary dark:text-slate-400 dark:hover:text-white transition-colors group">
+
+<span class="size-8 rounded-full bg-slate-50 dark:bg-slate-800 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+
+<span class="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+
+</span>
+
+<span class="text-sm font-bold hidden md:block">Düzenlemeye Geri Dön</span>
+
+</button>
+
+<div class="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden md:block"></div>
+
+<div class="flex flex-col">
+
+<h2 class="text-slate-900 dark:text-white text-base md:text-lg font-bold leading-tight">CV Önizleme</h2>
+
+<span id="last-edited" class="text-xs text-slate-500 dark:text-slate-400 font-medium">Son düzenleme: Az önce</span>
+
+</div>
+
+</div>
+
+<div class="flex items-center justify-end gap-4">
+
+<button id="print-btn" class="hidden md:flex cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-white border border-slate-200 dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+
+<span class="material-symbols-outlined mr-2 text-[18px]">print</span>
+
+            Yazdır
+
+        </button>
+
+<button id="pdf-download-btn" class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-primary hover:bg-primary-dark transition-colors text-white text-sm font-bold shadow-lg shadow-blue-500/20">
+
+<span class="material-symbols-outlined mr-2 text-[20px]">download</span>
+
+            PDF İndir
+
+        </button>
+
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-white dark:border-slate-700 shadow-sm cursor-pointer ml-2" data-alt="User profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBPtulyC-jyxhu96_BeHp_Uhp1D9-5B3yVAQvdI__pjHMPOCGCa7-7PLigmueLCgya2-Zg49rWVjurDvcW7BZgmkzdCx7vRcSJuT57BqWGwoiTwbON20VpauuAvHtbXASniisuTML24qjMQvQcj4PReD8F7zkvRiPU5YH98HH3pv0yjypYyeYCDFj_CurHOHgY88RuwCpoKTqbQ2HxlzcPNY02bwE5GHBPbgFJ70moEh7LvrXHuNwpnVFqehuVaaXWiaSrp4ZJaMrAE");'></div>
+
+</div>
+
+</header>
+
+<main class="flex-1 overflow-hidden relative bg-slate-100 dark:bg-[#0c0e15] flex flex-col">
+
+<div class="flex-1 overflow-auto custom-scrollbar p-8 md:p-12 flex justify-center items-start">
+
+<div id="cv-preview-container" class="a4-paper p-8 md:p-10 flex flex-col text-slate-800">
+
+<!-- CV içeriği buraya dinamik olarak yüklenecek -->
+
+</div>
+
+</div>
+
+<div class="absolute bottom-6 right-6 md:right-10 flex items-center gap-2 bg-white dark:bg-[#1a1d2d] border border-slate-200 dark:border-slate-700 p-1.5 rounded-lg shadow-xl shadow-slate-200/50 dark:shadow-black/40 z-30 no-print">
+
+<button id="zoom-decrease" class="size-8 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">
+
+<span class="material-symbols-outlined text-[20px]">remove</span>
+
+</button>
+
+<div id="zoom-level" class="w-12 text-center text-sm font-bold text-slate-700 dark:text-slate-300 select-none">85%</div>
+
+<button id="zoom-increase" class="size-8 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors">
+
+<span class="material-symbols-outlined text-[20px]">add</span>
+
+</button>
+
+<div class="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
+<button id="fit-screen-btn" class="size-8 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="Tam Ekrana Sığdır">
+
+<span class="material-symbols-outlined text-[20px]">fit_screen</span>
+
+</button>
+
+</div>
+
+</main>
+
+<!-- PDF için browser native print engine kullanılıyor - canvas kütüphaneleri kaldırıldı -->
+<script src="js/api-client.js"></script>
+<script src="js/auth-guard.js"></script>
+<script src="js/auth-header.js"></script>
+<script src="js/cv-template-renderer.js"></script>
+<script src="cv-preview-loader.js"></script>
+<script>
+(function() {
+    'use strict';
+    
+    // Geri dön butonu
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            // Hangi sayfadan geldiğini kontrol et
+            const referrer = document.referrer;
+            if (referrer && referrer.includes('cv-olusturucu')) {
+                window.history.back();
+            } else {
+                window.location.href = 'cv-olusturucu-kisisel-bilgiler.html';
+            }
+        });
+    }
+    
+    // Yazdır butonu
+    const printBtn = document.getElementById('print-btn');
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+    }
+    
+    // PDF İndir butonu
+    const pdfBtn = document.getElementById('pdf-download-btn');
+    if (pdfBtn) {
+        pdfBtn.addEventListener('click', async function() {
+            // PDF indirme için giriş gerekmez, direkt frontend'de oluşturuluyor
+            
+            // Frontend'de direkt PDF oluştur
+            try {
+                // Loading state göster
+                pdfBtn.disabled = true;
+                const originalText = pdfBtn.innerHTML;
+                pdfBtn.innerHTML = '<span class="material-symbols-outlined mr-2 text-[20px] animate-spin">hourglass_empty</span> İndiriliyor...';
+                
+                // Frontend'de PDF oluştur (backend'e bağımlı değil)
+                await generatePDFFromHTML();
+                console.log('✅ PDF İndirme: PDF başarıyla oluşturuldu ve indirildi');
+            } catch (error) {
+                console.error('❌ PDF indirme hatası:', error);
+                const errorMessage = error.message || 'Bilinmeyen hata';
+                alert('PDF indirilemedi: ' + errorMessage);
+            } finally {
+                // Loading state'i kaldır
+                pdfBtn.disabled = false;
+                pdfBtn.innerHTML = originalText;
+            }
+        });
+    }
+    
+    // waitForHtml2Pdf fonksiyonu kaldırıldı - artık browser native print kullanılıyor
+    
+    // Browser native print engine kullanarak PDF oluşturma
+    // GOAL: Pixel-perfect 1:1 copy of preview using browser's print engine
+    async function generatePDFFromHTML() {
+        const container = document.getElementById('cv-preview-container');
+        if (!container) {
+            throw new Error('CV önizleme container bulunamadı');
+        }
+        
+        // Container'ın içeriğinin yüklendiğinden emin ol
+        if (!container.innerHTML || container.innerHTML.trim() === '' || container.innerHTML.includes('CV içeriği buraya dinamik olarak yüklenecek')) {
+            throw new Error('CV içeriği henüz yüklenmedi. Lütfen birkaç saniye bekleyip tekrar deneyin.');
+        }
+        
+        // Fontların yüklenmesini bekle
+        if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
+        }
+        
+        // Resimlerin yüklenmesini bekle
+        const images = container.querySelectorAll('img');
+        if (images.length > 0) {
+            await Promise.all(Array.from(images).map(img => {
+                if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+                return new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                    setTimeout(resolve, 2000);
+                });
+            }));
+        }
+        
+        // İçeriğin render edilmesini bekle
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Browser native print engine'i kullan
+        // @media print CSS'i otomatik olarak uygulanacak
+        window.print();
+    }
+    
+    // Zoom kontrolleri
+    // Başlangıç scale'i 0.85 (canlı önizleme ile aynı)
+    let currentZoom = parseInt(localStorage.getItem('cv-zoom-level') || '85');
+    const zoomDecreaseBtn = document.getElementById('zoom-decrease');
+    const zoomIncreaseBtn = document.getElementById('zoom-increase');
+    const zoomLevelSpan = document.getElementById('zoom-level');
+    const fitScreenBtn = document.getElementById('fit-screen-btn');
+    const cvContainer = document.getElementById('cv-preview-container');
+    
+    function updateZoom() {
+        if (!cvContainer) return;
+        
+        // Zoom seviyesini scale'e çevir (85% = 0.85)
+        const scale = currentZoom / 100;
+        cvContainer.style.transform = `scale(${scale})`;
+        cvContainer.style.transformOrigin = 'top center';
+        
+        if (zoomLevelSpan) {
+            zoomLevelSpan.textContent = currentZoom + '%';
+        }
+        
+        localStorage.setItem('cv-zoom-level', currentZoom.toString());
+    }
+    
+    // Sayfa yüklendiğinde zoom'u uygula (CSS'teki 0.85 scale'i override eder)
+    function applyInitialZoom() {
+        if (cvContainer) {
+            updateZoom();
+        }
+    }
+    
+    if (zoomDecreaseBtn) {
+        zoomDecreaseBtn.addEventListener('click', function() {
+            if (currentZoom > 25) {
+                currentZoom -= 5;
+                updateZoom();
+            }
+        });
+    }
+    
+    if (zoomIncreaseBtn) {
+        zoomIncreaseBtn.addEventListener('click', function() {
+            if (currentZoom < 150) {
+                currentZoom += 5;
+                updateZoom();
+            }
+        });
+    }
+    
+    if (fitScreenBtn) {
+        fitScreenBtn.addEventListener('click', function() {
+            // Ekrana sığdır
+            const container = document.querySelector('.flex-1.overflow-auto');
+            if (container && cvContainer) {
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+                const paperWidth = 210; // mm
+                const paperHeight = 297; // mm
+                
+                // mm'yi px'e çevir (1mm = 3.779527559px)
+                const paperWidthPx = paperWidth * 3.779527559;
+                const paperHeightPx = paperHeight * 3.779527559;
+                
+                const scaleX = (containerWidth - 100) / paperWidthPx;
+                const scaleY = (containerHeight - 100) / paperHeightPx;
+                const scale = Math.min(scaleX, scaleY, 1);
+                
+                currentZoom = Math.round(scale * 100);
+                updateZoom();
+            }
+        });
+    }
+    
+    // CV'yi yükle ve render et
+    function loadAndRenderCV() {
+        const container = document.getElementById('cv-preview-container');
+        if (!container) return;
+        
+        // Seçili şablonu al - kullanıcının seçtiği şablonu kullan
+        // Eğer şablon seçilmemişse varsayılan olarak 'modern' kullan
+        let selectedTemplate = localStorage.getItem('selected-template');
+        
+        // Eğer şablon seçilmemişse veya geçersizse, modern şablonu kullan
+        if (!selectedTemplate || selectedTemplate === '') {
+            selectedTemplate = 'modern';
+            localStorage.setItem('selected-template', selectedTemplate);
+        }
+        
+        // CV verilerini al ve birleştir
+        const cvData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
+        
+        // Deneyimleri localStorage'dan al - öncelik cv-builder-data içindeki verilere
+        if (!cvData.experiences || cvData.experiences.length === 0) {
+            try {
+                const experiences = JSON.parse(localStorage.getItem('cv-experiences') || '[]');
+                if (experiences.length > 0) {
+                    cvData.experiences = experiences;
+                }
+            } catch (e) {
+                cvData.experiences = [];
+            }
+        }
+        
+        // Eğitim bilgilerini al - öncelik cv-builder-data içindeki verilere
+        if (!cvData.education || cvData.education.length === 0) {
+            try {
+                const education = JSON.parse(localStorage.getItem('cv-education') || '[]');
+                if (education.length > 0) {
+                    cvData.education = education;
+                }
+            } catch (e) {
+                cvData.education = [];
+            }
+        }
+        
+        // Yetenekleri al - öncelik cv-builder-data içindeki verilere
+        if (!cvData.skills || cvData.skills.length === 0) {
+            try {
+                const skills = JSON.parse(localStorage.getItem('cv-skills') || '[]');
+                if (skills.length > 0) {
+                    cvData.skills = skills;
+                }
+            } catch (e) {
+                cvData.skills = [];
+            }
+        }
+        
+        // Dilleri al - öncelik cv-builder-data içindeki verilere
+        if (!cvData.languages || cvData.languages.length === 0) {
+            try {
+                const languages = JSON.parse(localStorage.getItem('cv-languages') || '[]');
+                if (languages.length > 0) {
+                    cvData.languages = languages;
+                }
+            } catch (e) {
+                cvData.languages = [];
+            }
+        }
+        
+        // CV template renderer'ı kullan
+        if (window.CVTemplateRenderer && window.CVTemplateRenderer.render) {
+            // cvData'yı localStorage'a kaydet ki template renderer getDataWithExamples() kullanabilsin
+            // Bu, özgeçmiş oluşturucu sayfalarındaki canlı önizleme ile aynı mantık
+            try {
+                const existingData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
+                // Tüm verileri birleştir
+                Object.assign(existingData, cvData);
+                // Eğer cvData'da experiences, education, skills, languages varsa onları da ekle
+                if (cvData.experiences && cvData.experiences.length > 0) existingData.experiences = cvData.experiences;
+                if (cvData.education && cvData.education.length > 0) existingData.education = cvData.education;
+                if (cvData.skills && cvData.skills.length > 0) existingData.skills = cvData.skills;
+                if (cvData.languages && cvData.languages.length > 0) existingData.languages = cvData.languages;
+                localStorage.setItem('cv-builder-data', JSON.stringify(existingData));
+            } catch (e) {
+                localStorage.setItem('cv-builder-data', JSON.stringify(cvData));
+            }
+            
+            // Seçili şablonu render et - kullanıcının seçtiği şablonu kullan
+            // cvData'yı geçiyoruz, template renderer fonksiyonları data || getDataWithExamples() kullanıyor
+            // Eğer cvData boşsa veya eksikse, template renderer getDataWithExamples() kullanacak
+            const html = window.CVTemplateRenderer.render(selectedTemplate, cvData);
+            container.innerHTML = html;
+            
+            // Zoom'u uygula (CSS'teki 0.85 scale'i override eder)
+            setTimeout(applyInitialZoom, 100);
+        } else {
+            // Template renderer yüklenmediyse bekle
+            setTimeout(loadAndRenderCV, 100);
+        }
+    }
+    
+    // Sayfa yüklendiğinde CV'yi render et
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadAndRenderCV);
+    } else {
+        loadAndRenderCV();
+    }
+    
+    // Son düzenleme zamanını güncelle
+    const lastEditedSpan = document.getElementById('last-edited');
+    if (lastEditedSpan) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        lastEditedSpan.textContent = `Son düzenleme: ${timeStr}`;
+    }
+})();
+</script>
+
+</body></html>
+

@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+  ENTERPRISE
+}
+
+enum TemplateType {
+  MODERN
+  CORPORATE
+  CREATIVE
+  MINIMALIST
+}
+
+enum ResumeStatus {
+  DRAFT
+  COMPLETED
+  ARCHIVED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  firstName     String?
+  lastName      String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  resumes       Resume[]
+  coverLetters  CoverLetter[]
+  portfolios    Portfolio[]
+  subscriptions Subscription[]
+  usageLogs     UsageLog[]
+  
+  @@map("users")
+}
+
+model Resume {
+  id          String       @id @default(uuid())
+  userId      String
+  title       String       @default("Yeni Özgeçmiş")
+  templateId String        @default("modern")
+  status      ResumeStatus @default(DRAFT)
+  
+  // Personal Information
+  firstName   String?
+  lastName    String?
+  email       String?
+  phone       String?
+  location    String?
+  profession  String?
+  summary     String?      @db.Text
+  
+  // Experience, Education, Skills, Languages stored as JSON
+  experience  Json?         // Array of experience objects
+  education   Json?         // Array of education objects
+  skills      Json?         // Array of skill objects
+  languages   Json?         // Array of language objects
+  
+  // Metadata
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analyses    ResumeAnalysis[]
+  
+  @@index([userId])
+  @@map("resumes")
+}
+
+model CoverLetter {
+  id          String   @id @default(uuid())
+  userId      String
+  title       String   @default("Yeni Ön Yazı")
+  content     String   @db.Text
+  recipient   String?
+  company     String?
+  position    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("cover_letters")
+}
+
+model Portfolio {
+  id          String   @id @default(uuid())
+  userId      String
+  title       String
+  description String?  @db.Text
+  url         String?
+  imageUrl    String?
+  technologies Json?   // Array of technology strings
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("portfolios")
+}
+
+model ResumeAnalysis {
+  id          String   @id @default(uuid())
+  resumeId    String
+  score       Int      // 0-100
+  feedback    String   @db.Text
+  suggestions Json?    // Array of suggestion objects
+  atsScore    Int?     // ATS compatibility score
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  resume      Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  
+  @@index([resumeId])
+  @@map("resume_analyses")
+}
+
+model Subscription {
+  id          String          @id @default(uuid())
+  userId      String
+  tier        SubscriptionTier @default(FREE)
+  aiCredits   Int             @default(10) // Free tier gets 10 credits
+  usedCredits Int             @default(0)
+  startDate   DateTime        @default(now())
+  endDate     DateTime?
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  // Relations
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("subscriptions")
+}
+
+model UsageLog {
+  id          String   @id @default(uuid())
+  userId      String
+  service     String   // 'summary', 'experience', 'analyze', etc.
+  creditsUsed Int      @default(1)
+  input       Json?    // Input data for the AI request
+  output      Json?    // AI response
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@map("usage_logs")
+}
+
+model Template {
+  id          String      @id @default(uuid())
+  name        String
+  type        TemplateType
+  description String?     @db.Text
+  previewUrl  String?
+  htmlTemplate String?     @db.Text
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@map("templates")
+}
+

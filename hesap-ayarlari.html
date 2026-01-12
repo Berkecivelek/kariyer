@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>Hesap Ayarları</title>
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "primary-dark": "#0f2cb8",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "sans-serif"]
+
+                    },
+
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+<style>
+
+        .no-scrollbar::-webkit-scrollbar {
+
+            display: none;
+
+        }
+
+        .no-scrollbar {
+
+            -ms-overflow-style: none;
+
+            scrollbar-width: none;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+
+            width: 6px;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+
+            background-color: #cbd5e1;
+
+            border-radius: 20px;
+
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+
+            background-color: #334155;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen flex flex-col overflow-hidden">
+
+<header class="flex shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a1d2d] px-6 py-3 z-20">
+
+<div class="flex items-center gap-4 text-slate-900 dark:text-white">
+
+<div class="size-8 text-primary">
+
+<svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z" fill="currentColor"></path>
+
+<path clip-rule="evenodd" d="M39.998 35.764C39.9944 35.7463 39.9875 35.7155 39.9748 35.6706C39.9436 35.5601 39.8949 35.4259 39.8346 35.2825C39.8168 35.2403 39.7989 35.1993 39.7813 35.1602C38.5103 34.2887 35.9788 33.0607 33.7095 32.5189C30.9875 31.8691 27.6413 31.4783 24 31.4783C20.3587 31.4783 17.0125 31.8691 14.2905 32.5189C12.0012 33.0654 9.44505 34.3104 8.18538 35.1832C8.17384 35.2075 8.16216 35.233 8.15052 35.2592C8.09919 35.3751 8.05721 35.4886 8.02977 35.589C8.00356 35.6848 8.00039 35.7333 8.00004 35.7388C8.00004 35.739 8 35.7393 8.00004 35.7388C8.00004 35.7641 8.0104 36.0767 8.68485 36.6314C9.34546 37.1746 10.4222 37.7531 11.9291 38.2772C14.9242 39.319 19.1919 40 24 40C28.8081 40 33.0758 39.319 36.0709 38.2772C37.5778 37.7531 38.6545 37.1746 39.3151 36.6314C39.9006 36.1499 39.9857 35.8511 39.998 35.764ZM4.95178 32.7688L21.4543 6.30267C22.6288 4.4191 25.3712 4.41909 26.5457 6.30267L43.0534 32.777C43.0709 32.8052 43.0878 32.8338 43.104 32.8629L41.3563 33.8352C43.104 32.8629 43.1038 32.8626 43.104 32.8629L43.1051 32.865L43.1065 32.8675L43.1101 32.8739L43.1199 32.8918C43.1276 32.906 43.1377 32.9246 43.1497 32.9473C43.1738 32.9925 43.2062 33.0545 43.244 33.1299C43.319 33.2792 43.4196 33.489 43.5217 33.7317C43.6901 34.1321 44 34.9311 44 35.7391C44 37.4427 43.003 38.7775 41.8558 39.7209C40.6947 40.6757 39.1354 41.4464 37.385 42.0552C33.8654 43.2794 29.133 44 24 44C18.867 44 14.1346 43.2794 10.615 42.0552C8.86463 41.4464 7.30529 40.6757 6.14419 39.7209C4.99695 38.7775 3.99999 37.4427 3.99999 35.7391C3.99999 34.8725 4.29264 34.0922 4.49321 33.6393C4.60375 33.3898 4.71348 33.1804 4.79687 33.0311C4.83898 32.9556 4.87547 32.8935 4.9035 32.8471C4.91754 32.8238 4.92954 32.8043 4.93916 32.7889L4.94662 32.777L4.95178 32.7688ZM35.9868 29.004L24 9.77997L12.0131 29.004C12.4661 28.8609 12.9179 28.7342 13.3617 28.6282C16.4281 27.8961 20.0901 27.4783 24 27.4783C27.9099 27.4783 31.5719 27.8961 34.6383 28.6282C35.082 28.7342 35.5339 28.8609 35.9868 29.004Z" fill="currentColor" fill-rule="evenodd"></path>
+
+</svg>
+
+</div>
+
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Ayarlar</h2>
+
+</div>
+
+<div class="flex items-center justify-end gap-6">
+
+<a class="hidden md:flex items-center gap-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors" href="dashboard.html">
+
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+
+<span class="text-sm font-medium">Panoya Dön</span>
+
+</a>
+
+<a href="profil-ayarlari.html" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border-2 border-white dark:border-slate-700 shadow-sm cursor-pointer" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBPtulyC-jyxhu96_BeHp_Uhp1D9-5B3yVAQvdI__pjHMPOCGCa7-7PLigmueLCgya2-Zg49rWVjurDvcW7BZgmkzdCx7vRcSJuT57BqWGwoiTwbON20VpauuAvHtbXASniisuTML24qjMQvQcj4PReD8F7zkvRiPU5YH98HH3pv0yjypYyeYCDFj_CurHOHgY88RuwCpoKTqbQ2HxlzcPNY02bwE5GHBPbgFJ70moEh7LvrXHuNwpnVFqehuVaaXWiaSrp4ZJaMrAE");'></a>
+
+</div>
+
+</header>
+
+<div class="flex flex-1 overflow-hidden relative">
+
+<nav class="flex flex-col w-full md:w-80 bg-white dark:bg-[#1a1d2d] border-r border-slate-200 dark:border-slate-800 h-full overflow-y-auto z-10">
+
+<div class="flex flex-col items-center p-8 border-b border-slate-100 dark:border-slate-800">
+
+<div class="relative group">
+
+<div id="profile-avatar" class="bg-center bg-no-repeat bg-cover rounded-full size-24 border-4 border-white dark:border-slate-700 shadow-lg mb-4" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBPtulyC-jyxhu96_BeHp_Uhp1D9-5B3yVAQvdI__pjHMPOCGCa7-7PLigmueLCgya2-Zg49rWVjurDvcW7BZgmkzdCx7vRcSJuT57BqWGwoiTwbON20VpauuAvHtbXASniisuTML24qjMQvQcj4PReD8F7zkvRiPU5YH98HH3pv0yjypYyeYCDFj_CurHOHgY88RuwCpoKTqbQ2HxlzcPNY02bwE5GHBPbgFJ70moEh7LvrXHuNwpnVFqehuVaaXWiaSrp4ZJaMrAE");'></div>
+
+<button class="absolute bottom-4 right-0 bg-primary text-white rounded-full p-1.5 shadow-md hover:bg-primary-dark transition-colors border-2 border-white dark:border-slate-800">
+
+<span class="material-symbols-outlined text-[16px] block">edit</span>
+
+</button>
+
+</div>
+
+<h2 id="profile-name" class="text-xl font-bold text-slate-900 dark:text-white">Ahmet Yılmaz</h2>
+
+<p id="profile-email" class="text-sm text-slate-500 dark:text-slate-400 mb-4">Yükleniyor...</p>
+
+<button class="w-full py-2 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-bold transition-colors">
+
+                    Profilimi Görüntüle
+
+                </button>
+
+</div>
+
+<div class="flex flex-col p-4 gap-1">
+
+<div class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-2 mb-1">
+
+                    Hesap
+
+                </div>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group" href="profil-ayarlari.html">
+
+<span class="material-symbols-outlined text-[22px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">person</span>
+
+<span class="text-sm font-medium">Profil Bilgileri</span>
+
+</a>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary dark:text-primary-light border-l-4 border-primary transition-colors" href="hesap-ayarlari.html">
+
+<span class="material-symbols-outlined text-[22px]">manage_accounts</span>
+
+<span class="text-sm font-bold">Hesap Ayarları</span>
+
+</a>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group" href="bildirim-ayarlari.html">
+
+<span class="material-symbols-outlined text-[22px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">notifications</span>
+
+<span class="text-sm font-medium">Bildirim Ayarları</span>
+
+</a>
+
+<div class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-6 mb-1">
+
+                    Güvenlik
+
+                </div>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group" href="sifre-ve-guvenlik.html">
+
+<span class="material-symbols-outlined text-[22px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">lock</span>
+
+<span class="text-sm font-medium">Şifre ve Güvenlik</span>
+
+</a>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group" href="gizlilik-ayarlari.html">
+
+<span class="material-symbols-outlined text-[22px] text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">visibility</span>
+
+<span class="text-sm font-medium">Gizlilik Ayarları</span>
+
+</a>
+
+<div class="mt-auto pt-4 pb-2 border-t border-slate-100 dark:border-slate-800 mt-6">
+
+<a id="sidebar-logout-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors" href="#">
+
+<span class="material-symbols-outlined text-[22px]">logout</span>
+
+<span class="text-sm font-bold">Çıkış Yap</span>
+
+</a>
+
+</div>
+
+</div>
+
+</nav>
+
+<main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-[#0c0e15] relative z-0">
+
+<div class="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10 pb-32">
+
+<div class="max-w-3xl mx-auto flex flex-col gap-8">
+
+<div class="flex items-end justify-between border-b border-slate-200 dark:border-slate-800 pb-6">
+
+<div class="flex flex-col gap-1">
+
+<h1 class="text-slate-900 dark:text-white text-2xl md:text-3xl font-extrabold tracking-tight">Hesap Ayarları</h1>
+
+<p class="text-slate-500 dark:text-slate-400 text-sm md:text-base">Abonelik planınızı, ödeme yöntemlerinizi ve bölgesel tercihlerinizi buradan yönetin.</p>
+
+</div>
+
+</div>
+
+<div class="bg-white dark:bg-[#1a1d2d] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+
+<div class="p-6 md:px-8 md:py-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+<div>
+
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Abonelik Planı</h3>
+
+<p class="text-sm text-slate-500 dark:text-slate-400">Mevcut planınız ve faturalandırma detayları.</p>
+
+</div>
+
+<span class="inline-flex items-center self-start sm:self-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800/50">
+
+<span class="w-2 h-2 rounded-full bg-green-500 mr-2 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span> Aktif
+
+                            </span>
+
+</div>
+
+<div class="p-6 md:p-8">
+
+<div class="flex flex-col sm:flex-row justify-between items-center p-5 rounded-lg bg-slate-50 dark:bg-[#12141c] border border-slate-200 dark:border-slate-700 mb-6 gap-4">
+
+<div class="flex items-start gap-4">
+
+<div class="bg-primary/10 p-3 rounded-lg text-primary hidden sm:block">
+
+<span class="material-symbols-outlined text-[24px]">workspace_premium</span>
+
+</div>
+
+<div>
+
+<div class="text-base font-bold text-slate-900 dark:text-white mb-1">Profesyonel Plan</div>
+
+<div class="text-sm text-slate-500 dark:text-slate-400">₺149.00 / Ay • Bir sonraki ödeme: 24 Ekim 2023</div>
+
+</div>
+
+</div>
+
+<button class="w-full sm:w-auto text-sm font-bold text-primary hover:text-primary-dark transition-colors bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg shadow-sm">Planı Değiştir</button>
+
+</div>
+
+<div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+
+<button class="order-2 sm:order-1 text-sm font-semibold text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 px-4 py-2 transition-colors">Aboneliği İptal Et</button>
+
+<button class="order-1 sm:order-2 text-sm font-bold text-white bg-slate-900 dark:bg-slate-700 px-5 py-2.5 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors shadow-sm">Faturaları Yönet</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="bg-white dark:bg-[#1a1d2d] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 md:p-8">
+
+<div class="flex items-center justify-between mb-6">
+
+<div>
+
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Ödeme Yöntemleri</h3>
+
+<p class="text-sm text-slate-500 dark:text-slate-400">Kayıtlı ödeme yöntemlerinizi düzenleyin.</p>
+
+</div>
+
+<button id="add-card-btn" class="flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary-dark transition-colors bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-lg">
+
+<span class="material-symbols-outlined text-[18px]">add</span> Yeni Kart
+
+                            </button>
+
+</div>
+
+<div class="flex flex-col gap-3">
+
+<div class="flex items-center justify-between p-4 rounded-lg border border-primary/30 dark:border-primary/50 bg-primary/5 dark:bg-primary/5 transition-colors group relative overflow-hidden">
+
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+
+<div class="flex items-center gap-4">
+
+<div class="w-12 h-8 bg-white dark:bg-white rounded flex items-center justify-center border border-slate-200 shadow-sm">
+
+<span class="text-xs font-black italic text-blue-800">VISA</span>
+
+</div>
+
+<div class="flex flex-col">
+
+<div class="flex items-center gap-2">
+
+<span class="text-sm font-bold text-slate-900 dark:text-white">Visa •••• 4242</span>
+
+<span class="px-1.5 py-0.5 text-[10px] font-bold uppercase bg-primary text-white rounded">Varsayılan</span>
+
+</div>
+
+<span class="text-xs text-slate-500 dark:text-slate-400">Sona Erme: 12/24</span>
+
+</div>
+
+</div>
+
+<div class="flex items-center gap-1">
+
+<button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+
+</div>
+
+</div>
+
+<div class="flex items-center justify-between p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors bg-white dark:bg-[#1a1d2d]">
+
+<div class="flex items-center gap-4">
+
+<div class="w-12 h-8 bg-white dark:bg-white rounded flex items-center justify-center border border-slate-200 shadow-sm">
+
+<div class="flex -space-x-1.5">
+
+<div class="size-3 bg-red-500 rounded-full opacity-80"></div>
+
+<div class="size-3 bg-yellow-500 rounded-full opacity-80"></div>
+
+</div>
+
+</div>
+
+<div class="flex flex-col">
+
+<span class="text-sm font-bold text-slate-900 dark:text-white">Mastercard •••• 8899</span>
+
+<span class="text-xs text-slate-500 dark:text-slate-400">Sona Erme: 08/25</span>
+
+</div>
+
+</div>
+
+<div class="flex items-center gap-1">
+
+<button class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="bg-white dark:bg-[#1a1d2d] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 md:p-8">
+
+<div class="mb-6 flex items-start justify-between">
+
+<div>
+
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Bölgesel Ayarlar</h3>
+
+<p class="text-sm text-slate-500 dark:text-slate-400">Dil ve zaman dilimi tercihlerinizi yapılandırın.</p>
+
+</div>
+
+</div>
+
+<form id="regional-settings-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+<div class="flex flex-col gap-1.5">
+
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Dil Tercihi</label>
+
+<div class="relative">
+
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">language</span>
+
+<select id="language-select" class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm h-11 pl-10 pr-3 appearance-none">
+
+<option selected="">Türkçe (TR)</option>
+
+<option>English (US)</option>
+
+<option>Deutsch (DE)</option>
+
+<option>Español (ES)</option>
+
+</select>
+
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px] pointer-events-none">expand_more</span>
+
+</div>
+
+</div>
+
+<div class="flex flex-col gap-1.5">
+
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Zaman Dilimi</label>
+
+<div class="relative">
+
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px]">schedule</span>
+
+<select id="timezone-select" class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm h-11 pl-10 pr-3 appearance-none">
+
+<option selected="">(GMT+03:00) İstanbul</option>
+
+<option>(GMT+00:00) London</option>
+
+<option>(GMT-05:00) New York</option>
+
+<option>(GMT+09:00) Tokyo</option>
+
+</select>
+
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 material-symbols-outlined text-[18px] pointer-events-none">expand_more</span>
+
+</div>
+
+</div>
+
+<div class="md:col-span-2 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+
+<button id="save-regional-btn" class="px-6 py-2.5 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors shadow-lg shadow-blue-500/30 flex items-center gap-2" type="button">
+
+<span class="material-symbols-outlined text-[18px]">save</span>
+
+                                    Ayarları Kaydet
+
+                                </button>
+
+</div>
+
+</form>
+
+</div>
+
+<div class="bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/30 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
+<div>
+
+<h3 class="text-sm font-bold text-red-800 dark:text-red-400">Hesabı Sil</h3>
+
+<p class="text-xs text-red-600 dark:text-red-300 mt-1">Hesabınızı sildiğinizde tüm verileriniz kalıcı olarak kaldırılacaktır.</p>
+
+</div>
+
+<button id="delete-account-btn" class="shrink-0 text-xs font-bold text-red-700 dark:text-red-400 bg-white dark:bg-transparent border border-red-200 dark:border-red-800 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+
+                            Hesabımı Sil
+
+                        </button>
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+<!-- API Client -->
+<script src="js/api-client.js"></script>
+<script src="js/auth-guard.js"></script>
+<script src="js/auth-header.js"></script>
+<script>
+(function() {
+    'use strict';
+    
+    // API client'ın yüklenmesini bekle
+    function waitForAPIClient(callback) {
+        if (window.apiClient) {
+            callback();
+        } else {
+            setTimeout(() => waitForAPIClient(callback), 100);
+        }
+    }
+    
+    // Kullanıcı bilgilerini yükle
+    async function loadUserProfile() {
+        const token = localStorage.getItem('authToken');
+        if (!token || !window.apiClient) {
+            // Giriş yapılmamış, giriş sayfasına yönlendir
+            window.location.href = 'giris.html';
+            return;
+        }
+        
+        try {
+            const response = await window.apiClient.getCurrentUser();
+            if (response.success && response.data.user) {
+                const user = response.data.user;
+                
+                // Profil bilgilerini doldur
+                const profileName = document.getElementById('profile-name');
+                const profileEmail = document.getElementById('profile-email');
+                
+                if (profileName) {
+                    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
+                    profileName.textContent = fullName;
+                }
+                if (profileEmail) profileEmail.textContent = user.email || '';
+            } else {
+                // Token geçersiz
+                window.location.href = 'giris.html';
+            }
+        } catch (error) {
+            console.error('Profil yükleme hatası:', error);
+            window.location.href = 'giris.html';
+        }
+    }
+    
+    // Bölgesel ayarları kaydet
+    const saveRegionalBtn = document.getElementById('save-regional-btn');
+    const regionalForm = document.getElementById('regional-settings-form');
+    
+    if (saveRegionalBtn && regionalForm) {
+        saveRegionalBtn.addEventListener('click', async () => {
+            const language = document.getElementById('language-select').value;
+            const timezone = document.getElementById('timezone-select').value;
+            
+            saveRegionalBtn.disabled = true;
+            saveRegionalBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">hourglass_empty</span> Kaydediliyor...';
+            
+            try {
+                // TODO: Backend'e kaydet
+                // await window.apiClient.updateUserSettings({ language, timezone });
+                
+                // Şimdilik sadece localStorage'a kaydet
+                localStorage.setItem('userLanguage', language);
+                localStorage.setItem('userTimezone', timezone);
+                
+                alert('Bölgesel ayarlar kaydedildi!');
+                saveRegionalBtn.disabled = false;
+                saveRegionalBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">save</span> Ayarları Kaydet';
+            } catch (error) {
+                console.error('Ayarlar kaydetme hatası:', error);
+                alert('Ayarlar kaydedilemedi: ' + (error.message || 'Bilinmeyen hata'));
+                saveRegionalBtn.disabled = false;
+                saveRegionalBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">save</span> Ayarları Kaydet';
+            }
+        });
+    }
+    
+    // Yeni kart ekle
+    const addCardBtn = document.getElementById('add-card-btn');
+    if (addCardBtn) {
+        addCardBtn.addEventListener('click', () => {
+            alert('Yeni kart ekleme özelliği yakında eklenecek!');
+        });
+    }
+    
+    // Hesabı sil
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', () => {
+            if (confirm('Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+                if (confirm('Tüm verileriniz kalıcı olarak silinecek. Devam etmek istiyor musunuz?')) {
+                    alert('Hesap silme özelliği yakında eklenecek!');
+                    // TODO: Backend'e hesap silme isteği gönder
+                }
+            }
+        });
+    }
+    
+    // Çıkış yap
+    const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+    if (sidebarLogoutBtn) {
+        sidebarLogoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            try {
+                if (window.apiClient) {
+                    await window.apiClient.logout();
+                } else {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('refreshToken');
+                }
+                window.location.href = 'giris.html';
+            } catch (error) {
+                console.error('Çıkış hatası:', error);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = 'giris.html';
+            }
+        });
+    }
+    
+    // Sayfa yüklendiğinde başlat
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            waitForAPIClient(loadUserProfile);
+        });
+    } else {
+        waitForAPIClient(loadUserProfile);
+    }
+})();
+</script>
+</body></html>
+

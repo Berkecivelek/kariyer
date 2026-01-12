@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>CareerAI - Hizmetlerimiz</title>
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                        "surface-light": "#ffffff",
+
+                        "surface-dark": "#1a1d2d",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "sans-serif"]
+
+                    },
+
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111218] dark:text-white font-display overflow-x-hidden antialiased">
+
+<div class="relative flex min-h-screen w-full flex-col">
+
+<header class="sticky top-0 z-50 w-full bg-surface-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-[#f0f1f4] dark:border-gray-800">
+
+<div class="flex items-center justify-between px-6 py-4 max-w-[1280px] mx-auto w-full">
+
+<div class="flex items-center gap-3">
+
+<a href="index.html" class="flex items-center gap-3">
+
+<div class="text-primary">
+
+<svg class="size-8" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z" fill="currentColor"></path>
+
+</svg>
+
+</div>
+
+<h2 class="text-[#111218] dark:text-white text-xl font-bold tracking-tight">CareerAI</h2>
+
+</a>
+
+</div>
+
+<nav class="hidden md:flex items-center gap-8">
+
+<a class="text-primary font-bold text-sm transition-colors" href="hizmetler.html">Hizmetler</a>
+
+<a class="text-[#111218] dark:text-gray-300 hover:text-primary text-sm font-medium transition-colors" href="sablonlar.html">Şablonlar</a>
+
+<a class="text-[#111218] dark:text-gray-300 hover:text-primary text-sm font-medium transition-colors" href="fiyatlandirma.html">Fiyatlandırma</a>
+
+</nav>
+
+<div class="flex gap-3">
+
+<a href="giris.html" class="hidden sm:flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111218] dark:text-white text-sm font-bold transition-colors">
+
+                        Giriş Yap
+
+                    </a>
+
+<a href="cv-olusturucu-kisisel-bilgiler.html" class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-primary hover:bg-blue-700 text-white text-sm font-bold transition-colors shadow-lg shadow-blue-500/20">
+
+                        Ücretsiz Dene
+
+                    </a>
+
+</div>
+
+</div>
+
+</header>
+
+<main class="flex-1 flex flex-col items-center w-full">
+
+<section class="w-full px-6 pt-16 pb-12 bg-white dark:bg-background-dark border-b border-gray-100 dark:border-gray-800">
+
+<div class="max-w-[1000px] mx-auto text-center flex flex-col gap-4">
+
+<span class="text-primary font-bold tracking-wider text-sm uppercase">Tüm Hizmetler</span>
+
+<h1 class="text-[#111218] dark:text-white text-4xl sm:text-5xl font-black leading-tight tracking-tight">
+
+                        Kariyeriniz İçin <span class="text-primary">Eksiksiz</span> Araç Seti
+
+                    </h1>
+
+<p class="text-gray-600 dark:text-gray-300 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto">
+
+                        İş arama sürecini hızlandırmak, başvurularınızı profesyonelleştirmek ve hayalinizdeki işe ulaşmak için ihtiyacınız olan her şey burada.
+
+                    </p>
+
+</div>
+
+</section>
+
+<section class="w-full px-6 py-16 bg-background-light dark:bg-background-dark">
+
+<div class="max-w-[1280px] mx-auto w-full">
+
+<div class="flex items-center gap-2 mb-8">
+
+<span class="material-symbols-outlined text-primary">rocket_launch</span>
+
+<h2 class="text-2xl font-bold text-[#111218] dark:text-white">Temel Araçlar</h2>
+
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+<div class="group relative flex flex-col bg-white dark:bg-surface-dark rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+
+<div class="absolute top-6 right-6">
+
+<span class="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/30 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300">
+
+                                En Popüler
+
+                            </span>
+
+</div>
+
+<div class="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-300">
+
+<span class="material-symbols-outlined text-4xl">description</span>
+
+</div>
+
+<h3 class="text-2xl font-bold text-[#111218] dark:text-white mb-3 group-hover:text-primary transition-colors">Özgeçmiş Oluşturucu</h3>
+
+<p class="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
+
+                            ATS uyumlu, profesyonelce tasarlanmış şablonlarla dakikalar içinde modern bir özgeçmiş oluşturun. İçerik önerileri ile CV'nizi güçlendirin.
+
+                        </p>
+
+<div class="mt-auto flex flex-col gap-3">
+
+<a href="cv-olusturucu-kisisel-bilgiler.html" class="w-full flex items-center justify-center rounded-lg h-12 bg-primary hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-500/20">
+
+                                CV Oluşturmaya Başla
+
+                            </a>
+
+<a class="flex items-center justify-center gap-1 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-white transition-colors" href="sablonlar.html">
+
+                                Özellikleri İncele <span class="material-symbols-outlined text-base">arrow_forward</span>
+
+</a>
+
+</div>
+
+</div>
+
+<div class="group relative flex flex-col bg-white dark:bg-surface-dark rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-xl hover:border-purple-500/30 transition-all duration-300">
+
+<div class="w-14 h-14 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-600 mb-6 group-hover:scale-110 transition-transform duration-300">
+
+<span class="material-symbols-outlined text-4xl">edit_note</span>
+
+</div>
+
+<h3 class="text-2xl font-bold text-[#111218] dark:text-white mb-3 group-hover:text-purple-600 transition-colors">Ön Yazı Oluşturucu</h3>
+
+<p class="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
+
+                            Başvuracağınız ilanın linkini yapıştırın, yapay zeka sizin deneyimlerinizi analiz ederek o işe özel ikna edici bir ön yazı yazsın.
+
+                        </p>
+
+<div class="mt-auto flex flex-col gap-3">
+
+<a href="on-yazi-olusturucu.html" class="w-full flex items-center justify-center rounded-lg h-12 bg-surface-light dark:bg-surface-dark border-2 border-purple-600 text-purple-600 dark:text-purple-400 font-bold hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
+
+                                Ön Yazı Oluştur
+
+                            </a>
+
+<a class="flex items-center justify-center gap-1 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white transition-colors" href="on-yazi-olusturucu.html">
+
+                                Nasıl Çalışır? <span class="material-symbols-outlined text-base">arrow_forward</span>
+
+</a>
+
+</div>
+
+</div>
+
+<div class="group relative flex flex-col bg-white dark:bg-surface-dark rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-xl hover:border-orange-500/30 transition-all duration-300">
+
+<div class="w-14 h-14 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-600 mb-6 group-hover:scale-110 transition-transform duration-300">
+
+<span class="material-symbols-outlined text-4xl">language</span>
+
+</div>
+
+<h3 class="text-2xl font-bold text-[#111218] dark:text-white mb-3 group-hover:text-orange-600 transition-colors">Portfolyo Sitesi</h3>
+
+<p class="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
+
+                            Projelerinizi, sertifikalarınızı ve yeteneklerinizi sergileyen kişisel bir web sitesini kod bilgisi gerektirmeden anında yayına alın.
+
+                        </p>
+
+<div class="mt-auto flex flex-col gap-3">
+
+<a href="portfolyo-olusturucu.html" class="w-full flex items-center justify-center rounded-lg h-12 bg-surface-light dark:bg-surface-dark border-2 border-orange-600 text-orange-600 dark:text-orange-400 font-bold hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors">
+
+                                Portfolyo Kur
+
+                            </a>
+
+<a class="flex items-center justify-center gap-1 text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-white transition-colors" href="portfolyo-olusturucu.html">
+
+                                Örnekleri Gör <span class="material-symbols-outlined text-base">arrow_forward</span>
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="w-full px-6 py-16 bg-white dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800">
+
+<div class="max-w-[1280px] mx-auto w-full">
+
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+
+<div class="flex items-center gap-2">
+
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+
+<h2 class="text-2xl font-bold text-[#111218] dark:text-white">Yapay Zeka &amp; Optimizasyon</h2>
+
+</div>
+
+<p class="text-gray-500 dark:text-gray-400 max-w-md text-sm md:text-right">
+
+                        Kariyer yolculuğunuzda size avantaj sağlayacak, veriye dayalı akıllı araçlar.
+
+                    </p>
+
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+<div class="flex flex-col p-6 rounded-xl border border-gray-100 dark:border-gray-700 bg-background-light dark:bg-background-dark hover:border-primary/50 transition-colors group">
+
+<div class="flex items-start justify-between mb-4">
+
+<div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center">
+
+<span class="material-symbols-outlined">analytics</span>
+
+</div>
+
+<span class="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors">arrow_outward</span>
+
+</div>
+
+<h4 class="text-lg font-bold text-[#111218] dark:text-white mb-2">CV Analizi &amp; Puanlama</h4>
+
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-3">
+
+                        Mevcut CV'nizi yükleyin, yapay zeka 50+ kriterde analiz etsin ve iyileştirme önerileri sunsun.
+
+                    </p>
+
+<a href="cv-optimizasyon.html" class="mt-auto text-sm font-bold text-primary hover:underline">Analiz Et</a>
+
+</div>
+
+<div class="flex flex-col p-6 rounded-xl border border-gray-100 dark:border-gray-700 bg-background-light dark:bg-background-dark hover:border-primary/50 transition-colors group">
+
+<div class="flex items-start justify-between mb-4">
+
+<div class="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center">
+
+<span class="material-symbols-outlined">school</span>
+
+</div>
+
+<span class="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors">arrow_outward</span>
+
+</div>
+
+<h4 class="text-lg font-bold text-[#111218] dark:text-white mb-2">Mülakat Hazırlığı</h4>
+
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-3">
+
+                        Başvuracağınız pozisyona özel tahmini mülakat soruları alın ve cevaplarınızı AI ile prova edin.
+
+                    </p>
+
+<a href="#" class="mt-auto text-sm font-bold text-primary hover:underline">Soru Üret</a>
+
+</div>
+
+<div class="flex flex-col p-6 rounded-xl border border-gray-100 dark:border-gray-700 bg-background-light dark:bg-background-dark hover:border-primary/50 transition-colors group">
+
+<div class="flex items-start justify-between mb-4">
+
+<div class="w-10 h-10 rounded-lg bg-pink-100 dark:bg-pink-900/30 text-pink-600 flex items-center justify-center">
+
+<span class="material-symbols-outlined">share</span>
+
+</div>
+
+<span class="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors">arrow_outward</span>
+
+</div>
+
+<h4 class="text-lg font-bold text-[#111218] dark:text-white mb-2">LinkedIn Optimizasyonu</h4>
+
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-3">
+
+                        Profilinizin görünürlüğünü artıracak başlık, özet ve deneyim açıklamaları oluşturun.
+
+                    </p>
+
+<a href="#" class="mt-auto text-sm font-bold text-primary hover:underline">Optimize Et</a>
+
+</div>
+
+<div class="flex flex-col p-6 rounded-xl border border-gray-100 dark:border-gray-700 bg-background-light dark:bg-background-dark hover:border-primary/50 transition-colors group">
+
+<div class="flex items-start justify-between mb-4">
+
+<div class="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 flex items-center justify-center">
+
+<span class="material-symbols-outlined">translate</span>
+
+</div>
+
+<span class="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors">arrow_outward</span>
+
+</div>
+
+<h4 class="text-lg font-bold text-[#111218] dark:text-white mb-2">Çeviri &amp; Yerelleştirme</h4>
+
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-3">
+
+                        CV ve ön yazınızı tek tıkla farklı dillere, o dilin profesyonel jargonuna uygun şekilde çevirin.
+
+                    </p>
+
+<a href="#" class="mt-auto text-sm font-bold text-primary hover:underline">Çeviri Yap</a>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="w-full px-6 py-16 bg-background-light dark:bg-background-dark">
+
+<div class="max-w-[1280px] mx-auto w-full">
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+<div class="flex flex-col sm:flex-row gap-6 p-8 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-xl relative overflow-hidden">
+
+<div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+
+<div class="flex-shrink-0">
+
+<div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+
+<span class="material-symbols-outlined text-3xl">corporate_fare</span>
+
+</div>
+
+</div>
+
+<div class="flex flex-col gap-4 relative z-10">
+
+<h3 class="text-2xl font-bold">Kurumsal Çözümler</h3>
+
+<p class="text-blue-100 leading-relaxed">
+
+                            Üniversiteler, kariyer merkezleri ve işe alım ajansları için toplu kullanım ve yönetim paneli özellikleri.
+
+                        </p>
+
+<button class="w-fit px-6 py-2.5 bg-white text-blue-700 font-bold rounded-lg hover:bg-blue-50 transition-colors">
+
+                            Demo Talep Et
+
+                        </button>
+
+</div>
+
+</div>
+
+<div class="flex flex-col sm:flex-row gap-6 p-8 rounded-2xl bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden">
+
+<div class="flex-shrink-0">
+
+<div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300">
+
+<span class="material-symbols-outlined text-3xl">article</span>
+
+</div>
+
+</div>
+
+<div class="flex flex-col gap-4 relative z-10">
+
+<h3 class="text-2xl font-bold text-[#111218] dark:text-white">Kariyer Rehberi</h3>
+
+<p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+
+                            Sektör uzmanlarından ipuçları, mülakat teknikleri ve başarı hikayeleri ile dolu blogumuzu keşfedin.
+
+                        </p>
+
+<a href="#" class="w-fit px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-[#111218] dark:text-white font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+
+                            Blogu Oku
+
+                        </a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="w-full px-6 py-20 bg-primary dark:bg-blue-900 overflow-hidden relative">
+
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+
+<div class="max-w-[1280px] mx-auto w-full flex flex-col items-center text-center relative z-10 gap-8">
+
+<h2 class="text-white text-3xl sm:text-4xl lg:text-5xl font-black">Kariyer Yolculuğunuza Bugün Başlayın</h2>
+
+<p class="text-blue-100 text-lg max-w-2xl">
+
+                        Tüm bu araçlara tek bir üyelikle erişin. Ücretsiz hesabınızı oluşturun ve potansiyelinizi ortaya çıkarın.
+
+                    </p>
+
+<a href="cv-olusturucu-kisisel-bilgiler.html" class="flex items-center justify-center rounded-lg h-14 px-10 bg-white text-primary text-lg font-bold hover:bg-gray-100 transition-colors shadow-xl">
+
+                        Hemen Başla - Ücretsiz
+
+                    </a>
+
+<p class="text-blue-200 text-sm">Kredi kartı gerekmez. İptal edilebilir.</p>
+
+</div>
+
+</section>
+
+</main>
+
+<footer class="w-full bg-background-light dark:bg-background-dark border-t border-[#dbdde6] dark:border-gray-800 px-6 py-12">
+
+<div class="max-w-[1280px] mx-auto w-full grid grid-cols-1 md:grid-cols-4 gap-10">
+
+<div class="flex flex-col gap-4">
+
+<div class="flex items-center gap-2 text-[#111218] dark:text-white">
+
+<a href="index.html" class="flex items-center gap-2">
+
+<div class="text-primary">
+
+<svg class="size-6" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z" fill="currentColor"></path>
+
+</svg>
+
+</div>
+
+<h3 class="font-bold text-lg">CareerAI</h3>
+
+</a>
+
+</div>
+
+<p class="text-sm text-gray-500 dark:text-gray-400">
+
+                        Yapay zeka destekli kariyer yönetim platformu. Geleceğinizi bugün şekillendirin.
+
+                    </p>
+
+</div>
+
+<div class="flex flex-col gap-4">
+
+<h4 class="font-bold text-[#111218] dark:text-white">Ürün</h4>
+
+<div class="flex flex-col gap-2">
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="cv-olusturucu-kisisel-bilgiler.html">CV Oluşturucu</a>
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="on-yazi-olusturucu.html">Ön Yazı Asistanı</a>
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="portfolyo-olusturucu.html">Portfolyo</a>
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="fiyatlandirma.html">Fiyatlandırma</a>
+
+</div>
+
+</div>
+
+<div class="flex flex-col gap-4">
+
+<h4 class="font-bold text-[#111218] dark:text-white">Şirket</h4>
+
+<div class="flex flex-col gap-2">
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="#">Hakkımızda</a>
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="#">Blog</a>
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="#">Kariyer</a>
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="#">İletişim</a>
+
+</div>
+
+</div>
+
+<div class="flex flex-col gap-4">
+
+<h4 class="font-bold text-[#111218] dark:text-white">Yasal</h4>
+
+<div class="flex flex-col gap-2">
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="#">Gizlilik Politikası</a>
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="#">Kullanım Şartları</a>
+
+<a class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors" href="#">Çerez Politikası</a>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="max-w-[1280px] mx-auto w-full border-t border-gray-200 dark:border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+
+<p class="text-sm text-gray-500 dark:text-gray-400">© 2024 CareerAI. Tüm hakları saklıdır.</p>
+
+<div class="flex gap-4">
+
+<a class="text-gray-400 hover:text-primary transition-colors" href="#">
+
+<span class="sr-only">Twitter</span>
+
+<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
+
+</a>
+
+<a class="text-gray-400 hover:text-primary transition-colors" href="#">
+
+<span class="sr-only">LinkedIn</span>
+
+<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+
+</a>
+
+<a class="text-gray-400 hover:text-primary transition-colors" href="#">
+
+<span class="sr-only">Instagram</span>
+
+<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+
+</a>
+
+</div>
+
+</div>
+
+</footer>
+
+</div>
+
+</body></html>
+

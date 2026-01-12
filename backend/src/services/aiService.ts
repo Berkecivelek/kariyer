@@ -1,0 +1,1250 @@
+import Anthropic from '@anthropic-ai/sdk';
+import prisma from '../config/database';
+import { AppError } from '../middleware/errorHandler';
+
+// API key kontrolü ve client initialization - Module load time'da
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+
+// ANTHROPIC_API_KEY opsiyonel - yoksa AI özellikleri devre dışı
+let anthropic: Anthropic | null = null;
+
+if (!ANTHROPIC_API_KEY || ANTHROPIC_API_KEY.trim() === '') {
+  console.warn('⚠️  ANTHROPIC_API_KEY is not set in environment variables!');
+  console.warn('   AI features will be disabled. Please add ANTHROPIC_API_KEY to your .env file to enable AI features.');
+} else {
+  // Create single Anthropic client instance at module load time
+  anthropic = new Anthropic({
+    apiKey: ANTHROPIC_API_KEY,
+  });
+  console.log('✅ Anthropic Claude client initialized at module load');
+}
+
+interface AISuggestionRequest {
+  userId: string;
+  service: string;
+  input: any;
+  creditsRequired?: number;
+}
+
+// Check and deduct AI credits
+const checkAndDeductCredits = async (
+  userId: string,
+  creditsRequired: number = 1
+): Promise<void> => {
+  // Prisma client kontrolü
+  if (!prisma) {
+    console.error('❌ Prisma client is not initialized');
+    throw new AppError('Database connection error. Please try again later.', 503);
+  }
+
+  if (!prisma.subscription) {
+    console.error('❌ Prisma subscription model is not available');
+    console.error('Available models:', Object.keys(prisma).filter(k => !k.startsWith('$')).join(', '));
+    throw new AppError('Database model error. Please contact support.', 500);
+  }
+
+  let subscription = await prisma.subscription.findFirst({
+    where: {
+      userId,
+      isActive: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  // Eğer subscription yoksa, otomatik olarak oluştur (FREE tier, 1000 kredi)
+  if (!subscription) {
+    try {
+      subscription = await prisma.subscription.create({
+        data: {
+          userId,
+          tier: 'FREE',
+          aiCredits: 1000, // Yeterli kredi ver (Claude API kendi limitini kontrol edecek)
+          usedCredits: 0,
+          isActive: true,
+        },
+      });
+      console.log(`✅ Created subscription for user ${userId}`);
+    } catch (error: any) {
+      console.error('❌ Failed to create subscription:', error);
+      throw new AppError(`Failed to create subscription: ${error.message}`, 500);
+    }
+  }
+
+  // Eğer krediler çok düşükse (10'dan az), otomatik olarak yenile
+  if (subscription.aiCredits < 10) {
+    await prisma.subscription.update({
+      where: { id: subscription.id },
+      data: {
+        aiCredits: 1000, // Kredileri yenile
+        usedCredits: 0, // Kullanılan kredileri sıfırla
+      },
+    });
+    subscription.aiCredits = 1000;
+    subscription.usedCredits = 0;
+  }
+
+  // Kredi kontrolü - eğer krediler bitmişse bile devam et (Claude API kendi limitini kontrol edecek)
+  // Sadece tracking için kullanıyoruz, gerçek limitasyon Claude API'de
+  if (subscription.usedCredits + creditsRequired > subscription.aiCredits) {
+    // Krediler bitmiş ama yine de devam et - Claude API kendi limitini kontrol edecek
+    console.warn(`User ${userId} has exceeded internal credit limit, but allowing request to proceed. Claude API will handle its own limits.`);
+  }
+
+  // Deduct credits (tracking için)
+  await prisma.subscription.update({
+    where: { id: subscription.id },
+    data: {
+      usedCredits: subscription.usedCredits + creditsRequired,
+    },
+  });
+};
+
+// Log AI usage
+const logUsage = async (
+  userId: string,
+  service: string,
+  input: any,
+  output: any,
+  creditsUsed: number = 1
+): Promise<void> => {
+  try {
+    if (!prisma || !prisma.usageLog) {
+      console.warn('⚠️  Prisma usageLog model not available, skipping log');
+      return;
+    }
+    
+    await prisma.usageLog.create({
+      data: {
+        userId,
+        service,
+        creditsUsed,
+        input: JSON.parse(JSON.stringify(input)),
+        output: JSON.parse(JSON.stringify(output)),
+      },
+    });
+  } catch (error: any) {
+    // Log hatası kritik değil, sadece uyarı ver
+    console.warn('⚠️  Failed to log usage:', error.message);
+  }
+};
+
+export const generateSummary = async (
+  userId: string,
+  personalInfo: {
+    firstName?: string;
+    lastName?: string;
+    profession?: string;
+    experience?: any[];
+    education?: any[];
+    skills?: any[];
+  }
+): Promise<string> => {
+  try {
+    // Anthropic client kontrolü
+    if (!anthropic) {
+      throw new AppError('AI service is not configured. Please contact support.', 503);
+    }
+
+    await checkAndDeductCredits(userId, 1);
+
+    const prompt = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak profesyonel bir CV özeti (summary) oluştur. Özet 3-4 cümle olmalı, güçlü ve etkileyici olmalı, Türkçe yazılmalı.
+
+İsim: ${personalInfo.firstName || ''} ${personalInfo.lastName || ''}
+Meslek: ${personalInfo.profession || ''}
+Deneyim: ${JSON.stringify(personalInfo.experience || [])}
+Eğitim: ${JSON.stringify(personalInfo.education || [])}
+Yetenekler: ${JSON.stringify(personalInfo.skills || [])}
+
+Lütfen profesyonel, özgün ve etkileyici bir özet oluştur.`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 500,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    });
+
+    const summary =
+      message.content[0].type === 'text'
+        ? message.content[0].text
+        : 'Özet oluşturulamadı.';
+
+    await logUsage(userId, 'summary', personalInfo, { summary });
+
+    return summary;
+  } catch (error) {
+    console.error('❌ generateSummary error:', error);
+    
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    // Anthropic API hatalarını daha açıklayıcı hale getir
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      console.error('Error message:', errorMessage);
+      
+      if (errorMessage.includes('api_key') || errorMessage.includes('authentication') || errorMessage.includes('401')) {
+        throw new AppError('AI service authentication failed. Please check API key configuration.', 503);
+      }
+      if (errorMessage.includes('rate_limit') || errorMessage.includes('quota') || errorMessage.includes('429')) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+      if (errorMessage.includes('insufficient_quota') || errorMessage.includes('payment')) {
+        throw new AppError('AI service quota exceeded. Please check your Claude API account balance.', 402);
+      }
+    }
+    
+    // Detaylı hata loglama
+    if (error && typeof error === 'object') {
+      console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    }
+    
+    throw new AppError(`Failed to generate summary: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`, 500);
+  }
+};
+
+export const generateExperienceDescription = async (
+  userId: string,
+  jobTitle: string,
+  company?: string,
+  context?: {
+    existingExperience?: any[];
+    skills?: any[];
+    profession?: string;
+    personalInfo?: {
+      firstName?: string;
+      lastName?: string;
+      profession?: string;
+      experience?: any[];
+      education?: any[];
+      skills?: any[];
+      languages?: any[];
+    };
+  }
+): Promise<string> => {
+  try {
+    // Anthropic client kontrolü
+    if (!anthropic) {
+      throw new AppError('AI service is not configured. Please contact support.', 503);
+    }
+
+    await checkAndDeductCredits(userId, 1);
+
+    // Kullanıcının tüm bilgilerini topla
+    const personalInfo = context?.personalInfo || {};
+    const existingExperiences = context?.existingExperience || [];
+    const skills = context?.skills || personalInfo.skills || [];
+    const profession = context?.profession || personalInfo.profession || '';
+
+    // Prompt engineering - Kullanıcının mesleği, ünvanı, deneyimleri ve tercihlerini analiz et
+    const prompt = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak profesyonel bir iş deneyimi açıklaması oluştur.
+
+KURALLAR:
+- Açıklama madde işaretli liste formatında 3-4 madde olmalı
+- Somut başarılar, metrikler ve sorumluluklar içermeli
+- Türkçe yazılmalı
+- Kullanıcının mesleği ve sektörüne uygun olmalı
+- Mevcut deneyimlerle tutarlı olmalı
+- Profesyonel ve etkileyici bir dil kullan
+
+KULLANICI BİLGİLERİ:
+Ad Soyad: ${personalInfo.firstName || ''} ${personalInfo.lastName || ''}
+Meslek/Ünvan: ${profession || 'Belirtilmemiş'}
+
+HEDEF POZİSYON:
+İş Unvanı: ${jobTitle}
+Şirket: ${company || 'Belirtilmemiş'}
+
+MEVCUT DENEYİMLER:
+${existingExperiences.length > 0 
+  ? existingExperiences.map((exp, idx) => 
+      `${idx + 1}. ${exp.title || exp.jobTitle || ''} - ${exp.company || ''} (${exp.startMonth || ''} ${exp.startYear || ''} - ${exp.isCurrent ? 'Günümüz' : `${exp.endMonth || ''} ${exp.endYear || ''}`})`
+    ).join('\n')
+  : 'Henüz deneyim eklenmemiş'}
+
+YETENEKLER:
+${Array.isArray(skills) && skills.length > 0
+  ? skills.map(s => typeof s === 'string' ? s : s.name || s.skill || '').filter(Boolean).join(', ')
+  : 'Belirtilmemiş'}
+
+EĞİTİM:
+${personalInfo.education && Array.isArray(personalInfo.education) && personalInfo.education.length > 0
+  ? personalInfo.education.map((edu, idx) => 
+      `${idx + 1}. ${edu.school || edu.schoolName || ''} - ${edu.degree || edu.field || ''}`
+    ).join('\n')
+  : 'Belirtilmemiş'}
+
+Lütfen yukarıdaki bilgilere dayanarak, kullanıcının mesleği ve sektörüne uygun, mevcut deneyimleriyle tutarlı, somut başarılar ve metrikler içeren profesyonel bir iş deneyimi açıklaması oluştur.`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 800,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    });
+
+    let description =
+      message.content[0].type === 'text'
+        ? message.content[0].text.trim()
+        : 'Açıklama oluşturulamadı.';
+
+    // HTML tag'lerini temizle
+    description = description.replace(/<[^>]*>/g, '');
+
+    await logUsage(
+      userId,
+      'experience',
+      { jobTitle, company, context: { ...context, profession } },
+      { description }
+    );
+
+    return description;
+  } catch (error) {
+    console.error('❌ generateExperienceDescription error:', error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    // Anthropic API hatalarını daha açıklayıcı hale getir
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      if (
+        errorMessage.includes('api_key') ||
+        errorMessage.includes('authentication') ||
+        errorMessage.includes('401')
+      ) {
+        throw new AppError(
+          'AI service authentication failed. Please check API key configuration.',
+          503
+        );
+      }
+      if (
+        errorMessage.includes('rate_limit') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('429')
+      ) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+      if (errorMessage.includes('insufficient_quota') || errorMessage.includes('payment')) {
+        throw new AppError(
+          'AI service quota exceeded. Please check your Claude API account balance.',
+          402
+        );
+      }
+    }
+
+    throw new AppError(
+      `Failed to generate experience description: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`,
+      500
+    );
+  }
+};
+
+export const generateEducationDescription = async (
+  userId: string,
+  schoolName: string,
+  degree?: string,
+  field?: string,
+  context?: {
+    existingEducation?: any[];
+    personalInfo?: {
+      firstName?: string;
+      lastName?: string;
+      profession?: string;
+      experience?: any[];
+      education?: any[];
+      skills?: any[];
+      languages?: any[];
+    };
+  }
+): Promise<string> => {
+  try {
+    // Anthropic client kontrolü
+    if (!anthropic) {
+      throw new AppError('AI service is not configured. Please contact support.', 503);
+    }
+
+    await checkAndDeductCredits(userId, 1);
+
+    // Kullanıcının tüm bilgilerini topla
+    const personalInfo = context?.personalInfo || {};
+    const existingEducation = context?.existingEducation || [];
+    const profession = personalInfo.profession || '';
+
+    // Prompt engineering - Kullanıcının mesleği, deneyimleri ve tercihlerini analiz et
+    const prompt = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak profesyonel bir eğitim açıklaması oluştur.
+
+KURALLAR:
+- Açıklama 2-3 cümle olmalı
+- Önemli dersler, projeler veya başarılar içermeli
+- Türkçe yazılmalı
+- Kullanıcının mesleği ve sektörüne uygun olmalı
+- Mevcut eğitimlerle tutarlı olmalı
+- Profesyonel, özgün ve etkileyici olmalı
+
+KULLANICI BİLGİLERİ:
+Ad Soyad: ${personalInfo.firstName || ''} ${personalInfo.lastName || ''}
+Meslek/Ünvan: ${profession || 'Belirtilmemiş'}
+
+HEDEF EĞİTİM:
+Okul: ${schoolName}
+Bölüm/Derece: ${degree || field || 'Belirtilmemiş'}
+
+MEVCUT EĞİTİMLER:
+${existingEducation.length > 0
+  ? existingEducation.map((edu, idx) =>
+      `${idx + 1}. ${edu.school || edu.schoolName || ''} - ${edu.degree || edu.field || ''}`
+    ).join('\n')
+  : 'Henüz eğitim eklenmemiş'}
+
+DENEYİMLER:
+${personalInfo.experience && Array.isArray(personalInfo.experience) && personalInfo.experience.length > 0
+  ? personalInfo.experience.map((exp, idx) =>
+      `${idx + 1}. ${exp.title || exp.jobTitle || ''} - ${exp.company || ''}`
+    ).join('\n')
+  : 'Belirtilmemiş'}
+
+YETENEKLER:
+${personalInfo.skills && Array.isArray(personalInfo.skills) && personalInfo.skills.length > 0
+  ? personalInfo.skills.map(s => typeof s === 'string' ? s : s.name || s.skill || '').filter(Boolean).join(', ')
+  : 'Belirtilmemiş'}
+
+Lütfen yukarıdaki bilgilere dayanarak, kullanıcının mesleği ve sektörüne uygun, mevcut eğitimleriyle tutarlı, önemli dersler, projeler veya başarılar içeren profesyonel bir eğitim açıklaması oluştur.`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 400,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    });
+
+    let description =
+      message.content[0].type === 'text'
+        ? message.content[0].text.trim()
+        : 'Açıklama oluşturulamadı.';
+
+    // HTML tag'lerini temizle
+    description = description.replace(/<[^>]*>/g, '');
+
+    await logUsage(
+      userId,
+      'education',
+      { schoolName, degree, field, context },
+      { description }
+    );
+
+    return description;
+  } catch (error) {
+    console.error('❌ generateEducationDescription error:', error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    // Anthropic API hatalarını daha açıklayıcı hale getir
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      if (
+        errorMessage.includes('api_key') ||
+        errorMessage.includes('authentication') ||
+        errorMessage.includes('401')
+      ) {
+        throw new AppError(
+          'AI service authentication failed. Please check API key configuration.',
+          503
+        );
+      }
+      if (
+        errorMessage.includes('rate_limit') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('429')
+      ) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+      if (errorMessage.includes('insufficient_quota') || errorMessage.includes('payment')) {
+        throw new AppError(
+          'AI service quota exceeded. Please check your Claude API account balance.',
+          402
+        );
+      }
+    }
+
+    throw new AppError(
+      `Failed to generate education description: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`,
+      500
+    );
+  }
+};
+
+export const generateCoverLetter = async (
+  userId: string,
+  resumeId: string,
+  hedefPozisyon: string,
+  ton: 'samimi' | 'profesyonel' | 'resmi'
+): Promise<{ coverLetter: string; coverLetterId: string }> => {
+  try {
+    // Anthropic client kontrolü
+    if (!anthropic) {
+      throw new AppError('AI service is not configured. Please contact support.', 503);
+    }
+
+    // Prisma client kontrolü
+    if (!prisma || !prisma.resume) {
+      console.error('❌ Prisma client is not initialized');
+      throw new AppError('Database connection error. Please try again later.', 503);
+    }
+
+    // Resume verisini Prisma'dan çek
+    const resume = await prisma.resume.findFirst({
+      where: {
+        id: resumeId,
+        userId: userId, // Güvenlik: Kullanıcının sadece kendi resume'lerine erişebilmesi
+      },
+    });
+
+    if (!resume) {
+      throw new AppError('Resume not found or access denied', 404);
+    }
+
+    // Kredi kontrolü ve düşürme
+    await checkAndDeductCredits(userId, 2); // Cover letter costs 2 credits
+
+    // Resume verisini formatla
+    const resumeData = {
+      adSoyad: `${resume.firstName || ''} ${resume.lastName || ''}`.trim(),
+      meslek: resume.profession || '',
+      deneyim: Array.isArray(resume.experience) ? resume.experience : [],
+      egitim: Array.isArray(resume.education) ? resume.education : [],
+      yetenekler: Array.isArray(resume.skills) ? resume.skills : [],
+      diller: Array.isArray(resume.languages) ? resume.languages : [],
+      ozet: resume.summary || '',
+    };
+
+    // Ton parametresine göre yazım tarzı belirle
+    const tonAciklama = {
+      samimi: 'samimi ama profesyonel',
+      profesyonel: 'profesyonel ve dengeli',
+      resmi: 'resmi ve kurumsal',
+    }[ton];
+
+    // Prompt engineering - Kullanıcının istediği formata göre
+    const prompt = `Aşağıdaki CV bilgilerine göre teknoloji şirketlerine başvuru için profesyonel bir ön yazı üret.
+
+Kurallar:
+- Maksimum 3 paragraf
+- ${tonAciklama} tonunda yaz
+- Samimi ama profesyonel ol
+- Genel geçer klişelerden kaçın
+- ATS (Applicant Tracking System) uyumlu ol
+- Kişisel hitap yok (Sen, Siz gibi)
+- Abartı yok, somut ve gerçekçi
+- CV içeriğine birebir bağlı kal
+
+CV:
+Ad Soyad: ${resumeData.adSoyad}
+Meslek: ${resumeData.meslek}
+Özet: ${resumeData.ozet || 'Belirtilmemiş'}
+
+Deneyim:
+${JSON.stringify(resumeData.deneyim, null, 2)}
+
+Eğitim:
+${JSON.stringify(resumeData.egitim, null, 2)}
+
+Yetenekler:
+${JSON.stringify(resumeData.yetenekler, null, 2)}
+
+Diller:
+${JSON.stringify(resumeData.diller, null, 2)}
+
+Hedef Pozisyon: ${hedefPozisyon}
+
+Lütfen yukarıdaki kurallara uygun, ${tonAciklama} tonunda, ATS uyumlu ve etkileyici bir ön yazı oluştur.`;
+
+    // Claude API çağrısı
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 1500,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    });
+
+    // Response'u sanitize et ve al
+    let coverLetter =
+      message.content[0].type === 'text'
+        ? message.content[0].text.trim()
+        : 'Ön yazı oluşturulamadı.';
+
+    // Basit sanitization - HTML tag'lerini temizle (güvenlik için)
+    coverLetter = coverLetter.replace(/<[^>]*>/g, '');
+
+    // CoverLetter tablosuna kaydet
+    let coverLetterRecord;
+    try {
+      if (!prisma.coverLetter) {
+        console.warn('⚠️  Prisma coverLetter model not available, skipping save');
+      } else {
+        coverLetterRecord = await prisma.coverLetter.create({
+          data: {
+            userId: userId,
+            title: `${hedefPozisyon} - ${new Date().toLocaleDateString('tr-TR')}`,
+            content: coverLetter,
+            position: hedefPozisyon,
+            company: null, // İleride eklenebilir
+            recipient: null, // İleride eklenebilir
+          },
+        });
+      }
+    } catch (error: any) {
+      console.error('❌ Failed to save cover letter to database:', error);
+      // Cover letter kaydetme hatası kritik değil, devam et
+    }
+
+    // UsageLog'a kaydet
+    await logUsage(
+      userId,
+      'cover-letter',
+      {
+        resumeId,
+        hedefPozisyon,
+        ton,
+        resumeData: {
+          adSoyad: resumeData.adSoyad,
+          meslek: resumeData.meslek,
+          deneyimSayisi: Array.isArray(resumeData.deneyim) ? resumeData.deneyim.length : 0,
+          egitimSayisi: Array.isArray(resumeData.egitim) ? resumeData.egitim.length : 0,
+        },
+      },
+      {
+        coverLetter: coverLetter.substring(0, 500), // İlk 500 karakteri logla
+        coverLetterId: coverLetterRecord?.id || null,
+      },
+      2
+    );
+
+    return {
+      coverLetter,
+      coverLetterId: coverLetterRecord?.id || '',
+    };
+  } catch (error) {
+    console.error('❌ generateCoverLetter error:', error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    // Anthropic API hatalarını daha açıklayıcı hale getir
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      console.error('Error message:', errorMessage);
+
+      if (
+        errorMessage.includes('api_key') ||
+        errorMessage.includes('authentication') ||
+        errorMessage.includes('401')
+      ) {
+        throw new AppError(
+          'AI service authentication failed. Please check API key configuration.',
+          503
+        );
+      }
+      if (
+        errorMessage.includes('rate_limit') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('429')
+      ) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+      if (errorMessage.includes('insufficient_quota') || errorMessage.includes('payment')) {
+        throw new AppError(
+          'AI service quota exceeded. Please check your Claude API account balance.',
+          402
+        );
+      }
+    }
+
+    // Detaylı hata loglama
+    if (error && typeof error === 'object') {
+      console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    }
+
+    throw new AppError(
+      `Failed to generate cover letter: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`,
+      500
+    );
+  }
+};
+
+export const generateSummarySuggestions = async (
+  userId: string,
+  personalInfo: {
+    firstName?: string;
+    lastName?: string;
+    profession?: string;
+    experience?: any[];
+    education?: any[];
+    skills?: any[];
+  }
+): Promise<string[]> => {
+  try {
+    // Anthropic client kontrolü
+    if (!anthropic) {
+      throw new AppError('AI service is not configured. Please contact support.', 503);
+    }
+
+    // 2 öneri için 2 kredi kullan
+    await checkAndDeductCredits(userId, 2);
+
+    const baseInfo = `İsim: ${personalInfo.firstName || ''} ${personalInfo.lastName || ''}
+Meslek: ${personalInfo.profession || ''}
+Deneyim: ${JSON.stringify(personalInfo.experience || [])}
+Eğitim: ${JSON.stringify(personalInfo.education || [])}
+Yetenekler: ${JSON.stringify(personalInfo.skills || [])}`;
+
+    // İlk öneri: Teknoloji ve başarı odaklı
+    const prompt1 = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak profesyonel bir CV özeti (summary) oluştur. Özet 3-4 cümle olmalı, teknoloji ve somut başarılar vurgulanmalı, güçlü ve etkileyici olmalı, Türkçe yazılmalı.
+
+${baseInfo}
+
+Lütfen teknoloji, inovasyon ve somut başarılar üzerine odaklanan profesyonel, özgün ve etkileyici bir özet oluştur.`;
+
+    // İkinci öneri: Liderlik ve ekip çalışması odaklı
+    const prompt2 = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak profesyonel bir CV özeti (summary) oluştur. Özet 3-4 cümle olmalı, liderlik, ekip çalışması ve iletişim becerileri vurgulanmalı, güçlü ve etkileyici olmalı, Türkçe yazılmalı.
+
+${baseInfo}
+
+Lütfen liderlik, ekip çalışması ve iletişim becerileri üzerine odaklanan profesyonel, özgün ve etkileyici bir özet oluştur.`;
+
+    // İki öneriyi paralel olarak oluştur
+    const [message1, message2] = await Promise.all([
+      anthropic.messages.create({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 500,
+        messages: [
+          {
+            role: 'user',
+            content: prompt1,
+          },
+        ],
+      }),
+      anthropic.messages.create({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 500,
+        messages: [
+          {
+            role: 'user',
+            content: prompt2,
+          },
+        ],
+      }),
+    ]);
+
+    const suggestion1 =
+      message1.content[0].type === 'text'
+        ? message1.content[0].text
+        : 'Öneri oluşturulamadı.';
+
+    const suggestion2 =
+      message2.content[0].type === 'text'
+        ? message2.content[0].text
+        : 'Öneri oluşturulamadı.';
+
+    await logUsage(
+      userId,
+      'summary-suggestions',
+      personalInfo,
+      { suggestions: [suggestion1, suggestion2] },
+      2
+    );
+
+    return [suggestion1, suggestion2];
+  } catch (error) {
+    console.error('❌ generateSummarySuggestions error:', error);
+    
+    if (error instanceof AppError) {
+      throw error;
+    }
+    
+    // Anthropic API hatalarını daha açıklayıcı hale getir
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      console.error('Error message:', errorMessage);
+      
+      if (errorMessage.includes('api_key') || errorMessage.includes('authentication') || errorMessage.includes('401')) {
+        throw new AppError('AI service authentication failed. Please check API key configuration.', 503);
+      }
+      if (errorMessage.includes('rate_limit') || errorMessage.includes('quota') || errorMessage.includes('429')) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+      if (errorMessage.includes('insufficient_quota') || errorMessage.includes('payment')) {
+        throw new AppError('AI service quota exceeded. Please check your Claude API account balance.', 402);
+      }
+    }
+    
+    // Detaylı hata loglama
+    if (error && typeof error === 'object') {
+      console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    }
+    
+    throw new AppError(`Failed to generate summary suggestions: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`, 500);
+  }
+};
+
+export const generateSkillsSuggestion = async (
+  userId: string,
+  targetPosition?: string,
+  context?: {
+    personalInfo?: {
+      firstName?: string;
+      lastName?: string;
+      profession?: string;
+      experience?: any[];
+      education?: any[];
+      skills?: any[];
+      languages?: any[];
+    };
+  }
+): Promise<string[]> => {
+  try {
+    // Anthropic client kontrolü
+    if (!anthropic) {
+      throw new AppError('AI service is not configured. Please contact support.', 503);
+    }
+
+    await checkAndDeductCredits(userId, 2); // 2 öneri için 2 kredi
+
+    const personalInfo = context?.personalInfo || {};
+    const profession = personalInfo.profession || '';
+    const existingSkills = personalInfo.skills || [];
+    const experiences = personalInfo.experience || [];
+
+    const baseInfo = `Ad Soyad: ${personalInfo.firstName || ''} ${personalInfo.lastName || ''}
+Meslek/Ünvan: ${profession || 'Belirtilmemiş'}
+Hedef Pozisyon: ${targetPosition || 'Belirtilmemiş'}
+Mevcut Deneyimler: ${experiences.length > 0 ? experiences.map((exp, idx) => `${idx + 1}. ${exp.title || exp.jobTitle || ''} - ${exp.company || ''}`).join('\n') : 'Belirtilmemiş'}
+Mevcut Yetenekler: ${existingSkills.length > 0 ? existingSkills.map(s => typeof s === 'string' ? s : s.name || s.skill || '').filter(Boolean).join(', ') : 'Belirtilmemiş'}`;
+
+    // İlk öneri: Teknik yetenekler odaklı
+    const prompt1 = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak kullanıcı için en önemli teknik yetenekleri öner. Sadece yetenek isimlerini liste halinde ver, her satırda bir yetenek. 8-10 teknik yetenek öner.
+
+${baseInfo}
+
+Lütfen kullanıcının mesleği, hedef pozisyonu ve deneyimlerine uygun, sektörde önemli olan teknik yetenekleri öner. Sadece yetenek isimlerini liste halinde ver, açıklama yapma.`;
+
+    // İkinci öneri: Soft skills ve genel yetenekler
+    const prompt2 = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak kullanıcı için önemli soft skills ve genel yetenekleri öner. Sadece yetenek isimlerini liste halinde ver, her satırda bir yetenek. 5-7 soft skill öner.
+
+${baseInfo}
+
+Lütfen kullanıcının mesleği ve hedef pozisyonuna uygun, liderlik, iletişim, problem çözme gibi soft skills öner. Sadece yetenek isimlerini liste halinde ver, açıklama yapma.`;
+
+    const [message1, message2] = await Promise.all([
+      anthropic.messages.create({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 300,
+        messages: [{ role: 'user', content: prompt1 }],
+      }),
+      anthropic.messages.create({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt2 }],
+      }),
+    ]);
+
+    const technicalSkills =
+      message1.content[0].type === 'text'
+        ? message1.content[0].text
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => line && !line.match(/^\d+[\.\)]/) && line.length > 1)
+            .slice(0, 10)
+        : [];
+
+    const softSkills =
+      message2.content[0].type === 'text'
+        ? message2.content[0].text
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => line && !line.match(/^\d+[\.\)]/) && line.length > 1)
+            .slice(0, 7)
+        : [];
+
+    const allSuggestions = [...technicalSkills, ...softSkills].filter(Boolean);
+
+    await logUsage(
+      userId,
+      'skills-suggestions',
+      { targetPosition, context },
+      { suggestions: allSuggestions },
+      2
+    );
+
+    return allSuggestions;
+  } catch (error) {
+    console.error('❌ generateSkillsSuggestion error:', error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      if (
+        errorMessage.includes('api_key') ||
+        errorMessage.includes('authentication') ||
+        errorMessage.includes('401')
+      ) {
+        throw new AppError(
+          'AI service authentication failed. Please check API key configuration.',
+          503
+        );
+      }
+      if (
+        errorMessage.includes('rate_limit') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('429')
+      ) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+    }
+
+    throw new AppError(
+      `Failed to generate skills suggestions: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`,
+      500
+    );
+  }
+};
+
+export const generateLanguagesSuggestion = async (
+  userId: string,
+  targetCountry?: string,
+  context?: {
+    personalInfo?: {
+      firstName?: string;
+      lastName?: string;
+      profession?: string;
+      experience?: any[];
+      education?: any[];
+      skills?: any[];
+      languages?: any[];
+    };
+  }
+): Promise<string[]> => {
+  try {
+    // Anthropic client kontrolü
+    if (!anthropic) {
+      throw new AppError('AI service is not configured. Please contact support.', 503);
+    }
+
+    await checkAndDeductCredits(userId, 1);
+
+    const personalInfo = context?.personalInfo || {};
+    const profession = personalInfo.profession || '';
+    const existingLanguages = personalInfo.languages || [];
+
+    const prompt = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak kullanıcı için önemli dilleri öner. Sadece dil isimlerini liste halinde ver, her satırda bir dil. 3-5 dil öner.
+
+Kullanıcı Bilgileri:
+Ad Soyad: ${personalInfo.firstName || ''} ${personalInfo.lastName || ''}
+Meslek/Ünvan: ${profession || 'Belirtilmemiş'}
+Hedef Ülke/Bölge: ${targetCountry || 'Belirtilmemiş'}
+Mevcut Diller: ${existingLanguages.length > 0 ? existingLanguages.map(l => typeof l === 'string' ? l : l.name || l.language || '').filter(Boolean).join(', ') : 'Belirtilmemiş'}
+
+Lütfen kullanıcının mesleği, sektörü ve hedef ülke/bölgeye göre önemli olabilecek dilleri öner. Sadece dil isimlerini liste halinde ver, açıklama yapma.`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 200,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const suggestions =
+      message.content[0].type === 'text'
+        ? message.content[0].text
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => line && !line.match(/^\d+[\.\)]/) && line.length > 1)
+            .slice(0, 5)
+        : [];
+
+    await logUsage(
+      userId,
+      'languages-suggestions',
+      { targetCountry, context },
+      { suggestions },
+      1
+    );
+
+    return suggestions;
+  } catch (error) {
+    console.error('❌ generateLanguagesSuggestion error:', error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      if (
+        errorMessage.includes('api_key') ||
+        errorMessage.includes('authentication') ||
+        errorMessage.includes('401')
+      ) {
+        throw new AppError(
+          'AI service authentication failed. Please check API key configuration.',
+          503
+        );
+      }
+      if (
+        errorMessage.includes('rate_limit') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('429')
+      ) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+    }
+
+    throw new AppError(
+      `Failed to generate languages suggestions: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`,
+      500
+    );
+  }
+};
+
+export const parseCVFromPDF = async (
+  userId: string,
+  pdfText: string
+): Promise<{
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  profession?: string;
+  website?: string;
+  summary?: string;
+  experiences?: any[];
+  education?: any[];
+  skills?: any[];
+  languages?: any[];
+}> => {
+  try {
+    // Anthropic client kontrolü
+    if (!anthropic) {
+      throw new AppError('AI service is not configured. Please contact support.', 503);
+    }
+
+    await checkAndDeductCredits(userId, 3); // PDF parse için 3 kredi
+
+    // Log input for debugging
+    console.log('🔧 parseCVFromPDF: Input received:', {
+      pdfTextLength: pdfText.length,
+      pdfTextPreview: pdfText.substring(0, 300),
+      userId,
+    });
+
+    const prompt = `Bu metin bir CV'dir. Deneyimleri, eğitimleri, yetenekleri, özeti ve kişisel bilgileri yapılandırılmış JSON formatında çıkar.
+
+KURALLAR:
+- Tüm bilgileri doğru şekilde kategorize et
+- Eksik bilgileri boş bırak (null veya boş string)
+- Tarihleri standart formatta döndür (Ay Yıl formatında, örn: "Ocak 2021")
+- Deneyimler ve eğitimler için tam bilgileri çıkar
+- Yetenekleri string array olarak döndür
+- Dilleri seviyeleriyle birlikte döndür
+- Özet metni 2-3 cümle olarak özetle
+
+ÇIKTI FORMATI (JSON - SADECE JSON, BAŞKA AÇIKLAMA YOK):
+{
+  "firstName": "Ad",
+  "lastName": "Soyad",
+  "email": "email@example.com",
+  "phone": "+90 555 123 45 67",
+  "location": "İstanbul, Türkiye",
+  "profession": "Meslek/Ünvan",
+  "website": "linkedin.com/in/...",
+  "summary": "Özet metni (2-3 cümle)",
+  "experiences": [
+    {
+      "jobTitle": "İş Unvanı",
+      "company": "Şirket Adı",
+      "startMonth": "Ocak",
+      "startYear": "2021",
+      "endMonth": "",
+      "endYear": "",
+      "isCurrent": true,
+      "description": "Açıklama metni (madde işaretli veya paragraf)"
+    }
+  ],
+  
+  NOT: Tarihleri "startDate" veya "endDate" olarak DEĞİL, "startMonth", "startYear", "endMonth", "endYear" olarak ayır. Eğer tarih "Ocak 2021" formatındaysa, "startMonth": "Ocak", "startYear": "2021" şeklinde ayır.
+  "education": [
+    {
+      "school": "Okul Adı",
+      "degree": "Bölüm/Derece",
+      "startYear": "2015",
+      "endYear": "2019",
+      "isCurrent": false
+    }
+  ],
+  "skills": ["Yetenek1", "Yetenek2", "Yetenek3"],
+  "languages": [
+    {
+      "name": "İngilizce",
+      "level": "C1 İleri"
+    }
+  ]
+}
+
+CV METNİ:
+${pdfText.substring(0, 15000)}${pdfText.length > 15000 ? '\n\n[... metin devam ediyor ...]' : ''}
+
+ÖNEMLİ NOTLAR:
+- Tarihleri "startDate" veya "endDate" olarak DEĞİL, "startMonth", "startYear", "endMonth", "endYear" olarak ayır
+- Eğer tarih "Ocak 2021" formatındaysa: "startMonth": "Ocak", "startYear": "2021" şeklinde ayır
+- Eğer tarih "2021-01" veya "01/2021" formatındaysa: ayı çıkar, sadece yılı kullan
+- "Günümüz", "Present", "Devam ediyor" gibi ifadeler varsa: "isCurrent": true yap ve endMonth/endYear boş bırak
+- Deneyim açıklamalarını madde işaretli liste formatında koru (\\n ile ayır)
+
+Lütfen yukarıdaki CV metnini analiz et ve JSON formatında yapılandırılmış veri döndür. SADECE JSON döndür, başka açıklama veya yorum ekleme.`;
+
+    console.log('🔧 parseCVFromPDF: Prompt created, length:', prompt.length);
+    console.log('🔧 parseCVFromPDF: Sending to Claude AI...');
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2000,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    });
+
+    let responseText =
+      message.content[0].type === 'text'
+        ? message.content[0].text.trim()
+        : '';
+
+    console.log('📥 parseCVFromPDF: Claude AI response received:', {
+      responseLength: responseText.length,
+      responsePreview: responseText.substring(0, 500),
+    });
+
+    // JSON'u temizle (markdown code block varsa kaldır)
+    const originalResponse = responseText;
+    responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    // Eğer hala JSON bulunamazsa, ilk { ve son } arasını al
+    if (!responseText.startsWith('{')) {
+      const jsonStart = responseText.indexOf('{');
+      const jsonEnd = responseText.lastIndexOf('}');
+      if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+        responseText = responseText.substring(jsonStart, jsonEnd + 1);
+        console.log('⚠️ parseCVFromPDF: Extracted JSON from response');
+      }
+    }
+
+    console.log('🔧 parseCVFromPDF: Cleaned response text, length:', responseText.length);
+    console.log('🔧 parseCVFromPDF: Cleaned response preview:', responseText.substring(0, 300));
+
+    // JSON parse et
+    let parsedData;
+    try {
+      parsedData = JSON.parse(responseText);
+      console.log('✅ parseCVFromPDF: JSON parsed successfully');
+      console.log('📊 parseCVFromPDF: Parsed data structure:', {
+        hasFirstName: !!parsedData.firstName,
+        hasLastName: !!parsedData.lastName,
+        experiencesCount: Array.isArray(parsedData.experiences) ? parsedData.experiences.length : 0,
+        educationCount: Array.isArray(parsedData.education) ? parsedData.education.length : 0,
+        skillsCount: Array.isArray(parsedData.skills) ? parsedData.skills.length : 0,
+        languagesCount: Array.isArray(parsedData.languages) ? parsedData.languages.length : 0,
+      });
+    } catch (parseError) {
+      console.error('❌ parseCVFromPDF: JSON parse error:', parseError);
+      console.error('❌ parseCVFromPDF: Original response:', originalResponse.substring(0, 1000));
+      console.error('❌ parseCVFromPDF: Cleaned response:', responseText.substring(0, 1000));
+      throw new AppError('CV analiz edilemedi. Lütfen PDF\'in okunabilir olduğundan emin olun.', 400);
+    }
+
+    // Validate and normalize data
+    const normalizedData: any = {
+      firstName: parsedData.firstName || '',
+      lastName: parsedData.lastName || '',
+      email: parsedData.email || '',
+      phone: parsedData.phone || '',
+      location: parsedData.location || '',
+      profession: parsedData.profession || '',
+      website: parsedData.website || '',
+      summary: parsedData.summary || '',
+      experiences: Array.isArray(parsedData.experiences) ? parsedData.experiences : [],
+      education: Array.isArray(parsedData.education) ? parsedData.education : [],
+      skills: Array.isArray(parsedData.skills) ? parsedData.skills : [],
+      languages: Array.isArray(parsedData.languages) ? parsedData.languages : [],
+    };
+
+    await logUsage(
+      userId,
+      'parse-cv-pdf',
+      { pdfTextLength: pdfText.length },
+      { parsedData: normalizedData },
+      3
+    );
+
+    return normalizedData;
+  } catch (error) {
+    console.error('❌ parseCVFromPDF error:', error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      if (
+        errorMessage.includes('api_key') ||
+        errorMessage.includes('authentication') ||
+        errorMessage.includes('401')
+      ) {
+        throw new AppError(
+          'AI service authentication failed. Please check API key configuration.',
+          503
+        );
+      }
+      if (
+        errorMessage.includes('rate_limit') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('429')
+      ) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+    }
+
+    throw new AppError(
+      `Failed to parse CV from PDF: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`,
+      500
+    );
+  }
+};
+
+

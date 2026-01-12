@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>Kayıt Ol - CareerAI</title>
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "sans-serif"]
+
+                    },
+
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+<style>::-webkit-scrollbar {
+
+            width: 8px;
+
+        }
+
+        ::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+        ::-webkit-scrollbar-thumb {
+
+            background: #cbd5e1;
+
+            border-radius: 4px;
+
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+
+            background: #94a3b8;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark text-[#111218] dark:text-white antialiased">
+
+<div class="flex min-h-screen w-full">
+
+<div class="hidden lg:flex lg:w-1/2 relative flex-col justify-between bg-slate-50 dark:bg-slate-900 overflow-hidden">
+
+<div class="absolute inset-0 z-0">
+
+<div class="w-full h-full bg-cover bg-center" data-alt="Abstract blue digital network nodes and career path visualization" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBHHEkPxm7NF08Eg3yvpLlkaMUyyE5PGwZJvFxUOpE7wGev9l5_or1Xut3oG3CUZJcEH5ghmwvC1oUT-pr7cH7Wmi0zufYDS2NmRY4CO6bybpP2SopSZqAJ4TVoJP0obxou0tSuISF78H6usg6M9-pb41n1jaIikFjHStwphATv-UmeKaSuENzWWpmNKxlnxR5UPt2qiaEjpqNVhpx_U2Zr1zDluTlfMDNABXsKwUIVrJaHVQySg98pO3xbLczNxWHYX31n6zaQpowB');">
+
+</div>
+
+<div class="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
+
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+</div>
+
+<div class="relative z-10 p-12 flex flex-col h-full justify-between">
+
+<a href="index.html" class="flex items-center gap-3 text-white">
+
+<div class="size-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+
+<span class="material-symbols-outlined text-white">auto_awesome</span>
+
+</div>
+
+<h2 class="text-xl font-bold tracking-tight">CareerAI</h2>
+
+</a>
+
+<div class="max-w-lg mb-12">
+
+<div class="flex gap-1 mb-6 text-yellow-400">
+
+<span class="material-symbols-outlined text-[20px] fill-1">star</span>
+
+<span class="material-symbols-outlined text-[20px] fill-1">star</span>
+
+<span class="material-symbols-outlined text-[20px] fill-1">star</span>
+
+<span class="material-symbols-outlined text-[20px] fill-1">star</span>
+
+<span class="material-symbols-outlined text-[20px] fill-1">star</span>
+
+</div>
+
+<h1 class="text-4xl font-bold text-white leading-tight mb-4">
+
+                        "CareerAI sayesinde hayalimdeki işe sadece 2 haftada ulaştım. Özgeçmiş optimizasyonu inanılmaz!"
+
+                    </h1>
+
+<div class="flex items-center gap-4">
+
+<div class="size-12 rounded-full bg-cover bg-center border-2 border-white/30" data-alt="Portrait of a smiling professional woman" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDtV4HSou3lLT8Apqj9EmUUdxKxPqug-WVsE2fqPImRWhu2Bryw4OP8ovPq99CuQSjz-rTubgctmqZm3GNJ-ie-fakuOsXfqinw8Cx4lOxcpvXQv84hbjgaC-tLIpJNBmGJ-gD6SXlMBPglBxZQqCWeL1U2KYf398ST-QO0p4D5zcwfxYe9c5p2sIdrlpQ-6fEKlulEBbJsaeM5Ak0v5OfUJATUqtBnvpcwlFtbAzN_dSS0qVK7a-rSuGogH4AoycnmEQFZI0_m9gIK');"></div>
+
+<div>
+
+<p class="text-white font-bold text-lg">Elif Yılmaz</p>
+
+<p class="text-white/70 text-sm">Ürün Tasarımcısı</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="w-full lg:w-1/2 flex flex-col bg-white dark:bg-background-dark relative overflow-y-auto">
+
+<div class="lg:hidden p-6 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800">
+
+<a href="index.html" class="flex items-center gap-2">
+
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+
+<span class="font-bold text-lg dark:text-white">CareerAI</span>
+
+</a>
+
+</div>
+
+<div class="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 lg:p-24">
+
+<div class="w-full max-w-md space-y-8">
+
+<div class="flex flex-col gap-2">
+
+<h2 class="text-3xl font-bold text-[#111218] dark:text-white tracking-tight">Hesap Oluşturun</h2>
+
+<p class="text-[#616889] dark:text-gray-400 text-base">Yapay zeka destekli kariyer araçlarına erişmek için hemen üye olun.</p>
+
+</div>
+
+<div class="w-full">
+
+<div class="flex border-b border-[#dbdde6] dark:border-gray-700 gap-8">
+
+<a href="giris.html" class="flex flex-col items-center justify-center border-b-[3px] border-transparent pb-3 pt-2 w-1/2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 group">
+
+<span class="text-[#616889] dark:text-gray-400 group-hover:text-[#111218] dark:group-hover:text-gray-200 text-sm font-bold tracking-[0.015em]">Giriş Yap</span>
+
+</a>
+
+<button class="flex flex-col items-center justify-center border-b-[3px] border-primary pb-3 pt-2 w-1/2 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50">
+
+<span class="text-[#111218] dark:text-white text-sm font-bold tracking-[0.015em]">Kayıt Ol</span>
+
+</button>
+
+</div>
+
+</div>
+
+<div class="grid grid-cols-2 gap-3">
+
+<button class="flex items-center justify-center gap-3 h-12 px-4 rounded-lg border border-[#dbdde6] dark:border-gray-700 hover:bg-[#f6f6f8] dark:hover:bg-gray-800 transition-colors bg-white dark:bg-transparent text-[#111218] dark:text-white text-sm font-bold">
+
+<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M23.766 12.2764C23.766 11.4607 23.6999 10.6406 23.5588 9.83807H12.24V14.4591H18.7217C18.4528 15.9494 17.5885 17.2678 16.323 18.1056V21.1039H20.19C22.4608 19.0139 23.766 15.9274 23.766 12.2764Z" fill="#4285F4"></path>
+
+<path d="M12.24 24.0008C15.4765 24.0008 18.2059 22.9382 20.1945 21.1039L16.3275 18.1055C15.2517 18.8455 13.8627 19.252 12.2445 19.252C9.11388 19.252 6.45946 17.1399 5.50705 14.3003H1.5166V17.3912C3.55371 21.4434 7.7029 24.0008 12.24 24.0008Z" fill="#34A853"></path>
+
+<path d="M5.50253 14.3003C5.00236 12.8099 5.00236 11.1961 5.50253 9.70575V6.61481H1.51649C-0.18551 10.0056 -0.18551 14.0004 1.51649 17.3912L5.50253 14.3003Z" fill="#FBBC05"></path>
+
+<path d="M12.24 4.74966C13.9509 4.7232 15.6044 5.36697 16.8434 6.54867L20.2695 3.12262C18.1001 1.0855 15.2208 -0.0344664 12.24 0.000808666C7.7029 0.000808666 3.55371 2.55822 1.5166 6.61481L5.50264 9.70575C6.45064 6.86173 9.10947 4.74966 12.24 4.74966Z" fill="#EA4335"></path>
+
+</svg>
+
+<span class="truncate">Google</span>
+
+</button>
+
+<button class="flex items-center justify-center gap-3 h-12 px-4 rounded-lg border border-[#dbdde6] dark:border-gray-700 hover:bg-[#f6f6f8] dark:hover:bg-gray-800 transition-colors bg-white dark:bg-transparent text-[#111218] dark:text-white text-sm font-bold">
+
+<svg class="w-5 h-5" fill="currentColor" style="color: #0077b5;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M20.447 20.452H16.892V14.881C16.892 13.553 16.866 11.844 15.043 11.844C13.191 11.844 12.908 13.291 12.908 14.786V20.452H9.352V9H12.765V10.565H12.813C13.288 9.664 14.449 8.715 16.179 8.715C19.782 8.715 20.447 11.087 20.447 14.168V20.452ZM5.337 7.433C4.197 7.433 3.273 6.509 3.273 5.369C3.273 4.23 4.197 3.305 5.337 3.305C6.477 3.305 7.401 4.23 7.401 5.369C7.401 6.509 6.477 7.433 5.337 7.433ZM3.559 20.452H7.114V9H3.559V20.452ZM22.225 0H1.771C0.792 0 0 0.774 0 1.729V22.271C0 23.226 0.792 24 1.771 24H22.222C23.201 24 24 23.226 24 22.271V1.729C24 0.774 23.201 0 22.222 0H22.225Z"></path>
+
+</svg>
+
+<span class="truncate">LinkedIn</span>
+
+</button>
+
+</div>
+
+<div class="relative flex items-center py-2">
+
+<div class="flex-grow border-t border-[#dbdde6] dark:border-gray-700"></div>
+
+<span class="flex-shrink-0 mx-4 text-gray-500 text-xs font-semibold uppercase tracking-wider">veya e-posta ile</span>
+
+<div class="flex-grow border-t border-[#dbdde6] dark:border-gray-700"></div>
+
+</div>
+
+<form id="register-form" class="flex flex-col gap-5">
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+<label class="flex flex-col w-full">
+
+<span class="text-[#111218] dark:text-white text-sm font-medium leading-normal pb-2">Ad</span>
+
+<div class="relative">
+
+<input id="register-firstname" name="firstName" required class="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lg text-[#111218] dark:text-white dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 focus:outline-0 focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 px-[15px] text-base font-normal leading-normal placeholder:text-[#616889]" placeholder="Adınız" type="text" value=""/>
+
+</div>
+
+</label>
+
+<label class="flex flex-col w-full">
+
+<span class="text-[#111218] dark:text-white text-sm font-medium leading-normal pb-2">Soyad</span>
+
+<div class="relative">
+
+<input id="register-lastname" name="lastName" required class="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lg text-[#111218] dark:text-white dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 focus:outline-0 focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 px-[15px] text-base font-normal leading-normal placeholder:text-[#616889]" placeholder="Soyadınız" type="text" value=""/>
+
+</div>
+
+</label>
+
+</div>
+
+<label class="flex flex-col w-full">
+
+<span class="text-[#111218] dark:text-white text-sm font-medium leading-normal pb-2">E-posta Adresi</span>
+
+<div class="relative">
+
+<input id="register-email" name="email" required class="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lg text-[#111218] dark:text-white dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 focus:outline-0 focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 px-[15px] text-base font-normal leading-normal placeholder:text-[#616889]" placeholder="ornek@email.com" type="email" value=""/>
+
+<div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+
+<span class="material-symbols-outlined text-[20px]">mail</span>
+
+</div>
+
+</div>
+
+</label>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+<label class="flex flex-col w-full">
+
+<span class="text-[#111218] dark:text-white text-sm font-medium leading-normal pb-2">Şifre</span>
+
+<div class="relative">
+
+<input id="register-password" name="password" required class="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lg text-[#111218] dark:text-white dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 focus:outline-0 focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 px-[15px] text-base font-normal leading-normal placeholder:text-[#616889]" placeholder="••••••••" type="password" value=""/>
+
+</div>
+
+</label>
+
+<label class="flex flex-col w-full">
+
+<span class="text-[#111218] dark:text-white text-sm font-medium leading-normal pb-2">Şifre Tekrarı</span>
+
+<div class="relative">
+
+<input id="register-password-confirm" name="passwordConfirm" required class="form-input flex w-full min-w-0 resize-none overflow-hidden rounded-lg text-[#111218] dark:text-white dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 focus:outline-0 focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 px-[15px] text-base font-normal leading-normal placeholder:text-[#616889]" placeholder="••••••••" type="password" value=""/>
+
+</div>
+
+</label>
+
+</div>
+
+<div class="flex items-start gap-3 mt-1">
+
+<div class="flex h-6 items-center">
+
+<input id="terms" required class="form-checkbox rounded border-gray-300 text-primary focus:ring-primary/20 h-4 w-4" type="checkbox"/>
+
+</div>
+
+<label class="text-sm text-[#616889] dark:text-gray-400 leading-tight" for="terms">
+
+<a class="text-primary hover:text-blue-700 font-medium" href="#">Hizmet Şartları</a>'nı ve <a class="text-primary hover:text-blue-700 font-medium" href="#">Gizlilik Politikasını</a> okudum ve kabul ediyorum.
+
+                        </label>
+
+</div>
+
+<button type="submit" id="register-btn" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary hover:bg-blue-700 transition-colors text-white text-base font-bold leading-normal tracking-[0.015em] shadow-lg shadow-blue-500/20 mt-2 disabled:opacity-50 disabled:cursor-not-allowed">
+
+<span class="truncate">Kayıt Ol</span>
+
+</button>
+
+</form>
+
+<div class="text-center">
+
+<p class="text-sm text-[#616889] dark:text-gray-400">
+
+                            Zaten bir hesabınız var mı?
+
+                            <a class="font-bold text-primary hover:text-blue-700" href="giris.html">Giriş Yapın</a>
+
+</p>
+
+</div>
+
+<div class="pt-8 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center text-xs text-gray-400">
+
+<div class="flex gap-4">
+
+<a class="hover:text-gray-600 dark:hover:text-gray-200" href="#">Gizlilik</a>
+
+<a class="hover:text-gray-600 dark:hover:text-gray-200" href="#">Şartlar</a>
+
+</div>
+
+<div class="flex items-center gap-1">
+
+<span class="material-symbols-outlined text-[14px]">lock</span>
+
+<span>Secure SSL</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- API Client -->
+<script src="js/api-client.js"></script>
+<script>
+(function() {
+    'use strict';
+    
+    // API client'ın yüklenmesini bekle
+    function waitForAPIClient(callback) {
+        if (window.apiClient) {
+            callback();
+        } else {
+            setTimeout(() => waitForAPIClient(callback), 100);
+        }
+    }
+    
+    function initRegister() {
+        const form = document.getElementById('register-form');
+        if (!form) {
+            console.error('Register form bulunamadı');
+            return;
+        }
+        
+        const firstNameInput = document.getElementById('register-firstname');
+        const lastNameInput = document.getElementById('register-lastname');
+        const emailInput = document.getElementById('register-email');
+        const passwordInput = document.getElementById('register-password');
+        const passwordConfirmInput = document.getElementById('register-password-confirm');
+        const termsCheckbox = document.getElementById('terms');
+        const registerBtn = document.getElementById('register-btn');
+        
+        if (!firstNameInput || !lastNameInput || !emailInput || !passwordInput || !passwordConfirmInput || !termsCheckbox || !registerBtn) {
+            console.error('Form elementleri bulunamadı');
+            return;
+        }
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'hidden text-red-600 dark:text-red-400 text-sm mb-2';
+        form.insertBefore(errorDiv, form.firstChild);
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!window.apiClient) {
+                showError('API client yüklenmedi. Lütfen sayfayı yenileyin.');
+                return;
+            }
+            
+            const firstName = firstNameInput.value.trim();
+            const lastName = lastNameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const passwordConfirm = passwordConfirmInput.value;
+            
+            if (!firstName || !lastName || !email || !password || !passwordConfirm) {
+                showError('Lütfen tüm alanları doldurun.');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Şifre en az 6 karakter olmalıdır.');
+                return;
+            }
+            
+            if (password !== passwordConfirm) {
+                showError('Şifreler eşleşmiyor.');
+                return;
+            }
+            
+            if (!termsCheckbox.checked) {
+                showError('Lütfen hizmet şartlarını kabul edin.');
+                return;
+            }
+            
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<span class="truncate">Kayıt yapılıyor...</span>';
+            hideError();
+            
+            try {
+                const response = await window.apiClient.register(email, password, firstName, lastName);
+                
+                if (response.success) {
+                    // Başarılı kayıt - dashboard'a yönlendir
+                    window.location.href = 'dashboard.html';
+                } else {
+                    showError(response.error?.message || 'Kayıt başarısız. Lütfen tekrar deneyin.');
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showError(error.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = '<span class="truncate">Kayıt Ol</span>';
+            }
+        });
+        
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+        
+        function hideError() {
+            errorDiv.classList.add('hidden');
+        }
+    }
+    
+    // Sayfa yüklendiğinde başlat
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            waitForAPIClient(initRegister);
+        });
+    } else {
+        waitForAPIClient(initRegister);
+    }
+})();
+</script>
+</body></html>
+

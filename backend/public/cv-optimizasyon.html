@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>Yapay Zeka İçerik &amp; Optimizasyon</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "sans-serif"]
+
+                    },
+
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+<style>
+
+        body {
+
+            font-family: 'Manrope', sans-serif;
+
+        }
+
+        /* Custom scrollbar for better aesthetics in editor */
+
+        .custom-scrollbar::-webkit-scrollbar {
+
+            width: 8px;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+
+            background-color: #cbd5e1;
+
+            border-radius: 20px;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111218] flex flex-col min-h-screen overflow-hidden">
+
+<!-- Top Navigation -->
+
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f1f4] dark:border-gray-800 bg-white dark:bg-[#1a1d2d] px-6 py-3 shrink-0 z-20">
+
+<div class="flex items-center gap-8">
+
+<a href="index.html" class="flex items-center gap-4 text-[#111218] dark:text-white">
+
+<div class="size-8 text-primary">
+
+<span class="material-symbols-outlined !text-[32px]">auto_awesome</span>
+
+</div>
+
+<h2 class="text-[#111218] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Kariyer Platformu</h2>
+
+</a>
+
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+
+<div class="text-[#616889] flex border-none bg-[#f0f1f4] dark:bg-gray-800 items-center justify-center pl-4 rounded-l-lg border-r-0">
+
+<span class="material-symbols-outlined text-[20px]">search</span>
+
+</div>
+
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111218] dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f0f1f4] dark:bg-gray-800 focus:border-none h-full placeholder:text-[#616889] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Ara..." value=""/>
+
+</div>
+
+</label>
+
+</div>
+
+<div class="flex items-center justify-end gap-4 md:gap-8">
+
+<div class="flex gap-2">
+
+<button class="flex items-center justify-center overflow-hidden rounded-full size-10 bg-[#f0f1f4] dark:bg-gray-800 text-[#111218] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+
+</button>
+
+<button class="flex items-center justify-center overflow-hidden rounded-full size-10 bg-[#f0f1f4] dark:bg-gray-800 text-[#111218] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+
+<span class="material-symbols-outlined text-[20px]">settings</span>
+
+</button>
+
+</div>
+
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-gray-700 shadow-sm" data-alt="User profile picture with a smiling professional" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB7nyqa0gqhZOu0Ygmkh9sUcxX7w97ht-M2y4PzSmrTV2k-8iu_qlfV61snW-hKFEkdlz2FuC0Nnbb7f4G7eDHNFijudANn7WNk_2QVkjtzQuLZ0zXWA-miyxuBQ5et2vVnIcDMbC3UP9wBBUKWxw4qrRxYzUfwhF0Wl-uq5S69DXDocIsf4Qv1KTdkql9Ps6lHeD8SYfeyjhQ45HJwhU1-vrl-7QZ73PomOYsAfRy_pM8kJigpq4W5X5ZiqjaTeEBOn7nWrklmS6TP");'></div>
+
+</div>
+
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+
+<!-- Side Navigation -->
+
+<nav class="hidden lg:flex w-64 flex-col justify-between bg-white dark:bg-[#1a1d2d] border-r border-[#f0f1f4] dark:border-gray-800 p-4 shrink-0 overflow-y-auto">
+
+<div class="flex flex-col gap-6">
+
+<div class="flex gap-3 items-center px-2">
+
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-12" data-alt="Close up user avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFwH1zcu2jNNSocOS94vluDqTjTGN7RC_xOiO1eirAJXWvsqoOyLC4XHnGiDZRNpa1G1H-LdISc_kTsOK3lwXIaP-N3UmJH3KjZRdP6HKHYbRAXU7lZqPEO-DUzDCEVxCxjTUSX-8I8B0zf1W6MP8gUd72eIymvuhfmTEVgMK5JqsN8_pgpx2oXNA2N1iQKl3oEplNQ7xsqXF7yRLaY9HKm8ohfN8sEnpEO8qzQoHabGYMehwa82pQDXkXg1HrtJszAt_P8Wh7Vdxq");'></div>
+
+<div class="flex flex-col">
+
+<h1 class="text-[#111218] dark:text-white text-base font-bold leading-normal">Elif Yılmaz</h1>
+
+<p class="text-[#616889] text-xs font-medium uppercase tracking-wide">Pro Üye</p>
+
+</div>
+
+</div>
+
+<div class="flex flex-col gap-1">
+
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors" href="index.html">
+
+<span class="material-symbols-outlined text-[#616889] group-hover:text-primary transition-colors">dashboard</span>
+
+<p class="text-[#111218] dark:text-gray-300 text-sm font-medium">Panel</p>
+
+</a>
+
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors" href="cv-olusturucu.html">
+
+<span class="material-symbols-outlined text-[#616889] group-hover:text-primary transition-colors">description</span>
+
+<p class="text-[#111218] dark:text-gray-300 text-sm font-medium">Belgelerim</p>
+
+</a>
+
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary" href="cv-optimizasyon.html">
+
+<span class="material-symbols-outlined text-primary fill-current">auto_fix_high</span>
+
+<p class="text-primary text-sm font-bold">Editör</p>
+
+</a>
+
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors" href="#">
+
+<span class="material-symbols-outlined text-[#616889] group-hover:text-primary transition-colors">work</span>
+
+<p class="text-[#111218] dark:text-gray-300 text-sm font-medium">İş İlanları</p>
+
+</a>
+
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors" href="#">
+
+<span class="material-symbols-outlined text-[#616889] group-hover:text-primary transition-colors">analytics</span>
+
+<p class="text-[#111218] dark:text-gray-300 text-sm font-medium">Analizler</p>
+
+</a>
+
+</div>
+
+</div>
+
+<div class="flex flex-col gap-2 mt-auto">
+
+<div class="bg-gradient-to-br from-primary/80 to-primary p-4 rounded-xl text-white mb-4">
+
+<div class="flex items-center justify-between mb-2">
+
+<span class="text-sm font-bold">Premium Plan</span>
+
+<span class="material-symbols-outlined text-white/80 text-lg">workspace_premium</span>
+
+</div>
+
+<p class="text-xs text-white/90 mb-3">Tüm AI özelliklerine sınırsız erişim.</p>
+
+<button class="w-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 rounded transition-colors">Yükselt</button>
+
+</div>
+
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#616889]" href="#">
+
+<span class="material-symbols-outlined">settings</span>
+
+<p class="text-sm font-medium">Ayarlar</p>
+
+</a>
+
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#616889]" href="#">
+
+<span class="material-symbols-outlined">logout</span>
+
+<p class="text-sm font-medium">Çıkış Yap</p>
+
+</a>
+
+</div>
+
+</nav>
+
+<!-- Main Content Area -->
+
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+
+<!-- Header for Editor -->
+
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 pb-2 shrink-0">
+
+<div>
+
+<h1 class="text-2xl font-bold text-[#111218] dark:text-white flex items-center gap-2">
+
+                        CV Optimizasyon Asistanı
+
+                        <span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">BETA</span>
+
+</h1>
+
+<p class="text-[#616889] text-sm mt-1">Yapay zeka önerileri ile özgeçmişinizi mükemmelleştirin.</p>
+
+</div>
+
+<div class="flex items-center gap-3">
+
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 rounded-lg text-sm font-medium text-[#111218] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+
+                        Yükle
+
+                    </button>
+
+<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-lg shadow-blue-500/30 transition-colors">
+
+<span class="material-symbols-outlined text-[18px]">download</span>
+
+                        Dışa Aktar
+
+                    </button>
+
+</div>
+
+</div>
+
+<!-- Split View Content -->
+
+<div class="flex flex-col lg:flex-row flex-1 overflow-hidden p-6 gap-6 pt-2">
+
+<!-- Left: Document Editor -->
+
+<div class="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#1a1d2d] rounded-xl shadow-sm border border-[#dbdde6] dark:border-gray-700 overflow-hidden">
+
+<!-- Toolbar -->
+
+<div class="flex items-center justify-between px-4 py-2 border-b border-[#dbdde6] dark:border-gray-700 bg-[#fbfbfc] dark:bg-[#1e2130]">
+
+<div class="flex items-center gap-1">
+
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">undo</span></button>
+
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">redo</span></button>
+
+<div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
+
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
+
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">format_underlined</span></button>
+
+<div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+
+<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
+
+</div>
+
+<div class="text-xs text-[#616889] font-medium">
+
+                            Son kaydedilen: Şimdi
+
+                        </div>
+
+</div>
+
+<!-- Text Area / WYSIWYG -->
+
+<div class="flex-1 overflow-y-auto custom-scrollbar p-8 bg-white dark:bg-[#1a1d2d]">
+
+<div class="max-w-[800px] mx-auto min-h-full outline-none text-[#111218] dark:text-gray-200 font-serif leading-relaxed text-lg" contenteditable="true">
+
+<h1 class="text-3xl font-bold mb-1">Elif Yılmaz</h1>
+
+<p class="text-gray-500 mb-6 text-base border-b pb-4">Senior Software Engineer • Istanbul, TR • elif@example.com</p>
+
+<h2 class="text-lg font-bold uppercase tracking-wider text-primary mb-3">Professional Summary</h2>
+
+<p class="mb-6">
+
+                                Results-oriented <span class="bg-yellow-100 dark:bg-yellow-900/30 px-1 rounded border-b-2 border-yellow-400 cursor-help" title="Daha güçlü bir sıfat kullanmayı deneyin.">Software Engineer</span> with 6+ years of experience in full-stack development. Proven track record of <span class="bg-red-100 dark:bg-red-900/30 px-1 rounded border-b-2 border-red-400 cursor-help" title="Edilgen çatı. 'Spearheaded' gibi bir kelime kullanın.">helping</span> teams deliver high-quality software. Skilled in <span class="bg-green-100 dark:bg-green-900/30 px-1 rounded border-b-2 border-green-400">React, Node.js, and AWS</span>.
+
+                            </p>
+
+<h2 class="text-lg font-bold uppercase tracking-wider text-primary mb-3">Experience</h2>
+
+<div class="mb-4">
+
+<div class="flex justify-between font-bold">
+
+<h3>Senior Developer - TechGlobal Inc.</h3>
+
+<span>2020 - Present</span>
+
+</div>
+
+<ul class="list-disc ml-5 mt-2 space-y-1">
+
+<li>Led a team of 5 developers to rebuild the legacy payment system.</li>
+
+<li>Reduced API latency by 40% through code optimization and caching strategies.</li>
+
+<li><span class="bg-red-100 dark:bg-red-900/30 px-1 rounded border-b-2 border-red-400 cursor-help" title="Zayıf fiil. 'Managed' veya 'Orchestrated' deneyin.">Handled</span> deployment pipelines using Jenkins and Docker.</li>
+
+</ul>
+
+</div>
+
+<div class="mb-4">
+
+<div class="flex justify-between font-bold">
+
+<h3>Software Developer - StartUp Hub</h3>
+
+<span>2018 - 2020</span>
+
+</div>
+
+<ul class="list-disc ml-5 mt-2 space-y-1">
+
+<li>Developed responsive frontend components using Vue.js.</li>
+
+<li>Collaborated with UX designers to implement new features.</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Right: AI Copilot / Dashboard -->
+
+<div class="w-full lg:w-[400px] flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pr-1">
+
+<!-- Score Card -->
+
+<div class="bg-white dark:bg-[#1a1d2d] rounded-xl p-6 shadow-sm border border-[#dbdde6] dark:border-gray-700 flex flex-col items-center relative overflow-hidden group">
+
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-8 -mt-8 z-0"></div>
+
+<div class="relative z-10 text-center w-full">
+
+<h3 class="text-base font-bold text-[#111218] dark:text-white mb-4 flex items-center justify-center gap-2">
+
+<span class="material-symbols-outlined text-primary">analytics</span>
+
+                                ATS Uyumluluk Skoru
+
+                            </h3>
+
+<div class="relative size-32 mx-auto mb-4 flex items-center justify-center">
+
+<svg class="size-full -rotate-90" viewbox="0 0 36 36">
+
+<path class="text-gray-100 dark:text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+
+<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="72, 100" stroke-linecap="round" stroke-width="3"></path>
+
+</svg>
+
+<div class="absolute flex flex-col items-center">
+
+<span class="text-3xl font-black text-[#111218] dark:text-white">72</span>
+
+<span class="text-xs text-[#616889]">/100</span>
+
+</div>
+
+</svg>
+
+</div>
+
+<p class="text-[#07883f] text-sm font-bold bg-green-50 dark:bg-green-900/20 py-1 px-3 rounded-full inline-block mb-1">+15% artış</p>
+
+<p class="text-[#616889] text-sm mt-2">Belgeniz ATS sistemleri için iyi durumda ancak geliştirilebilir alanlar var.</p>
+
+<button class="w-full mt-5 bg-primary hover:bg-blue-700 text-white py-3 rounded-lg font-bold text-sm shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
+
+<span class="material-symbols-outlined text-[18px]">auto_fix_high</span>
+
+                                Yapay Zeka ile Optimize Et
+
+                            </button>
+
+</div>
+
+</div>
+
+<!-- Tabs & Feedback -->
+
+<div class="flex-1 bg-white dark:bg-[#1a1d2d] rounded-xl shadow-sm border border-[#dbdde6] dark:border-gray-700 flex flex-col min-h-[400px]">
+
+<!-- Tabs Header -->
+
+<div class="flex border-b border-[#dbdde6] dark:border-gray-700 overflow-x-auto">
+
+<button class="flex-1 py-3 px-2 text-sm font-bold text-primary border-b-2 border-primary whitespace-nowrap">Öneriler (4)</button>
+
+<button class="flex-1 py-3 px-2 text-sm font-medium text-[#616889] hover:text-[#111218] dark:hover:text-gray-300 border-b-2 border-transparent whitespace-nowrap">Kelimeler</button>
+
+<button class="flex-1 py-3 px-2 text-sm font-medium text-[#616889] hover:text-[#111218] dark:hover:text-gray-300 border-b-2 border-transparent whitespace-nowrap">Dilbilgisi</button>
+
+</div>
+
+<!-- Feedback List -->
+
+<div class="flex-1 p-4 flex flex-col gap-3 overflow-y-auto">
+
+<!-- Suggestion Card 1 -->
+
+<div class="p-4 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 flex flex-col gap-2">
+
+<div class="flex justify-between items-start">
+
+<div class="flex items-center gap-2">
+
+<span class="material-symbols-outlined text-red-500 text-[20px]">warning</span>
+
+<span class="font-bold text-sm text-[#111218] dark:text-gray-200">Etkisiz Fiil Kullanımı</span>
+
+</div>
+
+<button class="text-[#616889] hover:text-red-500"><span class="material-symbols-outlined text-[18px]">close</span></button>
+
+</div>
+
+<p class="text-sm text-[#616889]">"Handled" kelimesi zayıf kalıyor. Etkiyi artırmak için değiştirin.</p>
+
+<div class="flex gap-2 mt-1">
+
+<button class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-xs font-bold text-[#111218] dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">Managed</button>
+
+<button class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-xs font-bold text-[#111218] dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">Orchestrated</button>
+
+</div>
+
+</div>
+
+<!-- Suggestion Card 2 -->
+
+<div class="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 flex flex-col gap-2">
+
+<div class="flex justify-between items-start">
+
+<div class="flex items-center gap-2">
+
+<span class="material-symbols-outlined text-yellow-600 text-[20px]">lightbulb</span>
+
+<span class="font-bold text-sm text-[#111218] dark:text-gray-200">Sıfat Güçlendirmesi</span>
+
+</div>
+
+<button class="text-[#616889] hover:text-yellow-600"><span class="material-symbols-outlined text-[18px]">close</span></button>
+
+</div>
+
+<p class="text-sm text-[#616889]">"Software Engineer" başlığı yerine yetkinliğinizi vurgulayan bir sıfat ekleyin.</p>
+
+<button class="w-full mt-1 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded text-xs font-bold transition-colors">
+
+                                    "Senior Full-Stack Engineer" olarak değiştir
+
+                                </button>
+
+</div>
+
+<!-- Suggestion Card 3 (Missing Keywords) -->
+
+<div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 flex flex-col gap-2">
+
+<div class="flex justify-between items-start">
+
+<div class="flex items-center gap-2">
+
+<span class="material-symbols-outlined text-primary text-[20px]">key</span>
+
+<span class="font-bold text-sm text-[#111218] dark:text-gray-200">Eksik Anahtar Kelimeler</span>
+
+</div>
+
+</div>
+
+<p class="text-sm text-[#616889]">Sektörünüzde sık aranan şu terimler eksik:</p>
+
+<div class="flex flex-wrap gap-2 mt-1">
+
+<span class="px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 rounded border border-gray-200 dark:border-gray-600 dashed border-dashed">Microservices</span>
+
+<span class="px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 rounded border border-gray-200 dark:border-gray-600 dashed border-dashed">CI/CD</span>
+
+<span class="px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 rounded border border-gray-200 dark:border-gray-600 dashed border-dashed">TypeScript</span>
+
+</div>
+
+</div>
+
+<!-- Suggestion Card 4 -->
+
+<div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 flex flex-col gap-2">
+
+<div class="flex justify-between items-start">
+
+<div class="flex items-center gap-2">
+
+<span class="material-symbols-outlined text-gray-500 text-[20px]">spellcheck</span>
+
+<span class="font-bold text-sm text-[#111218] dark:text-gray-200">Yazım Hatası</span>
+
+</div>
+
+<button class="text-[#616889] hover:text-gray-700"><span class="material-symbols-outlined text-[18px]">close</span></button>
+
+</div>
+
+<p class="text-sm text-[#616889]">"experince" kelimesi yanlış yazılmış olabilir.</p>
+
+<button class="self-start text-xs font-bold text-primary hover:underline">Düzelt: Experience</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+</body></html>
+

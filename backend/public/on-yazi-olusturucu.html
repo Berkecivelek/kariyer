@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>KariyerAI - Ön Yazı Oluşturucu</title>
+
+<!-- Fonts -->
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+
+<!-- Material Symbols -->
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<!-- Tailwind CSS -->
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<!-- Theme Configuration -->
+
+<script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                        "text-main": "#111218",
+
+                        "text-secondary": "#616889",
+
+                        "border-color": "#dbdde6",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "Noto Sans", "sans-serif"]
+
+                    },
+
+                    borderRadius: {
+
+                        "DEFAULT": "0.25rem", 
+
+                        "lg": "0.5rem", 
+
+                        "xl": "0.75rem", 
+
+                        "full": "9999px"
+
+                    },
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+<style>
+
+        /* Custom scrollbar for textarea/editor */
+
+        ::-webkit-scrollbar {
+
+            width: 8px;
+
+            height: 8px;
+
+        }
+
+        ::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+        ::-webkit-scrollbar-thumb {
+
+            background: #dbdde6;
+
+            border-radius: 4px;
+
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+
+            background: #aeb1c2;
+
+        }
+
+        
+
+        .editor-content {
+
+            outline: none;
+
+            min-height: 600px;
+
+        }
+
+        .editor-content p {
+
+            margin-bottom: 1rem;
+
+            line-height: 1.6;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main">
+
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+
+<!-- Top Navigation -->
+
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-border-color bg-white px-6 py-3 shadow-sm lg:px-10">
+
+<a href="index.html" class="flex items-center gap-4 text-text-main">
+
+<div class="size-8 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
+
+<span class="material-symbols-outlined text-2xl">auto_awesome</span>
+
+</div>
+
+<h2 class="text-text-main text-xl font-bold leading-tight tracking-[-0.015em]">KariyerAI</h2>
+
+</a>
+
+<div class="hidden md:flex flex-1 justify-end gap-8">
+
+<nav class="flex items-center gap-9">
+
+<a class="text-text-main text-sm font-medium leading-normal hover:text-primary transition-colors" href="cv-olusturucu.html">Özgeçmiş</a>
+
+<a class="text-primary text-sm font-bold leading-normal" href="on-yazi-olusturucu.html">Ön Yazı</a>
+
+<a class="text-text-main text-sm font-medium leading-normal hover:text-primary transition-colors" href="portfolyo-olusturucu.html">Portfolyo</a>
+
+<a class="text-text-main text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">İş İlanları</a>
+
+</nav>
+
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-blue-700 transition-colors shadow-md">
+
+<span class="truncate">Profilim</span>
+
+</button>
+
+</div>
+
+<button class="md:hidden p-2 text-text-main">
+
+<span class="material-symbols-outlined">menu</span>
+
+</button>
+
+</header>
+
+<!-- Main Content Layout -->
+
+<main class="flex-1 px-4 py-8 lg:px-8 xl:px-40">
+
+<div class="mx-auto max-w-[1400px]">
+
+<!-- Page Heading -->
+
+<div class="mb-8 flex flex-col gap-3">
+
+<h1 class="text-text-main text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Ön Yazı Oluşturucu</h1>
+
+<p class="text-text-secondary text-base md:text-lg font-normal leading-normal max-w-2xl">
+
+                        Yapay zeka desteğiyle hedeflediğiniz işe özel, ikna edici ve profesyonel ön yazılar oluşturun.
+
+                    </p>
+
+</div>
+
+<!-- Workspace Split Layout -->
+
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
+
+<!-- Left Column: Inputs & Controls -->
+
+<div class="flex flex-col gap-6 lg:col-span-4 xl:col-span-4 order-2 lg:order-1">
+
+<!-- Input Card -->
+
+<div class="rounded-xl border border-border-color bg-white p-6 shadow-sm">
+
+<h2 class="text-lg font-bold text-text-main mb-5 flex items-center gap-2">
+
+<span class="material-symbols-outlined text-primary">settings</span>
+
+                                Oluşturma Ayarları
+
+                            </h2>
+
+<!-- Resume Selection -->
+
+<div class="mb-5">
+
+<label class="flex flex-col w-full">
+
+<p class="text-text-main text-sm font-semibold leading-normal pb-2">Kullanılacak Özgeçmiş</p>
+
+<div class="relative">
+
+<select class="form-input flex w-full appearance-none overflow-hidden rounded-lg text-text-main focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-border-color bg-white focus:border-primary h-12 px-4 pr-10 text-sm font-normal leading-normal transition-all cursor-pointer">
+
+<option value="current">Ahmet_Yilmaz_CV_2023.pdf (Varsayılan)</option>
+
+<option value="upload">+ Yeni Özgeçmiş Yükle</option>
+
+<option value="profile">Profil Bilgilerimi Kullan</option>
+
+</select>
+
+<div class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary">
+
+<span class="material-symbols-outlined text-xl">expand_more</span>
+
+</div>
+
+</div>
+
+</label>
+
+</div>
+
+<!-- Job Description -->
+
+<div class="mb-5">
+
+<label class="flex flex-col w-full">
+
+<div class="flex justify-between items-baseline pb-2">
+
+<p class="text-text-main text-sm font-semibold leading-normal">İş İlanı Metni</p>
+
+<button class="text-primary text-xs font-medium hover:underline">Linkten Çek</button>
+
+</div>
+
+<textarea class="form-input flex w-full resize-y overflow-hidden rounded-lg text-text-main focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-border-color bg-white focus:border-primary min-h-[140px] placeholder:text-text-secondary/60 p-4 text-sm font-normal leading-normal transition-all" placeholder="İlan detaylarını ve aranan nitelikleri buraya yapıştırın..."></textarea>
+
+</label>
+
+</div>
+
+<!-- Tone Selector -->
+
+<div class="mb-6">
+
+<p class="text-text-main text-sm font-semibold leading-normal pb-3">Yazı Dili ve Tonu</p>
+
+<div class="grid grid-cols-3 gap-2">
+
+<label class="cursor-pointer">
+
+<input checked="" class="peer sr-only" name="tone" type="radio" value="professional"/>
+
+<div class="flex flex-col items-center justify-center rounded-lg border border-border-color bg-background-light p-2 text-center transition-all hover:bg-white peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary">
+
+<span class="material-symbols-outlined mb-1 text-xl">business_center</span>
+
+<span class="text-xs font-medium">Resmi</span>
+
+</div>
+
+</label>
+
+<label class="cursor-pointer">
+
+<input class="peer sr-only" name="tone" type="radio" value="confident"/>
+
+<div class="flex flex-col items-center justify-center rounded-lg border border-border-color bg-background-light p-2 text-center transition-all hover:bg-white peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary">
+
+<span class="material-symbols-outlined mb-1 text-xl">campaign</span>
+
+<span class="text-xs font-medium">İddialı</span>
+
+</div>
+
+</label>
+
+<label class="cursor-pointer">
+
+<input class="peer sr-only" name="tone" type="radio" value="creative"/>
+
+<div class="flex flex-col items-center justify-center rounded-lg border border-border-color bg-background-light p-2 text-center transition-all hover:bg-white peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary">
+
+<span class="material-symbols-outlined mb-1 text-xl">lightbulb</span>
+
+<span class="text-xs font-medium">Yaratıcı</span>
+
+</div>
+
+</label>
+
+</div>
+
+</div>
+
+<!-- Action Button -->
+
+<button class="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary h-12 px-6 text-white shadow-lg transition-transform active:scale-[0.98] hover:bg-blue-700">
+
+<span class="material-symbols-outlined group-hover:animate-pulse">auto_awesome</span>
+
+<span class="text-base font-bold leading-normal">Oluştur</span>
+
+</button>
+
+</div>
+
+<!-- Tips Section -->
+
+<div class="rounded-xl bg-blue-50 border border-blue-100 p-5">
+
+<div class="flex gap-3">
+
+<span class="material-symbols-outlined text-primary mt-0.5">lightbulb</span>
+
+<div>
+
+<h3 class="text-sm font-bold text-text-main mb-1">İpucu</h3>
+
+<p class="text-sm text-text-secondary leading-relaxed">
+
+                                        İş ilanındaki anahtar kelimeleri (örneğin "Liderlik", "Python", "Agile") metne dahil etmek ATS sistemlerinde öne çıkmanızı sağlar.
+
+                                    </p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Right Column: Editor & Preview -->
+
+<div class="flex flex-col gap-4 lg:col-span-8 xl:col-span-8 h-full order-1 lg:order-2">
+
+<!-- Toolbar & Actions -->
+
+<div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border-color bg-white p-2 pl-4 shadow-sm">
+
+<!-- Formatting Tools -->
+
+<div class="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
+
+<button class="rounded p-1.5 text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" title="Geri Al">
+
+<span class="material-symbols-outlined text-xl">undo</span>
+
+</button>
+
+<button class="rounded p-1.5 text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" title="İleri Al">
+
+<span class="material-symbols-outlined text-xl">redo</span>
+
+</button>
+
+<div class="mx-2 h-4 w-px bg-border-color"></div>
+
+<select class="h-8 rounded border-none bg-transparent text-sm font-medium text-text-main focus:ring-0 cursor-pointer">
+
+<option>Normal Metin</option>
+
+<option>Başlık 1</option>
+
+<option>Başlık 2</option>
+
+</select>
+
+<div class="mx-2 h-4 w-px bg-border-color"></div>
+
+<button class="rounded p-1.5 text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" title="Kalın">
+
+<span class="material-symbols-outlined text-xl">format_bold</span>
+
+</button>
+
+<button class="rounded p-1.5 text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" title="İtalik">
+
+<span class="material-symbols-outlined text-xl">format_italic</span>
+
+</button>
+
+<button class="rounded p-1.5 text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" title="Altı Çizili">
+
+<span class="material-symbols-outlined text-xl">format_underlined</span>
+
+</button>
+
+<div class="mx-2 h-4 w-px bg-border-color"></div>
+
+<button class="rounded p-1.5 text-text-secondary hover:bg-background-light hover:text-text-main transition-colors" title="Liste">
+
+<span class="material-symbols-outlined text-xl">format_list_bulleted</span>
+
+</button>
+
+</div>
+
+<!-- Document Actions -->
+
+<div class="flex items-center gap-2 ml-auto">
+
+<button class="flex items-center gap-2 rounded-lg border border-border-color px-3 py-1.5 text-sm font-bold text-text-main hover:bg-background-light transition-colors">
+
+<span class="material-symbols-outlined text-lg">save</span>
+
+<span class="hidden sm:inline">Kaydet</span>
+
+</button>
+
+<button class="flex items-center gap-2 rounded-lg bg-text-main px-3 py-1.5 text-sm font-bold text-white hover:bg-black transition-colors">
+
+<span class="material-symbols-outlined text-lg">download</span>
+
+<span class="hidden sm:inline">PDF İndir</span>
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Editor Canvas -->
+
+<div class="flex-1 rounded-xl border border-border-color bg-gray-50/50 p-4 md:p-8 shadow-inner overflow-hidden flex justify-center">
+
+<!-- Paper -->
+
+<div class="h-full w-full max-w-[800px] bg-white shadow-md rounded-sm p-8 md:p-12 lg:p-16 overflow-y-auto" data-alt="White A4 paper style editor canvas containing a generated cover letter draft">
+
+<!-- Header Section of Cover Letter -->
+
+<div class="mb-8 border-b border-gray-100 pb-6">
+
+<h1 class="text-2xl font-bold text-gray-900 mb-1">Ahmet Yılmaz</h1>
+
+<div class="flex flex-wrap gap-4 text-sm text-gray-500">
+
+<span>ahmet.yilmaz@email.com</span>
+
+<span>•</span>
+
+<span>+90 555 123 45 67</span>
+
+<span>•</span>
+
+<span>İstanbul, Türkiye</span>
+
+</div>
+
+</div>
+
+<!-- Date & Recipient -->
+
+<div class="mb-8 text-sm text-gray-800">
+
+<p class="mb-4 font-medium">15 Ekim 2023</p>
+
+<p>Sayın İşe Alım Yöneticisi,</p>
+
+<p class="font-medium">Teknoloji Çözümleri A.Ş.</p>
+
+</div>
+
+<!-- Body Content (Editable) -->
+
+<div class="editor-content text-gray-800 text-base" contenteditable="true">
+
+<p>Teknoloji Çözümleri A.Ş. bünyesindeki Kıdemli Yazılım Geliştirici pozisyonu için başvurumu sunmaktan büyük heyecan duyuyorum. Kariyerim boyunca edindiğim 5 yıllık Full Stack geliştirme tecrübesi ve özellikle finansal teknolojiler alanındaki projelerimle, şirketinizin yenilikçi vizyonuna değer katabileceğime inanıyorum.</p>
+
+<p>Önceki pozisyonumda, kullanıcı tabanını %40 artıran ölçeklenebilir bir mikroservis mimarisinin tasarlanması ve uygulanmasına liderlik ettim. Bu süreçte Python ve React teknolojilerini kullanarak, yüksek trafikli sistemlerin optimizasyonunu başarıyla gerçekleştirdim. İlanınızda belirttiğiniz "performans odaklı kod yazma" ve "ekip liderliği" beklentileriniz, benim profesyonel geçmişim ve tutkularımla birebir örtüşmektedir.</p>
+
+<p>Sadece teknik yetkinliklerimle değil, aynı zamanda çevik çalışma metodolojilerine olan hakimiyetim ve problem çözme odaklı yaklaşımımla da ekibinize hızlıca uyum sağlayacağımı düşünüyorum. Teknoloji Çözümleri A.Ş.'nin sektördeki öncü projelerini yakından takip ediyor ve bu başarı hikayesinin bir parçası olmayı hedefliyorum.</p>
+
+<p>Özgeçmişimde detaylandırdığım tecrübelerimi ve projelerimi sizinle yüz yüze görüşmekten memnuniyet duyarım. Vakit ayırdığınız için teşekkür ederim.</p>
+
+<p class="mt-8">Saygılarımla,</p>
+
+<p class="font-bold mt-2">Ahmet Yılmaz</p>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Status Bar -->
+
+<div class="flex items-center justify-between px-2 text-xs text-text-secondary">
+
+<div>Son kaydedilme: 2 dakika önce</div>
+
+<div class="flex gap-4">
+
+<span>245 Kelime</span>
+
+<span>1.580 Karakter</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+</body></html>
+

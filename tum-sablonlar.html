@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>Nova Kariyer - Tüm Şablonlar</title>
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "primary-dark": "#0f2cb8",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                        "surface-light": "#ffffff",
+
+                        "surface-dark": "#1a1d2d",
+
+                        "text-main": "#111218",
+
+                        "text-secondary": "#616889",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "sans-serif"]
+
+                    },
+
+                    borderRadius: {
+
+                        "DEFAULT": "0.25rem",
+
+                        "lg": "0.5rem",
+
+                        "xl": "0.75rem",
+
+                        "2xl": "1rem",
+
+                        "full": "9999px"
+
+                    },
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+<style>
+
+        body {
+
+            font-family: 'Manrope', sans-serif;
+
+        }
+
+        .material-symbols-outlined {
+
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white transition-colors duration-200">
+
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+
+<header class="sticky top-0 z-50 w-full border-b border-[#f0f1f4] dark:border-gray-800 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm">
+
+<div class="flex items-center justify-between px-6 py-3 lg:px-10">
+
+<div class="flex items-center gap-8">
+
+<a class="flex items-center gap-3 text-text-main dark:text-white hover:opacity-80 transition-opacity" href="index.html">
+
+<div class="size-8 text-primary">
+
+<svg class="h-full w-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z" fill="currentColor"></path>
+
+<path clip-rule="evenodd" d="M39.998 35.764C39.9944 35.7463 39.9875 35.7155 39.9748 35.6706C39.9436 35.5601 39.8949 35.4259 39.8346 35.2825C39.8168 35.2403 39.7989 35.1993 39.7813 35.1602C38.5103 34.2887 35.9788 33.0607 33.7095 32.5189C30.9875 31.8691 27.6413 31.4783 24 31.4783C20.3587 31.4783 17.0125 31.8691 14.2905 32.5189C12.0012 33.0654 9.44505 34.3104 8.18538 35.1832C8.17384 35.2075 8.16216 35.233 8.15052 35.2592C8.09919 35.3751 8.05721 35.4886 8.02977 35.589C8.00356 35.6848 8.00039 35.7333 8.00004 35.7388C8.00004 35.739 8 35.7393 8.00004 35.7388C8.00004 35.7641 8.0104 36.0767 8.68485 36.6314C9.34546 37.1746 10.4222 37.7531 11.9291 38.2772C14.9242 39.319 19.1919 40 24 40C28.8081 40 33.0758 39.319 36.0709 38.2772C37.5778 37.7531 38.6545 37.1746 39.3151 36.6314C39.9006 36.1499 39.9857 35.8511 39.998 35.764ZM4.95178 32.7688L21.4543 6.30267C22.6288 4.4191 25.3712 4.41909 26.5457 6.30267L43.0534 32.777C43.0709 32.8052 43.0878 32.8338 43.104 32.8629L41.3563 33.8352C43.104 32.8629 43.1038 32.8626 43.104 32.8629L43.1051 32.865L43.1065 32.8675L43.1101 32.8739L43.1199 32.8918C43.1276 32.906 43.1377 32.9246 43.1497 32.9473C43.1738 32.9925 43.2062 33.0545 43.244 33.1299C43.319 33.2792 43.4196 33.489 43.5217 33.7317C43.6901 34.1321 44 34.9311 44 35.7391C44 37.4427 43.003 38.7775 41.8558 39.7209C40.6947 40.6757 39.1354 41.4464 37.385 42.0552C33.8654 43.2794 29.133 44 24 44C18.867 44 14.1346 43.2794 10.615 42.0552C8.86463 41.4464 7.30529 40.6757 6.14419 39.7209C4.99695 38.7775 3.99999 37.4427 3.99999 35.7391C3.99999 34.8725 4.29264 34.0922 4.49321 33.6393C4.60375 33.3898 4.71348 33.1804 4.79687 33.0311C4.83898 32.9556 4.87547 32.8935 4.9035 32.8471C4.91754 32.8238 4.92954 32.8043 4.93916 32.7889L4.94662 32.777L4.95178 32.7688ZM35.9868 29.004L24 9.77997L12.0131 29.004C12.4661 28.8609 12.9179 28.7342 13.3617 28.6282C16.4281 27.8961 20.0901 27.4783 24 27.4783C27.9099 27.4783 31.5719 27.8961 34.6383 28.6282C35.082 28.7342 35.5339 28.8609 35.9868 29.004Z" fill="currentColor" fill-rule="evenodd"></path>
+
+</svg>
+
+</div>
+
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] hidden sm:block">Nova Kariyer</h2>
+
+</a>
+
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+
+<div class="text-[#616889] flex border-none bg-[#f0f1f4] dark:bg-gray-800 items-center justify-center pl-4 rounded-l-lg border-r-0">
+
+<span class="material-symbols-outlined text-[20px]">search</span>
+
+</div>
+
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-main dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f0f1f4] dark:bg-gray-800 focus:border-none h-full placeholder:text-[#616889] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Şablon ara..." value=""/>
+
+</div>
+
+</label>
+
+</div>
+
+<div class="flex items-center gap-6" id="header-auth-section">
+
+<nav class="hidden lg:flex items-center gap-6">
+
+<a class="text-text-main dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="index.html">Ana Sayfa</a>
+
+<a class="text-primary font-bold leading-normal text-sm" href="sablonlar.html">Şablonlar</a>
+
+<a class="text-text-main dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="dashboard.html">Özgeçmişim</a>
+
+<a class="text-text-main dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="cv-optimizasyon.html">Kariyer Koçu</a>
+
+</nav>
+
+<div class="flex items-center gap-4">
+
+<button class="flex h-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg px-4 bg-primary hover:bg-primary-dark transition-colors text-white text-sm font-bold leading-normal" id="login-btn">
+
+<span class="truncate">Giriş Yap</span>
+
+</button>
+
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-white dark:ring-gray-700 cursor-pointer hidden" id="user-menu-trigger" data-alt="User profile picture placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVy4PuIujXXSImagB_9B32nTiAtlxpXSH4yIOXVJI-saVHk6mZUHE2WH7XF4LQRGppC_Uqu2RxhPcs42HJmWILusfqgqUWz10oTQZynDyx3EhinTHLjx7BJ5XyYepjQPdzkz_km-sw0g6MWqIlVvI5h3IFEanvCy2q_w_4jf-Gi_XOnlrLFnMcFPH_uzb-Qfyk9lN5G_M3hFrUswdD-F32qTzO0mKS-VpcaHhZyvSjCG07d0SJkSlDD8I8UczT2HSKJeroM688h3ri");'></div>
+
+</div>
+
+</div>
+
+</div>
+
+</header>
+
+<main class="flex-1">
+
+<section class="relative bg-surface-light dark:bg-surface-dark py-12 lg:py-16">
+
+<div class="layout-container px-4 md:px-10 flex justify-center">
+
+<div class="w-full max-w-5xl">
+
+<div class="relative overflow-hidden rounded-2xl bg-[#1337ec] dark:bg-[#0f2cb8]">
+
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 24px 24px;"></div>
+
+<div class="relative z-10 flex flex-col items-center justify-center gap-6 px-4 py-16 text-center md:px-10 lg:py-20">
+
+<div class="max-w-2xl space-y-4">
+
+<h1 class="text-3xl font-black leading-tight tracking-tight text-white md:text-5xl">
+
+                                    Profesyonel Şablonlar
+
+                                </h1>
+
+<p class="text-base font-medium text-blue-100 md:text-lg">
+
+                                    Kariyer hedeflerinize uygun tasarımı seçin. Yapay zeka destekli önerilerle saniyeler içinde fark yaratın.
+
+                                </p>
+
+</div>
+
+<div class="w-full max-w-lg">
+
+<label class="flex h-12 w-full items-stretch overflow-hidden rounded-xl bg-white shadow-lg focus-within:ring-2 focus-within:ring-white/50">
+
+<div class="flex items-center justify-center border-r border-gray-100 bg-white px-4 text-gray-400">
+
+<span class="material-symbols-outlined">search</span>
+
+</div>
+
+<input class="flex-1 border-none bg-white px-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0" placeholder="Örn: Pazarlama, Yazılım, Minimalist..."/>
+
+<button class="bg-white px-4 text-sm font-bold text-primary hover:text-primary-dark">
+
+                                        Ara
+
+                                    </button>
+
+</label>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="sticky top-[65px] z-40 border-b border-[#f0f1f4] dark:border-gray-800 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md">
+
+<div class="layout-container px-4 md:px-10 flex justify-center py-4">
+
+<div class="w-full max-w-6xl flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+<div class="inline-flex rounded-lg bg-white dark:bg-gray-800 p-1 shadow-sm border border-gray-200 dark:border-gray-700">
+
+<label class="cursor-pointer">
+
+<input checked="" class="peer sr-only" name="doc_type" type="radio" value="resume"/>
+
+<span class="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-gray-500 transition-all peer-checked:bg-primary/10 peer-checked:text-primary dark:text-gray-400 dark:peer-checked:text-primary hover:text-gray-700 dark:hover:text-gray-200">
+
+<span class="material-symbols-outlined text-[18px]">description</span>
+
+                                    Özgeçmiş
+
+                                </span>
+
+</label>
+
+<label class="cursor-pointer">
+
+<input class="peer sr-only" name="doc_type" type="radio" value="cover_letter"/>
+
+<span class="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-gray-500 transition-all peer-checked:bg-primary/10 peer-checked:text-primary dark:text-gray-400 dark:peer-checked:text-primary hover:text-gray-700 dark:hover:text-gray-200">
+
+<span class="material-symbols-outlined text-[18px]">mail</span>
+
+                                    Ön Yazı
+
+                                </span>
+
+</label>
+
+<label class="cursor-pointer">
+
+<input class="peer sr-only" name="doc_type" type="radio" value="portfolio"/>
+
+<span class="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-gray-500 transition-all peer-checked:bg-primary/10 peer-checked:text-primary dark:text-gray-400 dark:peer-checked:text-primary hover:text-gray-700 dark:hover:text-gray-200">
+
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+
+                                    Portfolyo
+
+                                </span>
+
+</label>
+
+</div>
+
+<div class="flex flex-wrap items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+
+<button class="flex h-8 items-center gap-2 rounded-full bg-black px-4 text-xs font-bold text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 filter-btn" data-filter="all">
+
+                            Tümü
+
+                        </button>
+
+<button class="flex h-8 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-xs font-medium text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 filter-btn" data-filter="kurumsal">
+
+                            Kurumsal
+
+                        </button>
+
+<button class="flex h-8 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-xs font-medium text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 filter-btn" data-filter="yaratici">
+
+                            Yaratıcı
+
+                        </button>
+
+<button class="flex h-8 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-xs font-medium text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 filter-btn" data-filter="modern">
+
+                            Modern
+
+                        </button>
+
+<button class="flex h-8 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-xs font-medium text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600 filter-btn" data-filter="sade">
+
+                            Sade
+
+                        </button>
+
+<button class="flex h-8 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-xs font-medium text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600">
+
+<span class="material-symbols-outlined text-[14px]">filter_list</span>
+
+                            Filtrele
+
+                        </button>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="py-8">
+
+<div class="layout-container px-4 md:px-10 flex justify-center">
+
+<div class="w-full max-w-6xl">
+
+<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="templates-grid">
+
+<!-- Şablonlar dinamik olarak yüklenecek -->
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+<footer class="mt-10 border-t border-[#f0f1f4] dark:border-gray-800 bg-surface-light dark:bg-surface-dark py-8 text-center text-sm text-text-secondary dark:text-gray-500">
+
+<p>© 2024 Nova Kariyer. Tüm hakları saklıdır.</p>
+
+</footer>
+
+</div>
+
+<script src="js/api-client.js"></script>
+<script src="js/auth-header.js"></script>
+<script src="js/cv-template-renderer.js"></script>
+<script src="js/template-history.js"></script>
+<script src="js/tum-sablonlar-loader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</body></html>
+

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>Portfolyo Oluşturucu</title>
+
+<!-- Tailwind CSS -->
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<!-- Tailwind Configuration -->
+
+<script id="tailwind-config">
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "sans-serif"]
+
+                    },
+
+                    borderRadius: {
+
+                        "DEFAULT": "0.25rem",
+
+                        "lg": "0.5rem",
+
+                        "xl": "0.75rem",
+
+                        "full": "9999px"
+
+                    },
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+<!-- Google Fonts -->
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+
+<!-- Material Symbols -->
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<style>
+
+        /* Custom Scrollbar for cleaner look */
+
+        ::-webkit-scrollbar {
+
+            width: 6px;
+
+            height: 6px;
+
+        }
+
+        ::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+        ::-webkit-scrollbar-thumb {
+
+            background: #dbdde6;
+
+            border-radius: 3px;
+
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+
+            background: #9ca3af;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111218] font-display antialiased overflow-hidden h-screen flex">
+
+<!-- LEFT SIDEBAR: Tools & Assets -->
+
+<aside class="w-[380px] flex flex-col border-r border-[#dbdde6] bg-white dark:bg-[#1e2130] flex-shrink-0 h-full z-20">
+
+<!-- Profile / Back Header -->
+
+<div class="p-4 border-b border-[#f0f1f4] dark:border-gray-800">
+
+<div class="flex gap-3 items-center">
+
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-primary/10" data-alt="User profile picture showing a professional headshot" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCiXoHR419sYn7ZHSor-tcoUm7AEvW9_cjCgPMPig7fEBJ9Ani6GKmf0cBMBs1C8RZQlw19N_Y_nlSe82izQf7v2UIni4AX0tJQaGq7elTKtkt-idENSwBdfNaUVYlFASWK_8bVcqj_bz3h36S5XNOHrvWfFg73udAiGqgxPOPNNmF4Mp70kZ1dpLzt5fqB3tTvJK4yAyfbOuKknzmUrJO1VQoyUJ3zOo1F465LQ41q09twz9kVVifoD47K5uForU11M20KIWKaxmu6");'></div>
+
+<div class="flex flex-col">
+
+<h1 class="text-[#111218] dark:text-white text-base font-bold leading-normal">Can Yılmaz</h1>
+
+<p class="text-[#616889] dark:text-gray-400 text-xs font-medium leading-normal">Pro Hesap • Taslak kaydedildi</p>
+
+</div>
+
+<button class="ml-auto p-2 hover:bg-background-light dark:hover:bg-gray-800 rounded-lg text-[#616889]">
+
+<span class="material-symbols-outlined">more_vert</span>
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Tool Tabs -->
+
+<div class="px-4 pt-2">
+
+<div class="flex border-b border-[#dbdde6] dark:border-gray-700 gap-4 justify-between">
+
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-primary text-primary gap-1 pb-[7px] pt-2.5 flex-1" href="#">
+
+<span class="material-symbols-outlined text-[24px]">style</span>
+
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Şablon</p>
+
+</a>
+
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#616889] hover:text-[#111218] dark:text-gray-400 dark:hover:text-white gap-1 pb-[7px] pt-2.5 flex-1 transition-colors" href="#">
+
+<span class="material-symbols-outlined text-[24px]">widgets</span>
+
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Bileşen</p>
+
+</a>
+
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#616889] hover:text-[#111218] dark:text-gray-400 dark:hover:text-white gap-1 pb-[7px] pt-2.5 flex-1 transition-colors" href="#">
+
+<span class="material-symbols-outlined text-[24px]">image</span>
+
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Medya</p>
+
+</a>
+
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-[#616889] hover:text-[#111218] dark:text-gray-400 dark:hover:text-white gap-1 pb-[7px] pt-2.5 flex-1 transition-colors" href="#">
+
+<span class="material-symbols-outlined text-[24px]">palette</span>
+
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Tema</p>
+
+</a>
+
+</div>
+
+</div>
+
+<!-- Sidebar Content Area -->
+
+<div class="flex-1 overflow-y-auto p-4">
+
+<!-- Headline -->
+
+<div class="flex justify-between items-center pb-4 pt-2">
+
+<h3 class="text-[#111218] dark:text-white tracking-tight text-lg font-bold leading-tight">Şablon Seçimi</h3>
+
+<button class="text-primary text-sm font-bold flex items-center gap-1">
+
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+
+                    AI Önerisi
+
+                </button>
+
+</div>
+
+<!-- Templates Grid -->
+
+<div class="grid grid-cols-2 gap-3 pb-6">
+
+<!-- Template 1 -->
+
+<div class="group cursor-pointer">
+
+<div class="relative w-full aspect-[3/4] overflow-hidden rounded-lg border-2 border-primary shadow-sm">
+
+<div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Minimalist white portfolio template preview" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCweq97rayEvvqN9mdBCId61YHPTdEnhHSwCm-U5DmlbdClrrTfXW1c3KCH6P_9q8hOp-WKOy_U7LNlGab6C78xK3sUkiU3Eh14wrqN90293KtpRgVHy4N-2EKd3Qedf0MBMKRJ-y3D9zYJxrQT9IDhjGpCs0XPNL2CZqCdxZ8Zg59b2_HE7RuGtw6vIbu1rsG_MAowg0Nb4J_zf6xngvYB2bfl0LhLYxHJyqyymnX0JFk814ErZ8yMcX1bIbxr0OFSbgD6IFDlbUDy");'></div>
+
+<div class="absolute inset-0 bg-primary/10 pointer-events-none"></div>
+
+<div class="absolute bottom-2 right-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded">Aktif</div>
+
+</div>
+
+<p class="text-[#111218] dark:text-white text-sm font-medium leading-normal mt-2">Minimal Beyaz</p>
+
+</div>
+
+<!-- Template 2 -->
+
+<div class="group cursor-pointer">
+
+<div class="w-full aspect-[3/4] overflow-hidden rounded-lg border border-[#dbdde6] hover:border-primary transition-colors">
+
+<div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Dark mode modern portfolio template preview" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCxQtIJip_awQoJ-lqIqlt0j7l24Us3Zqk2HMFd3GHSQUwIY7uneNPDnp-l3NNyCorBv6cjfRKOIWgZsYh17Qt9-l4q4yY6ESsNNL4q0l-ZMte9qtO0-UwF856vpoAOUDVPl-P9kjbyNNTFycCX96DkkhnYWt1v6BJjeXKcLZbplw11R3ZZf3OrpnrpMzxAFWn90IS3fz9C8CVPSpqdmIYbfQEMS-zMX1lrgB4dcgN_qbr-pCmraOLbqcwLTfqx-4R0CcJsFKUL_J2I");'></div>
+
+</div>
+
+<p class="text-[#111218] dark:text-white text-sm font-medium leading-normal mt-2">Karanlık Mod</p>
+
+</div>
+
+<!-- Template 3 -->
+
+<div class="group cursor-pointer">
+
+<div class="w-full aspect-[3/4] overflow-hidden rounded-lg border border-[#dbdde6] hover:border-primary transition-colors">
+
+<div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Creative agency vibrant template preview" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvS2y4MymdZUh9kBB26PpRpOFLg52RU8p3MUSHl48qHq99UjTgvC8sjNqwH0hR2YMDJcPDsQJQ6AuZ-8oev3F2xxM8daLblTxwsLtrYeoaHi0Cwcn1qOH3DPjV6jcLwecpiWzL6OEC-tHI-A2vd-kzoOnteD2H962at5pE-VNUNX6qTx7FmkvwiI1QATvmYEmGfXY-FBrjZrrRGiAAwkUxWbbBRWEBN7laq6fWAVPMbwkoBvv5950hNT2BG29h6HgZ06IABjsZtgsO");'></div>
+
+</div>
+
+<p class="text-[#111218] dark:text-white text-sm font-medium leading-normal mt-2">Yaratıcı Ajans</p>
+
+</div>
+
+<!-- Template 4 -->
+
+<div class="group cursor-pointer">
+
+<div class="w-full aspect-[3/4] overflow-hidden rounded-lg border border-[#dbdde6] hover:border-primary transition-colors">
+
+<div class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105" data-alt="Corporate clean business template preview" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD_kyvIRTTDgqJ_6lsTvY3ml88_GAFcSpAxRsEeRFmlP6rdllmrC7hS3xbtcxbPBRb-wHJAkOxFNIxftJPVX3B_LLYETmxVhDDedxXf7MkahwmyLxYBgPWSDY3tlcTWBtkNQocCzgd0eZ76bD2jqWRqA1TpLu3P3zVL0ZMhuYqMSXKl3XxxRZTSoL1uKcxio7JtMNaZq4t2k5BokXwLbRSworaBzpkX90ArZJ8otUWW2DUdzu1ffyVHLWq8Ftc37qQohp5EhA7yVoLr");'></div>
+
+</div>
+
+<p class="text-[#111218] dark:text-white text-sm font-medium leading-normal mt-2">Kurumsal</p>
+
+</div>
+
+</div>
+
+<!-- AI Helper Section in Sidebar -->
+
+<div class="bg-primary/5 dark:bg-primary/10 rounded-xl p-4 border border-primary/10">
+
+<div class="flex items-center gap-2 mb-2 text-primary font-bold text-sm">
+
+<span class="material-symbols-outlined">psychology</span>
+
+<span>AI Asistanı</span>
+
+</div>
+
+<p class="text-xs text-[#616889] dark:text-gray-400 mb-3">
+
+                    Kariyer hedeflerinize uygun bir düzen seçmekte zorlanıyor musunuz?
+
+                </p>
+
+<button class="w-full bg-white dark:bg-gray-800 border border-primary/20 text-[#111218] dark:text-white text-xs font-bold py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+
+                    Bana Düzen Öner
+
+                </button>
+
+</div>
+
+</div>
+
+</aside>
+
+<!-- MAIN WORKSPACE -->
+
+<main class="flex flex-col flex-1 h-full min-w-0 bg-background-light dark:bg-background-dark relative">
+
+<!-- Top Navigation Bar -->
+
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f1f4] dark:border-gray-800 bg-white dark:bg-[#1e2130] px-6 py-3 shrink-0 z-10 shadow-sm">
+
+<div class="flex items-center gap-4 text-[#111218] dark:text-white">
+
+<a class="text-primary" href="index.html">
+
+<span class="material-symbols-outlined">arrow_back</span>
+
+</a>
+
+<div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+
+<div class="flex flex-col">
+
+<h2 class="text-[#111218] dark:text-white text-base font-bold leading-tight tracking-[-0.015em]">UX Tasarım Portfolyosu v2</h2>
+
+<span class="text-xs text-gray-400">Son düzenleme: 2 dk önce</span>
+
+</div>
+
+</div>
+
+<!-- Center Tools -->
+
+<div class="flex gap-2 bg-[#f0f1f4] dark:bg-gray-800 p-1 rounded-lg">
+
+<button class="flex items-center justify-center size-8 rounded hover:bg-white dark:hover:bg-gray-700 text-[#111218] dark:text-white transition-all" title="Geri Al">
+
+<span class="material-symbols-outlined text-[20px]">undo</span>
+
+</button>
+
+<button class="flex items-center justify-center size-8 rounded hover:bg-white dark:hover:bg-gray-700 text-[#111218] dark:text-white transition-all" title="İleri Al">
+
+<span class="material-symbols-outlined text-[20px]">redo</span>
+
+</button>
+
+<div class="w-px h-5 bg-gray-300 dark:bg-gray-600 self-center mx-1"></div>
+
+<button class="flex items-center justify-center size-8 rounded bg-white dark:bg-gray-700 text-primary shadow-sm" title="Masaüstü">
+
+<span class="material-symbols-outlined text-[20px]">desktop_windows</span>
+
+</button>
+
+<button class="flex items-center justify-center size-8 rounded hover:bg-white dark:hover:bg-gray-700 text-[#616889] dark:text-gray-400 transition-all" title="Tablet">
+
+<span class="material-symbols-outlined text-[20px]">tablet</span>
+
+</button>
+
+<button class="flex items-center justify-center size-8 rounded hover:bg-white dark:hover:bg-gray-700 text-[#616889] dark:text-gray-400 transition-all" title="Mobil">
+
+<span class="material-symbols-outlined text-[20px]">smartphone</span>
+
+</button>
+
+</div>
+
+<!-- Action Buttons -->
+
+<div class="flex gap-3">
+
+<button class="flex h-10 px-4 items-center justify-center rounded-lg bg-[#f0f1f4] dark:bg-gray-800 text-[#111218] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors gap-2">
+
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+
+<span class="truncate">Önizleme</span>
+
+</button>
+
+<button class="flex h-10 px-6 items-center justify-center rounded-lg bg-primary hover:bg-blue-700 text-white text-sm font-bold shadow-md shadow-blue-500/20 transition-all gap-2">
+
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+
+<span class="truncate">Yayınla</span>
+
+</button>
+
+</div>
+
+</header>
+
+<!-- CANVAS AREA -->
+
+<div class="flex-1 overflow-y-auto overflow-x-hidden p-8 flex justify-center relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed">
+
+<!-- The Portfolio Sheet (Interactive WYSIWYG) -->
+
+<div class="w-full max-w-[960px] bg-white dark:bg-[#1a1d2d] shadow-2xl min-h-[1200px] rounded-none md:rounded-lg relative group/canvas transition-all flex flex-col">
+
+<!-- Hero Section (Editable) -->
+
+<section class="relative group/section hover:outline hover:outline-2 hover:outline-primary hover:outline-offset-2 p-12 flex flex-col md:flex-row items-center gap-12 border-b border-gray-100 dark:border-gray-800">
+
+<!-- Edit Handle -->
+
+<div class="absolute top-2 right-2 opacity-0 group-hover/section:opacity-100 flex gap-2 transition-opacity z-10">
+
+<button class="bg-primary text-white p-1.5 rounded shadow-lg hover:scale-110 transition-transform">
+
+<span class="material-symbols-outlined text-[16px]">edit</span>
+
+</button>
+
+<button class="bg-white text-red-500 p-1.5 rounded shadow-lg border border-gray-100 hover:scale-110 transition-transform">
+
+<span class="material-symbols-outlined text-[16px]">delete</span>
+
+</button>
+
+</div>
+
+<div class="flex-1 space-y-6">
+
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-primary text-sm font-bold">
+
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+
+                            İş Arıyor
+
+                        </div>
+
+<h1 class="text-5xl md:text-6xl font-extrabold text-[#111218] dark:text-white leading-tight tracking-tight cursor-text focus:outline-none hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded -ml-2 px-2 transition-colors" contenteditable="true">
+
+                            Kullanıcı Deneyimi Tasarımcısı
+
+                        </h1>
+
+<p class="text-xl text-[#616889] dark:text-gray-300 leading-relaxed cursor-text focus:outline-none hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded -ml-2 px-2 transition-colors border-l-4 border-transparent focus:border-primary pl-2" contenteditable="true">
+
+                            Merhaba, ben Can. İnsan odaklı dijital ürünler tasarlayarak karmaşık problemleri basit ve estetik çözümlere dönüştürüyorum.
+
+                        </p>
+
+<!-- AI Rewrite Button (Contextual) -->
+
+<button class="inline-flex items-center gap-2 text-sm text-primary font-bold mt-2 opacity-0 group-hover/section:opacity-100 transition-opacity">
+
+<span class="material-symbols-outlined text-[18px]">magic_button</span>
+
+                            AI ile daha profesyonel yaz
+
+                        </button>
+
+<div class="flex gap-4 pt-4">
+
+<button class="bg-[#111218] dark:bg-white dark:text-black text-white px-8 py-3 rounded-full font-bold hover:bg-gray-800 transition-colors">Projelerim</button>
+
+<button class="border border-[#dbdde6] dark:border-gray-700 text-[#111218] dark:text-white px-8 py-3 rounded-full font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">İletişime Geç</button>
+
+</div>
+
+</div>
+
+<div class="w-full md:w-[320px] aspect-[4/5] bg-gray-100 dark:bg-gray-800 rounded-2xl relative overflow-hidden group/image">
+
+<div class="w-full h-full bg-center bg-cover" data-alt="Portfolio owner portrait placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuASoSvLmqzx34wgD2geaqMjdk_l9E7o1sXXzC_Fk8fdeiwqx9PJ1xp_3X6gT6nOQbVU2skgR23MpTOvno3v9lWnFet5zwmrL4ScO1XpOzg0NB1T5CGGlRE6ZmvuMHMTfTdTEsf5WAmXOWkn5P8K4tCTRiyRsWtijI9XAENrARkddcLCCcIHykZwq8cVwsv8p5gkGtM8nYzLq_iDN4Bdd8AW-ZTBOVYj820vl4eAmGOUt4ENfl_8EFv6PX4HP75Hy_xapLQC60dYRNrw");'></div>
+
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/image:opacity-100 transition-opacity cursor-pointer backdrop-blur-sm">
+
+<div class="bg-white text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+
+<span class="material-symbols-outlined">upload</span>
+
+                                 Görsel Değiştir
+
+                             </div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- Stats / Skills Bar -->
+
+<section class="py-10 px-12 border-b border-gray-100 dark:border-gray-800 grid grid-cols-2 md:grid-cols-4 gap-8">
+
+<div class="text-center group/stat hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 rounded-lg transition-colors cursor-pointer relative">
+
+<h4 class="text-4xl font-black text-primary mb-1">5+</h4>
+
+<p class="text-sm font-bold text-[#616889] dark:text-gray-400 uppercase tracking-wider">Yıl Deneyim</p>
+
+<span class="material-symbols-outlined absolute top-2 right-2 opacity-0 group-hover/stat:opacity-100 text-gray-400 text-[16px]">edit</span>
+
+</div>
+
+<div class="text-center group/stat hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 rounded-lg transition-colors cursor-pointer relative">
+
+<h4 class="text-4xl font-black text-primary mb-1">42</h4>
+
+<p class="text-sm font-bold text-[#616889] dark:text-gray-400 uppercase tracking-wider">Proje</p>
+
+</div>
+
+<div class="text-center group/stat hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 rounded-lg transition-colors cursor-pointer relative">
+
+<h4 class="text-4xl font-black text-primary mb-1">12</h4>
+
+<p class="text-sm font-bold text-[#616889] dark:text-gray-400 uppercase tracking-wider">Ödül</p>
+
+</div>
+
+<div class="text-center group/stat hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 rounded-lg transition-colors cursor-pointer relative">
+
+<h4 class="text-4xl font-black text-primary mb-1">100%</h4>
+
+<p class="text-sm font-bold text-[#616889] dark:text-gray-400 uppercase tracking-wider">Müşteri Memnuniyeti</p>
+
+</div>
+
+</section>
+
+<!-- Selected Projects -->
+
+<section class="p-12 relative group/section hover:outline hover:outline-2 hover:outline-primary hover:outline-offset-2">
+
+<!-- Edit Handle -->
+
+<div class="absolute top-2 right-2 opacity-0 group-hover/section:opacity-100 flex gap-2 transition-opacity z-10">
+
+<button class="bg-white text-gray-700 p-1.5 rounded shadow-lg border border-gray-100 text-xs font-bold flex items-center gap-1">
+
+<span class="material-symbols-outlined text-[16px]">add</span>
+
+                            Yeni Proje Ekle
+
+                        </button>
+
+</div>
+
+<div class="flex justify-between items-end mb-8">
+
+<div>
+
+<p class="text-primary font-bold tracking-widest uppercase text-sm mb-2">Seçili İşler</p>
+
+<h2 class="text-3xl font-extrabold text-[#111218] dark:text-white">Son Projeler</h2>
+
+</div>
+
+<a class="text-[#111218] dark:text-white font-bold border-b-2 border-primary pb-1 hidden md:block" href="#">Tümünü Gör</a>
+
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+<!-- Project Card 1 -->
+
+<div class="group/card cursor-pointer flex flex-col gap-4">
+
+<div class="w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden relative">
+
+<div class="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover/card:scale-105" data-alt="Abstract colorful gradient representing a mobile app project" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuADMZmz9vfTPBBirjtnpX2w02w2q7pn5A9grkD0cisBe1kIx4NClOlrOIfZFUeMuxn_XX8RgNkuOw-C2Ay9ekQDlfFTpxhqgn17fsUJk8j7XYVGQN9YSPlL0PtjmTOwJrjtFV-ecFywfSwnPRaNvZ-Bq1USCgGaNNeDKNYiqtGM7GuEoQZ729imlGlfJ-BhyOW9H8Ee74LzdaEDb_Kdqmy_o4TRghcm1hurUouRHCKXtelAILUkFNpRWP8OeS7XszxW0swfFiM0zDnb");'></div>
+
+<div class="absolute inset-0 bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center">
+
+<button class="bg-white text-black px-4 py-2 rounded-full font-bold text-sm transform translate-y-4 group-hover/card:translate-y-0 transition-transform">Detayları Düzenle</button>
+
+</div>
+
+</div>
+
+<div>
+
+<h3 class="text-xl font-bold text-[#111218] dark:text-white mb-1">Fintech Mobil Uygulaması</h3>
+
+<p class="text-[#616889] dark:text-gray-400 text-sm">UI/UX Tasarım, Araştırma</p>
+
+</div>
+
+</div>
+
+<!-- Project Card 2 -->
+
+<div class="group/card cursor-pointer flex flex-col gap-4">
+
+<div class="w-full aspect-[4/3] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden relative">
+
+<div class="w-full h-full bg-center bg-cover transition-transform duration-700 group-hover/card:scale-105" data-alt="Clean dashboard interface design screenshot" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDsen3ej3-s7da01RRuz1qubvwPhr0mKt0d8amyd6zcWK39HZWNCq8FKsYqyt-0KH2_BAhUkDQE0HcJ_oRJXpktreksSW__rYo7b1aMrmIkEwJnwxnkTr8fSMzJyoWOXU9k23ai93TrTpvtcbha_7bpvY6CpXWmZcFd1sqOyDjKe0jCSMN3RhsDuTqBXxWj2v4g35FnM6H4Re2dxJZfuoJYhn2HpWvrbdZ_cLtHXYl0kUD_XdKtKyeypz4p9Ni93IZJGL6cWYdcn7Is");'></div>
+
+<div class="absolute inset-0 bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center">
+
+<button class="bg-white text-black px-4 py-2 rounded-full font-bold text-sm transform translate-y-4 group-hover/card:translate-y-0 transition-transform">Detayları Düzenle</button>
+
+</div>
+
+</div>
+
+<div>
+
+<h3 class="text-xl font-bold text-[#111218] dark:text-white mb-1">E-Ticaret Paneli</h3>
+
+<p class="text-[#616889] dark:text-gray-400 text-sm">Web Tasarım, Geliştirme</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- Add New Section Placeholder -->
+
+<div class="px-12 pb-12">
+
+<button class="w-full border-2 border-dashed border-[#dbdde6] dark:border-gray-700 rounded-xl h-24 flex items-center justify-center gap-2 text-[#616889] dark:text-gray-400 hover:border-primary hover:text-primary hover:bg-blue-50 dark:hover:bg-gray-800 transition-all group">
+
+<div class="bg-gray-100 dark:bg-gray-700 rounded-full p-2 group-hover:bg-white dark:group-hover:bg-gray-600">
+
+<span class="material-symbols-outlined">add</span>
+
+</div>
+
+<span class="font-bold">Yeni Bir Bölüm Ekle (Hakkımda, Süreç, Blog...)</span>
+
+</button>
+
+</div>
+
+</div>
+
+<!-- Floating Helper in Canvas -->
+
+<div class="fixed bottom-8 right-8 z-30">
+
+<button class="flex items-center gap-3 bg-[#111218] text-white pl-4 pr-2 py-2 rounded-full shadow-xl hover:bg-black transition-transform hover:-translate-y-1">
+
+<span class="font-bold text-sm">AI Asistanı</span>
+
+<div class="bg-primary/20 text-primary-light p-2 rounded-full">
+
+<span class="material-symbols-outlined text-[20px] text-primary-light animate-pulse">colors_spark</span>
+
+</div>
+
+</button>
+
+</div>
+
+</div>
+
+</main>
+
+</body></html>
+
+
+
+
+
+
