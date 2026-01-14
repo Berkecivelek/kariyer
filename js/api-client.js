@@ -191,9 +191,17 @@ class APIClient {
     return this.request('/auth/me');
   }
 
+  async updateUser(userData) {
+    return this.request('/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    });
+  }
+
   // Resumes
-  async getResumes() {
-    return this.request('/resumes');
+  async getResumes(includeAll = false) {
+    const url = includeAll ? '/resumes?all=true' : '/resumes';
+    return this.request(url);
   }
 
   async getResume(id) {
@@ -327,10 +335,25 @@ class APIClient {
     });
   }
 
-  async generateCoverLetter(resumeId, hedefPozisyon, ton) {
+  async generateCoverLetter(resumeId, hedefPozisyon, ton, jobDescription) {
     return this.request('/ai/cover-letter', {
       method: 'POST',
-      body: JSON.stringify({ resumeId, hedefPozisyon, ton }),
+      body: JSON.stringify({ resumeId, hedefPozisyon, ton, jobDescription }),
+    });
+  }
+
+  async scrapeJobPosting(url) {
+    return this.request('/ai/scrape-job-posting', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    });
+  }
+  
+  async parseImageForOCR(imageData) {
+    // Backend'e base64 string gönder
+    return this.request('/ai/parse-image-ocr', {
+      method: 'POST',
+      body: JSON.stringify({ imageData }),
     });
   }
 
@@ -370,6 +393,17 @@ class APIClient {
       method: 'POST',
       body: JSON.stringify(coverLetterData),
     });
+  }
+
+  async updateCoverLetter(id, coverLetterData) {
+    return this.request(`/cover-letters/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(coverLetterData),
+    });
+  }
+
+  async getCoverLetters() {
+    return this.request('/cover-letters');
   }
 
   async updateCoverLetter(id, coverLetterData) {

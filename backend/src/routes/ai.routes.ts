@@ -49,6 +49,8 @@ router.post(
 router.post('/analyze', analysisController.analyzeResume);
 router.post('/optimize', analysisController.optimizeResume);
 router.get('/analyses/:resumeId', analysisController.getResumeAnalyses);
+router.post('/scrape-job-posting', aiController.scrapeJobPosting);
+router.post('/parse-image-ocr', aiController.parseImageForOCR);
 
 export default router;
 

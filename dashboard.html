@@ -140,7 +140,7 @@
 
 </a>
 
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#616889] dark:text-gray-300 hover:bg-[#f0f1f4] dark:hover:bg-gray-700 transition-colors" href="cv-olusturucu.html">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#616889] dark:text-gray-300 hover:bg-[#f0f1f4] dark:hover:bg-gray-700 transition-colors" href="belgelerim.html">
 
 <span class="material-symbols-outlined">description</span>
 
@@ -742,25 +742,112 @@
         const fullName = `${resume.firstName || ''} ${resume.lastName || ''}`.trim() || 'İsimsiz';
         const title = resume.title || 'Özgeçmiş';
         
-        // Preview görseli için - CV verilerini kullanarak dinamik preview oluştur
-        // Her CV kendi verilerini gösterir
+        // Preview görseli için - Gerçek CV template'ini kullanarak preview oluştur
         const hasPreview = resume.firstName || resume.lastName || resume.profession;
         
-        // Preview container - CV verilerini küçük ölçekte göster
-        const previewContent = hasPreview ? `
-            <div class="absolute inset-0 bg-white dark:bg-gray-900 overflow-hidden" style="transform: scale(0.12); transform-origin: top left; width: 833.33%; height: 833.33%; pointer-events: none;">
-                <div class="w-full h-full p-6 border border-gray-200 rounded shadow-sm">
-                    <div class="mb-3">
-                        <h1 class="text-2xl font-bold text-gray-900 mb-1">${escapeHtml(fullName)}</h1>
-                        <p class="text-sm text-gray-600">${escapeHtml(resume.profession || '')}</p>
+        // Resume verilerini CV template formatına dönüştür
+        // Template renderer 'experiences' bekliyor, resume 'experience' kullanıyor
+        const cvDataForPreview = {
+            'fullname-first': resume.firstName || '',
+            'fullname-last': resume.lastName || '',
+            email: resume.email || '',
+            phone: resume.phone || '',
+            location: resume.location || '',
+            profession: resume.profession || '',
+            summary: resume.summary || '',
+            experiences: Array.isArray(resume.experience) ? resume.experience : [],
+            education: Array.isArray(resume.education) ? resume.education : [],
+            skills: Array.isArray(resume.skills) ? resume.skills : [],
+            languages: Array.isArray(resume.languages) ? resume.languages : [],
+        };
+        
+        // Template renderer'ı kullanarak gerçek CV preview'ını oluştur
+        let previewHTML = '';
+        if (hasPreview) {
+            // Template renderer yüklenmişse gerçek preview oluştur
+            if (window.CVTemplateRenderer && window.CVTemplateRenderer.render) {
+                try {
+                    const templateName = resume.templateId || 'modern';
+                    previewHTML = window.CVTemplateRenderer.render(templateName, cvDataForPreview);
+                } catch (error) {
+                    console.warn('CV preview render hatası:', error);
+                    previewHTML = generateSimplePreview(cvDataForPreview);
+                }
+            } else {
+                // Template renderer henüz yüklenmedi, basit preview göster
+                previewHTML = generateSimplePreview(cvDataForPreview);
+            }
+        }
+        
+        // Basit preview oluştur (template renderer yüklenene kadar veya hata durumunda)
+        function generateSimplePreview(cvData) {
+            const expCount = cvData.experiences.length;
+            const eduCount = cvData.education.length;
+            const skillsCount = cvData.skills.length;
+            const langCount = cvData.languages.length;
+            
+            // İlk deneyimi göster (varsa)
+            let firstExp = '';
+            if (cvData.experiences.length > 0) {
+                const exp = cvData.experiences[0];
+                firstExp = `
+                    <div class="mb-2">
+                        <h4 class="text-xs font-semibold text-slate-900">${escapeHtml(exp.jobTitle || exp.title || '')}</h4>
+                        <p class="text-xs text-slate-600">${escapeHtml(exp.company || '')}</p>
                     </div>
-                    <div class="text-xs text-gray-500 space-y-1">
-                        ${resume.email ? `<div>${escapeHtml(resume.email)}</div>` : ''}
-                        ${resume.phone ? `<div>${escapeHtml(resume.phone)}</div>` : ''}
+                `;
+            }
+            
+            // İlk eğitimi göster (varsa)
+            let firstEdu = '';
+            if (cvData.education.length > 0) {
+                const edu = cvData.education[0];
+                firstEdu = `
+                    <div class="mb-2">
+                        <h4 class="text-xs font-semibold text-slate-900">${escapeHtml(edu.degree || edu.department || '')}</h4>
+                        <p class="text-xs text-slate-600">${escapeHtml(edu.school || '')}</p>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-gray-200">
-                        <div class="text-xs font-semibold text-gray-700 mb-2">DENEYİM</div>
-                        <div class="text-xs text-gray-600">• ${escapeHtml(resume.profession || '')}</div>
+                `;
+            }
+            
+            return `
+                <div class="p-4" style="background: white; min-height: 100%; font-family: system-ui, -apple-system, sans-serif;">
+                    <div class="mb-3 border-b-2 border-slate-800 pb-3">
+                        <h1 class="text-2xl font-bold text-slate-900 mb-1">${escapeHtml(cvData['fullname-first'] + ' ' + cvData['fullname-last'])}</h1>
+                        <p class="text-sm text-slate-600 font-medium">${escapeHtml(cvData.profession || '')}</p>
+                        <div class="flex flex-wrap gap-3 mt-2 text-xs text-slate-500">
+                            ${cvData.email ? `<span>${escapeHtml(cvData.email)}</span>` : ''}
+                            ${cvData.phone ? `<span>${escapeHtml(cvData.phone)}</span>` : ''}
+                            ${cvData.location ? `<span>${escapeHtml(cvData.location)}</span>` : ''}
+                        </div>
+                    </div>
+                    ${cvData.summary ? `<div class="mb-3 pb-3 border-b border-slate-200"><p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(cvData.summary.substring(0, 120))}${cvData.summary.length > 120 ? '...' : ''}</p></div>` : ''}
+                    <div class="mb-2">
+                        <h3 class="text-xs font-bold uppercase text-slate-800 mb-1 border-b border-slate-300 pb-1">DENEYİM</h3>
+                        ${firstExp || `<p class="text-xs text-slate-500">${expCount > 0 ? expCount + ' deneyim' : 'Deneyim yok'}</p>`}
+                    </div>
+                    <div class="mb-2">
+                        <h3 class="text-xs font-bold uppercase text-slate-800 mb-1 border-b border-slate-300 pb-1">EĞİTİM</h3>
+                        ${firstEdu || `<p class="text-xs text-slate-500">${eduCount > 0 ? eduCount + ' eğitim' : 'Eğitim yok'}</p>`}
+                    </div>
+                    ${skillsCount > 0 ? `<div class="mb-2"><h3 class="text-xs font-bold uppercase text-slate-800 mb-1 border-b border-slate-300 pb-1">YETENEKLER</h3><p class="text-xs text-slate-500">${skillsCount} yetenek</p></div>` : ''}
+                    ${langCount > 0 ? `<div><h3 class="text-xs font-bold uppercase text-slate-800 mb-1 border-b border-slate-300 pb-1">DİLLER</h3><p class="text-xs text-slate-500">${langCount} dil</p></div>` : ''}
+                </div>
+            `;
+        }
+        
+        // Preview container - İkinci ve üçüncü ekran resimlerindeki gibi: koyu arka plan + ortada belirgin beyaz CV dokümanı
+        const previewContent = previewHTML ? `
+            <!-- Koyu arka plan (dark teal/blue gradient) - ikinci ve üçüncü ekran resimlerindeki gibi -->
+            <div class="absolute inset-0 bg-gradient-to-br from-slate-500 via-slate-600 to-slate-700 overflow-hidden">
+                <!-- Ortada beyaz CV dokümanı (belirgin ve okunabilir) -->
+                <div class="absolute inset-0 flex items-center justify-center p-2.5">
+                    <div class="bg-white rounded-md shadow-2xl overflow-hidden relative" style="width: 70%; height: 80%; box-shadow: 0 8px 20px rgba(0,0,0,0.4);">
+                        <div class="w-full h-full overflow-hidden" style="transform: scale(0.22); transform-origin: top left; width: 454.55%; height: 454.55%; pointer-events: none;" data-resume-preview="${resume.id}">
+                            <div class="w-full h-full p-5" style="background: white; min-height: 100%; font-family: system-ui, -apple-system, sans-serif;">
+                                ${previewHTML}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -808,10 +895,51 @@
             </div>
         `;
         
+        // Template renderer yüklendikten sonra preview'ı güncelle
+        const previewDiv = card.querySelector('[data-resume-preview]');
+        if (previewDiv && hasPreview) {
+            function updatePreviewWithTemplate() {
+                if (window.CVTemplateRenderer && window.CVTemplateRenderer.render) {
+                    try {
+                        const templateName = resume.templateId || 'modern';
+                        const updatedHTML = window.CVTemplateRenderer.render(templateName, cvDataForPreview);
+                        previewDiv.innerHTML = updatedHTML;
+                    } catch (error) {
+                        console.warn('CV preview güncelleme hatası:', error);
+                    }
+                }
+            }
+            
+            // Template renderer yüklenene kadar bekle, sonra güncelle
+            if (window.CVTemplateRenderer && window.CVTemplateRenderer.render) {
+                updatePreviewWithTemplate();
+            } else {
+                // Template renderer henüz yüklenmedi, yüklendiğinde güncelle
+                const checkInterval = setInterval(() => {
+                    if (window.CVTemplateRenderer && window.CVTemplateRenderer.render) {
+                        updatePreviewWithTemplate();
+                        clearInterval(checkInterval);
+                    }
+                }, 100);
+                // 5 saniye sonra timeout
+                setTimeout(() => clearInterval(checkInterval), 5000);
+            }
+        }
+        
         return card;
     }
     
     // Resume'ları yükle
+    // Aktif tab'ı tut
+    let activeTab = 'all'; // 'all', 'resumes', 'cover-letters', 'portfolios'
+    
+    // Tüm belgeleri tut
+    let allDocuments = {
+        resumes: [],
+        coverLetters: [],
+        portfolios: []
+    };
+    
     async function loadResumes() {
         try {
             // DOM elementlerini kontrol et
@@ -842,6 +970,7 @@
             
             if (response && response.success && response.data && response.data.resumes) {
                 const resumes = response.data.resumes;
+                allDocuments.resumes = resumes;
                 console.log(`✅ ${resumes.length} adet resume bulundu:`, resumes);
                 
                 // Toplam sayıyı güncelle
@@ -856,27 +985,11 @@
                     }
                 }
                 
-                // Mevcut kartları temizle (örnek kartlar hariç)
-                const existingCards = resumesGrid.querySelectorAll('[data-resume-id]');
-                existingCards.forEach(card => card.remove());
+                // Cover letter sayısını güncelle
+                updateCoverLetterCount();
                 
-                // Yeni kartları ekle
-                if (resumes.length === 0) {
-                    console.log('ℹ️ Henüz resume yok, boş liste gösteriliyor');
-                } else {
-                    resumes.forEach(resume => {
-                        console.log('📄 Resume kartı oluşturuluyor:', resume.id, resume.title);
-                        const card = createResumeCard(resume);
-                        // "Yeni Oluştur" kartından sonra ekle
-                        const createCard = resumesGrid.querySelector('a[href*="cv-olusturucu"]');
-                        if (createCard && createCard.parentNode) {
-                            createCard.parentNode.insertBefore(card, createCard.nextSibling);
-                        } else {
-                            resumesGrid.appendChild(card);
-                        }
-                    });
-                    console.log(`✅ ${resumes.length} adet resume kartı eklendi`);
-                }
+                // Belgeleri render et
+                renderDocuments();
             } else {
                 console.warn('⚠️ Resume API response formatı beklenmedik:', response);
             }
@@ -888,6 +1001,163 @@
                 response: error.response
             });
         }
+    }
+    
+    // Cover letter'ları yükle
+    async function loadCoverLetters() {
+        try {
+            if (!window.apiClient) {
+                console.warn('⚠️ API client yüklenmedi');
+                return;
+            }
+            
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                return;
+            }
+            
+            console.log('📥 Cover letter\'lar yükleniyor...');
+            const response = await window.apiClient.getCoverLetters();
+            
+            if (response && response.success && response.data && response.data.coverLetters) {
+                allDocuments.coverLetters = response.data.coverLetters;
+                console.log(`✅ ${allDocuments.coverLetters.length} adet cover letter bulundu`);
+                
+                // Cover letter sayısını güncelle
+                updateCoverLetterCount();
+                
+                // Belgeleri render et
+                renderDocuments();
+            }
+        } catch (error) {
+            console.error('❌ Cover letter yükleme hatası:', error);
+        }
+    }
+    
+    // Cover letter sayısını güncelle
+    function updateCoverLetterCount() {
+        const coverLetterCount = allDocuments.coverLetters.length;
+        const coverLetterCard = document.querySelector('.bg-white.dark\\:bg-\\[\\#1e2130\\] .text-3xl');
+        if (coverLetterCard) {
+            const parent = coverLetterCard.closest('.bg-white');
+            if (parent) {
+                const countSpan = parent.querySelector('span.text-3xl');
+                if (countSpan) {
+                    countSpan.textContent = coverLetterCount;
+                }
+            }
+        }
+    }
+    
+    // Belgeleri render et (filtreleme ile)
+    function renderDocuments() {
+        const resumesGrid = getResumesGrid();
+        if (!resumesGrid) return;
+        
+        // Mevcut kartları temizle (örnek kartlar hariç)
+        const existingCards = resumesGrid.querySelectorAll('[data-resume-id], [data-cover-letter-id]');
+        existingCards.forEach(card => card.remove());
+        
+        // Filtreleme
+        let documentsToShow = [];
+        
+        if (activeTab === 'all') {
+            // Tüm belgeleri göster
+            documentsToShow = [
+                ...allDocuments.resumes.map(r => ({ type: 'resume', data: r })),
+                ...allDocuments.coverLetters.map(c => ({ type: 'cover-letter', data: c }))
+            ];
+        } else if (activeTab === 'resumes') {
+            documentsToShow = allDocuments.resumes.map(r => ({ type: 'resume', data: r }));
+        } else if (activeTab === 'cover-letters') {
+            documentsToShow = allDocuments.coverLetters.map(c => ({ type: 'cover-letter', data: c }));
+        }
+        
+        // Tarihe göre sırala (en yeni önce)
+        documentsToShow.sort((a, b) => {
+            const dateA = new Date(a.data.updatedAt || a.data.createdAt || 0);
+            const dateB = new Date(b.data.updatedAt || b.data.createdAt || 0);
+            return dateB - dateA;
+        });
+        
+        // Kartları oluştur
+        documentsToShow.forEach(doc => {
+            let card;
+            if (doc.type === 'resume') {
+                card = createResumeCard(doc.data);
+            } else if (doc.type === 'cover-letter') {
+                card = createCoverLetterCard(doc.data);
+            }
+            
+            if (card) {
+                const createCard = resumesGrid.querySelector('a[href*="cv-olusturucu"]');
+                if (createCard && createCard.parentNode) {
+                    createCard.parentNode.insertBefore(card, createCard.nextSibling);
+                } else {
+                    resumesGrid.appendChild(card);
+                }
+            }
+        });
+    }
+    
+    // Cover letter kartı oluştur
+    function createCoverLetterCard(coverLetter) {
+        const card = document.createElement('div');
+        card.className = 'group flex flex-col bg-white dark:bg-[#1e2130] border border-[#dbdde6] dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300';
+        card.dataset.coverLetterId = coverLetter.id;
+        
+        const title = coverLetter.title || 'Ön Yazı';
+        const preview = coverLetter.content ? coverLetter.content.substring(0, 150) + '...' : 'Ön yazı içeriği';
+        const updatedAt = new Date(coverLetter.updatedAt || coverLetter.createdAt);
+        const dateStr = formatDate(coverLetter.updatedAt || coverLetter.createdAt);
+        
+        card.innerHTML = `
+            <div class="relative h-48 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 flex items-center justify-center overflow-hidden">
+                <div class="text-center p-4">
+                    <span class="material-symbols-outlined text-4xl text-purple-600 dark:text-purple-400 mb-2">edit_note</span>
+                    <p class="text-xs text-purple-700 dark:text-purple-300 font-medium">ÖN YAZI</p>
+                </div>
+            </div>
+            <div class="p-4 flex flex-col gap-2 flex-1">
+                <h3 class="font-bold text-sm text-[#111218] dark:text-white line-clamp-1">${escapeHtml(title)}</h3>
+                <p class="text-xs text-[#616889] dark:text-gray-400 line-clamp-2">${escapeHtml(preview)}</p>
+                <div class="mt-auto pt-2 border-t border-[#dbdde6] dark:border-gray-700">
+                    <p class="text-xs text-[#616889] dark:text-gray-400 mb-3">Son düzenleme: ${dateStr}</p>
+                    <div class="flex gap-2">
+                        <a href="on-yazi-olusturucu.html?edit=${coverLetter.id}" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#f0f1f4] dark:bg-gray-700 hover:bg-[#e0e1e4] dark:hover:bg-gray-600 text-[#111218] dark:text-white rounded-lg text-xs font-medium transition-colors">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                            Düzenle
+                        </a>
+                        <button onclick="window.deleteCoverLetter('${coverLetter.id}')" class="flex items-center justify-center px-3 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium transition-colors">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Event listener'ları manuel olarak ekle (güvenlik için)
+        const editBtn = card.querySelector('a[href*="on-yazi-olusturucu"]');
+        const deleteBtn = card.querySelector('button[onclick*="deleteCoverLetter"]');
+        
+        if (editBtn) {
+            editBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = `on-yazi-olusturucu.html?edit=${coverLetter.id}`;
+            });
+        }
+        
+        if (deleteBtn) {
+            // onclick attribute'unu kaldır ve event listener ekle
+            deleteBtn.removeAttribute('onclick');
+            deleteBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.deleteCoverLetter(coverLetter.id);
+            });
+        }
+        
+        return card;
     }
     
     // PDF indir
@@ -924,6 +1194,31 @@
         }
     };
     
+    // Cover letter sil
+    window.deleteCoverLetter = async function(coverLetterId) {
+        if (!confirm('Bu ön yazıyı silmek istediğinizden emin misiniz?')) {
+            return;
+        }
+        
+        try {
+            await window.apiClient.deleteCoverLetter(coverLetterId);
+            // Kartı kaldır
+            const resumesGrid = getResumesGrid();
+            if (resumesGrid) {
+                const card = resumesGrid.querySelector(`[data-cover-letter-id="${coverLetterId}"]`);
+                if (card) {
+                    card.remove();
+                }
+            }
+            // Cover letter'ları ve resume'ları yeniden yükle
+            loadCoverLetters();
+            loadResumes();
+        } catch (error) {
+            console.error('Cover letter silme hatası:', error);
+            alert('Ön yazı silinemedi: ' + (error.message || 'Bilinmeyen hata'));
+        }
+    };
+    
     // Yardımcı fonksiyonlar
     function escapeHtml(text) {
         const div = document.createElement('div');
@@ -946,13 +1241,48 @@
         return `${Math.floor(days / 365)} yıl önce`;
     }
     
-    // Sayfa yüklendiğinde resume'ları yükle
+    // Tab'lara event listener ekle
+    function initTabs() {
+        const tabs = document.querySelectorAll('button.pb-3');
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', function() {
+                // Tüm tab'ları pasif yap
+                tabs.forEach(t => {
+                    t.classList.remove('border-[#111218]', 'dark:border-white', 'text-[#111218]', 'dark:text-white', 'font-bold');
+                    t.classList.add('border-transparent', 'text-[#616889]', 'dark:text-gray-400', 'font-medium');
+                });
+                
+                // Aktif tab'ı işaretle
+                this.classList.remove('border-transparent', 'text-[#616889]', 'dark:text-gray-400', 'font-medium');
+                this.classList.add('border-[#111218]', 'dark:border-white', 'text-[#111218]', 'dark:text-white', 'font-bold');
+                
+                // Tab'a göre filtrele
+                const tabText = this.textContent.trim();
+                if (tabText === 'Tümü') {
+                    activeTab = 'all';
+                } else if (tabText === 'Özgeçmişler') {
+                    activeTab = 'resumes';
+                } else if (tabText === 'Ön Yazılar') {
+                    activeTab = 'cover-letters';
+                } else if (tabText === 'Portfolyolar') {
+                    activeTab = 'portfolios';
+                }
+                
+                // Belgeleri render et
+                renderDocuments();
+            });
+        });
+    }
+    
+    // Sayfa yüklendiğinde resume'ları ve cover letter'ları yükle
     function initResumeLoader() {
         // API client yüklenene kadar bekle
         function waitForAPIClientAndLoad() {
             if (window.apiClient) {
-                // API client hazır, resume'ları yükle
+                // API client hazır, resume'ları ve cover letter'ları yükle
                 loadResumes();
+                loadCoverLetters();
+                initTabs();
             } else {
                 // API client henüz yüklenmedi, tekrar dene
                 setTimeout(waitForAPIClientAndLoad, 100);
@@ -965,19 +1295,21 @@
             waitForAPIClientAndLoad();
         }
         
-        // Sayfa görünür olduğunda da resume'ları yeniden yükle (örneğin başka sayfadan dönüldüğünde)
+        // Sayfa görünür olduğunda da resume'ları ve cover letter'ları yeniden yükle
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden && window.apiClient) {
-                console.log('📥 Sayfa görünür oldu, resume\'lar yeniden yükleniyor...');
+                console.log('📥 Sayfa görünür oldu, belgeler yeniden yükleniyor...');
                 loadResumes();
+                loadCoverLetters();
             }
         });
         
         // Focus olduğunda da yeniden yükle
         window.addEventListener('focus', function() {
             if (window.apiClient) {
-                console.log('📥 Pencere focus oldu, resume\'lar yeniden yükleniyor...');
+                console.log('📥 Pencere focus oldu, belgeler yeniden yükleniyor...');
                 loadResumes();
+                loadCoverLetters();
             }
         });
     }
@@ -985,5 +1317,6 @@
     initResumeLoader();
 })();
 </script>
+<script src="js/cv-template-renderer.js"></script>
 </body></html>
 

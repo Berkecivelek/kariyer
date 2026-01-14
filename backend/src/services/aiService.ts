@@ -1,6 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import prisma from '../config/database';
 import { AppError } from '../middleware/errorHandler';
+import puppeteer from 'puppeteer';
+import { createWorker } from 'tesseract.js';
 
 // API key kontrolü ve client initialization - Module load time'da
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -494,7 +496,8 @@ export const generateCoverLetter = async (
   userId: string,
   resumeId: string,
   hedefPozisyon: string,
-  ton: 'samimi' | 'profesyonel' | 'resmi'
+  ton: 'samimi' | 'profesyonel' | 'resmi',
+  jobDescription?: string
 ): Promise<{ coverLetter: string; coverLetterId: string }> => {
   try {
     // Anthropic client kontrolü
@@ -541,8 +544,13 @@ export const generateCoverLetter = async (
       resmi: 'resmi ve kurumsal',
     }[ton];
 
-    // Prompt engineering - Kullanıcının istediği formata göre
-    const prompt = `Aşağıdaki CV bilgilerine göre teknoloji şirketlerine başvuru için profesyonel bir ön yazı üret.
+    // Prompt engineering - İş ilanı metni varsa dahil et
+    let jobDescriptionSection = '';
+    if (jobDescription && jobDescription.trim().length > 50) {
+      jobDescriptionSection = `\n\nİŞ İLANI METNİ:\n${jobDescription.trim()}\n\nÖNEMLİ: Yukarıdaki iş ilanındaki anahtar kelimeleri, aranan nitelikleri ve sorumlulukları ön yazıya stratejik olarak dahil et. ATS sistemlerinde öne çıkmak için iş ilanındaki terimleri kullan.`;
+    }
+
+    const prompt = `Aşağıdaki CV bilgilerine göre${jobDescription ? ' ve verilen iş ilanına uygun' : ''} profesyonel bir ön yazı üret.
 
 Kurallar:
 - Maksimum 3 paragraf
@@ -552,7 +560,7 @@ Kurallar:
 - ATS (Applicant Tracking System) uyumlu ol
 - Kişisel hitap yok (Sen, Siz gibi)
 - Abartı yok, somut ve gerçekçi
-- CV içeriğine birebir bağlı kal
+- CV içeriğine birebir bağlı kal${jobDescription ? '\n- İş ilanındaki anahtar kelimeleri ve aranan nitelikleri stratejik olarak kullan' : ''}
 
 CV:
 Ad Soyad: ${resumeData.adSoyad}
@@ -571,7 +579,7 @@ ${JSON.stringify(resumeData.yetenekler, null, 2)}
 Diller:
 ${JSON.stringify(resumeData.diller, null, 2)}
 
-Hedef Pozisyon: ${hedefPozisyon}
+Hedef Pozisyon: ${hedefPozisyon}${jobDescriptionSection}
 
 Lütfen yukarıdaki kurallara uygun, ${tonAciklama} tonunda, ATS uyumlu ve etkileyici bir ön yazı oluştur.`;
 
@@ -1184,7 +1192,9 @@ Lütfen yukarıdaki CV metnini analiz et ve JSON formatında yapılandırılmı�
       console.error('❌ parseCVFromPDF: JSON parse error:', parseError);
       console.error('❌ parseCVFromPDF: Original response:', originalResponse.substring(0, 1000));
       console.error('❌ parseCVFromPDF: Cleaned response:', responseText.substring(0, 1000));
-      throw new AppError('CV analiz edilemedi. Lütfen PDF\'in okunabilir olduğundan emin olun.', 400);
+      // Daha açıklayıcı hata mesajı
+      const errorDetails = parseError instanceof Error ? parseError.message : 'Bilinmeyen hata';
+      throw new AppError(`CV analiz edilemedi: AI yanıtı JSON formatında değil. Lütfen PDF'in okunabilir olduğundan emin olun. (Hata: ${errorDetails})`, 400);
     }
 
     // Validate and normalize data
@@ -1246,5 +1256,383 @@ Lütfen yukarıdaki CV metnini analiz et ve JSON formatında yapılandırılmı�
     );
   }
 };
+
+// Web scraping - iş ilanı linkinden metin çekme
+export const scrapeJobPosting = async (url: string): Promise<string> => {
+  try {
+    console.log('🔍 Scraping job posting from URL:', url);
+
+    // Puppeteer browser başlat
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+
+    try {
+      const page = await browser.newPage();
+      
+      // User agent ayarla (bot tespitini önlemek için)
+      await page.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      );
+
+      // Sayfayı yükle - LinkedIn için özel handling
+      try {
+        await page.goto(url, {
+          waitUntil: 'domcontentloaded', // networkidle2 yerine domcontentloaded (daha hızlı ve güvenilir)
+          timeout: 30000,
+        });
+      } catch (navError) {
+        // Navigation hatası - frame detached gibi durumlar için retry
+        console.warn('⚠️ Initial navigation failed, retrying with load strategy...', navError);
+        try {
+          await page.goto(url, {
+            waitUntil: 'load',
+            timeout: 20000,
+          });
+        } catch (retryError) {
+          throw new AppError(
+            'Sayfa yüklenemedi. LinkedIn bot koruması nedeniyle erişim engellenmiş olabilir. Lütfen manuel olarak yapıştırın.',
+            408
+          );
+        }
+      }
+
+      // Sayfa yüklenmesini bekle
+      await page.waitForTimeout(2000);
+
+      // İş ilanı metnini çek - farklı siteler için farklı selector'lar
+      const domain = new URL(url).hostname.toLowerCase();
+      let jobText = '';
+
+      if (domain.includes('linkedin.com')) {
+        // LinkedIn için - daha fazla selector ve bekleme süresi
+        await page.waitForTimeout(3000); // LinkedIn'in dinamik içeriği için daha fazla bekle
+        
+        const selectors = [
+          '.description__text',
+          '.show-more-less-html__markup',
+          '[data-test-id="job-details-description"]',
+          '.jobs-description__text',
+          '.jobs-description-content__text',
+          '.jobs-box__html-content',
+          '.jobs-description__text--sticky',
+          '[class*="jobs-description"]',
+          '[id*="job-details"]',
+        ];
+        
+        for (const selector of selectors) {
+          try {
+            await page.waitForSelector(selector, { timeout: 8000 });
+            const element = await page.$(selector);
+            if (element) {
+              // "Show more" butonunu kontrol et ve tıkla
+              const showMoreClicked = await page.evaluate((el: any) => {
+                const showMoreBtn = el.querySelector('button[aria-label*="more"], button[aria-label*="daha"], .show-more-text, button[class*="show"]');
+                if (showMoreBtn) {
+                  (showMoreBtn as any).click();
+                  return true;
+                }
+                return false;
+              }, element);
+              
+              if (showMoreClicked) {
+                await page.waitForTimeout(1000); // Show more tıklandıktan sonra bekle
+              }
+              
+              jobText = await page.evaluate((el: any) => el.textContent || el.innerText || '', element);
+              if (jobText && jobText.trim().length > 100) break;
+            }
+          } catch (e) {
+            // Selector bulunamadı, devam et
+            continue;
+          }
+        }
+        
+        // Eğer hala metin bulunamadıysa, genel body'den çek
+        if (!jobText || jobText.trim().length < 100) {
+          try {
+            jobText = await page.evaluate(() => {
+              // LinkedIn'deki job description container'larını bul
+              const doc = (globalThis as any).document;
+              const containers = doc.querySelectorAll(
+                '[class*="description"], [class*="job-details"], [id*="job-details"], [class*="jobs-description"]'
+              );
+              for (let i = 0; i < containers.length; i++) {
+                const container = containers[i];
+                const text = container.textContent || container.innerText || '';
+                if (text.length > 200 && !text.includes('Sign in') && !text.includes('Giriş yap')) {
+                  return text;
+                }
+              }
+              // Son çare: body'den çek ama navigation ve footer'ı hariç tut
+              const bodyClone = doc.body.cloneNode(true);
+              const unwanted = bodyClone.querySelectorAll('nav, header, footer, aside, [class*="nav"], [class*="header"], [class*="footer"]');
+              for (let i = 0; i < unwanted.length; i++) {
+                unwanted[i].remove();
+              }
+              return bodyClone.innerText || bodyClone.textContent || '';
+            });
+          } catch (evalError) {
+            // Frame detached hatası - LLM fallback kullan
+            console.warn('⚠️ Frame evaluation failed, trying LLM-based extraction...', evalError);
+            try {
+              // Sayfanın HTML'ini al
+              const pageContent = await page.content();
+              // LLM ile job description çıkar
+              jobText = await extractJobDescriptionWithLLM(pageContent, url);
+            } catch (llmError) {
+              console.error('❌ LLM extraction failed:', llmError);
+              throw new AppError(
+                'LinkedIn sayfasından iş ilanı metni çıkarılamadı. LinkedIn bot koruması nedeniyle erişim engellenmiş olabilir. Lütfen iş ilanı metnini manuel olarak yapıştırın.',
+                400
+              );
+            }
+          }
+        }
+      } else if (domain.includes('indeed.com')) {
+        // Indeed için
+        const selectors = [
+          '#jobDescriptionText',
+          '.jobsearch-jobDescriptionText',
+          '[data-testid="job-description"]',
+        ];
+        for (const selector of selectors) {
+          try {
+            await page.waitForSelector(selector, { timeout: 5000 });
+            const element = await page.$(selector);
+            if (element) {
+              jobText = await page.evaluate((el) => el.textContent || el.innerText || '', element);
+              if (jobText.trim().length > 100) break;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+      } else if (domain.includes('kariyer.net')) {
+        // Kariyer.net için
+        const selectors = [
+          '.job-detail-content',
+          '.job-description',
+          '[class*="description"]',
+        ];
+        for (const selector of selectors) {
+          try {
+            await page.waitForSelector(selector, { timeout: 5000 });
+            const element = await page.$(selector);
+            if (element) {
+              jobText = await page.evaluate((el) => el.textContent || el.innerText || '', element);
+              if (jobText.trim().length > 100) break;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+      } else {
+        // Genel fallback - body'den metin çek
+        jobText = await page.evaluate(() => {
+          // Script ve style tag'lerini kaldır
+          const doc = (globalThis as any).document;
+          const scripts = doc.querySelectorAll('script, style, nav, header, footer, aside');
+          for (let i = 0; i < scripts.length; i++) {
+            scripts[i].remove();
+          }
+          return doc.body.innerText || doc.body.textContent || '';
+        });
+      }
+
+      // Metni temizle ve normalize et
+      jobText = jobText
+        .replace(/\s+/g, ' ')
+        .replace(/\n\s*\n/g, '\n')
+        .trim();
+
+      if (jobText.length < 50) {
+        throw new AppError(
+          'İş ilanı metni çekilemedi veya çok kısa. Lütfen manuel olarak yapıştırın.',
+          400
+        );
+      }
+
+      console.log('✅ Job posting scraped successfully, length:', jobText.length);
+
+      return jobText;
+    } finally {
+      await browser.close();
+    }
+  } catch (error) {
+    console.error('❌ scrapeJobPosting error:', error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    // Timeout veya network hataları
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      if (errorMessage.includes('timeout') || errorMessage.includes('Navigation')) {
+        throw new AppError(
+          'Sayfa yüklenemedi veya zaman aşımına uğradı. Lütfen linki kontrol edin veya manuel olarak yapıştırın.',
+          408
+        );
+      }
+      if (errorMessage.includes('net::ERR') || errorMessage.includes('Failed to navigate')) {
+        throw new AppError(
+          'Linke erişilemedi. Lütfen linkin geçerli olduğundan emin olun veya manuel olarak yapıştırın.',
+          400
+        );
+      }
+    }
+
+    throw new AppError(
+      `İş ilanı metni çekilemedi: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}. Lütfen manuel olarak yapıştırın.`,
+      500
+    );
+  }
+};
+
+/**
+ * OCR ile görselden metin çıkarır (Backend-only)
+ * @param imageBuffer - Görsel buffer'ı (base64 veya Buffer)
+ * @returns Çıkarılan metin
+ */
+export const parseImageForOCR = async (imageBuffer: Buffer | string): Promise<string> => {
+  try {
+    console.log('🔍 Starting OCR processing...');
+
+    // Tesseract worker oluştur
+    const worker = await createWorker('tur+eng', 1, {
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          console.log(`OCR progress: ${Math.round(m.progress * 100)}%`);
+        }
+      },
+    });
+
+    try {
+      // Buffer'ı işle
+      let imageData: Buffer;
+      if (typeof imageBuffer === 'string') {
+        // Base64 string ise decode et
+        const base64Data = imageBuffer.replace(/^data:image\/\w+;base64,/, '');
+        imageData = Buffer.from(base64Data, 'base64');
+      } else {
+        imageData = imageBuffer;
+      }
+
+      // OCR işlemini gerçekleştir
+      const { data: { text } } = await worker.recognize(imageData);
+
+      // Worker'ı temizle
+      await worker.terminate();
+
+      // Metni temizle
+      const cleanedText = text
+        .replace(/\s+/g, ' ')
+        .replace(/\n\s*\n/g, '\n')
+        .trim();
+
+      if (cleanedText.length < 50) {
+        throw new AppError(
+          'Görselden yeterli metin ayıklanamadı. Lütfen daha net bir görsel deneyin.',
+          400
+        );
+      }
+
+      console.log('✅ OCR completed successfully, extracted text length:', cleanedText.length);
+
+      return cleanedText;
+    } catch (error) {
+      // Worker'ı temizle (hata olsa bile)
+      await worker.terminate();
+      throw error;
+    }
+  } catch (error) {
+    console.error('❌ parseImageForOCR error:', error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    // OCR spesifik hatalar
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errorMessage = (error as any).message || '';
+      if (errorMessage.includes('language') || errorMessage.includes('lang')) {
+        throw new AppError(
+          'OCR dil paketi yüklenemedi. Lütfen daha sonra tekrar deneyin.',
+          500
+        );
+      }
+      if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+        throw new AppError(
+          'OCR servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.',
+          503
+        );
+      }
+    }
+
+    throw new AppError(
+      `OCR işlemi başarısız oldu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}. Lütfen manuel olarak yapıştırın.`,
+      500
+    );
+  }
+};
+
+/**
+ * LLM kullanarak HTML içeriğinden iş ilanı açıklamasını çıkarır
+ * LinkedIn bot koruması durumunda fallback olarak kullanılır
+ */
+async function extractJobDescriptionWithLLM(htmlContent: string, url: string): Promise<string> {
+  if (!anthropic) {
+    throw new AppError('AI servisi kullanılamıyor.', 503);
+  }
+
+  try {
+    // HTML'den sadece text içeriğini çıkar (basit temizleme)
+    const textContent = htmlContent
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .substring(0, 50000); // LLM token limiti için kısalt
+
+    const prompt = `Aşağıdaki metin bir LinkedIn iş ilanı sayfasından alınmıştır. Lütfen sadece iş ilanının açıklamasını, gereksinimlerini, sorumluluklarını ve aranan nitelikleri çıkar. Navigasyon, footer, reklam veya diğer sayfa elementlerini hariç tut.
+
+URL: ${url}
+
+Sayfa İçeriği:
+${textContent}
+
+Lütfen sadece iş ilanı açıklamasını, gereksinimlerini ve aranan nitelikleri döndür. Başka hiçbir şey ekleme.`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 4000,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    });
+
+    const extractedText = message.content[0].type === 'text' ? message.content[0].text : '';
+
+    if (!extractedText || extractedText.trim().length < 100) {
+      throw new AppError(
+        'İş ilanı metni çıkarılamadı. Lütfen manuel olarak yapıştırın.',
+        400
+      );
+    }
+
+    return extractedText.trim();
+  } catch (error) {
+    console.error('❌ LLM extraction error:', error);
+    throw new AppError(
+      'AI ile iş ilanı metni çıkarılamadı. Lütfen manuel olarak yapıştırın.',
+      500
+    );
+  }
+}
 
 

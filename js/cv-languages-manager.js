@@ -436,7 +436,19 @@
             // Bu tek nokta yeni resume oluşturma noktasıdır
             if (resumeId) {
                 // Mevcut resume'u COMPLETED olarak güncelle
+                // KRİTİK: Mevcut resume'un title'ını koru (sadece yoksa veya boşsa yeni oluştur)
                 try {
+                    // Mevcut resume'u al ve title'ını kontrol et
+                    const existingResume = await window.apiClient.getResume(resumeId);
+                    if (existingResume.success && existingResume.data.resume) {
+                        const existingTitle = existingResume.data.resume.title;
+                        // Eğer mevcut title varsa ve boş değilse, onu koru
+                        if (existingTitle && existingTitle.trim() !== '' && existingTitle !== 'Yeni Özgeçmiş') {
+                            resumeData.title = existingTitle;
+                            console.log('📝 Preserving existing resume title:', existingTitle);
+                        }
+                    }
+                    
                     await window.apiClient.updateResume(resumeId, resumeData);
                     console.log('✅ CV completed and saved to database (updated):', resumeId);
                 } catch (error) {

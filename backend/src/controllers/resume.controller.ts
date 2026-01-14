@@ -12,12 +12,20 @@ export const getAllResumes = async (
       throw new AppError('Not authenticated', 401);
     }
 
-    // SADECE COMPLETED resume'ları göster (DRAFT'lar dashboard'da görünmemeli)
+    // Query parametresi kontrolü: "all" gönderilirse tüm CV'ler, yoksa sadece COMPLETED
+    const includeAll = req.query.all === 'true' || req.query.all === '1';
+    
+    const whereClause: any = { 
+      userId: req.user.userId,
+    };
+    
+    // Eğer "all" parametresi yoksa, sadece COMPLETED CV'leri göster (dashboard için)
+    if (!includeAll) {
+      whereClause.status = 'COMPLETED';
+    }
+    
     const resumes = await prisma.resume.findMany({
-      where: { 
-        userId: req.user.userId,
-        status: 'COMPLETED', // Sadece tamamlanmış CV'ler
-      },
+      where: whereClause,
       orderBy: { updatedAt: 'desc' },
       select: {
         id: true,
@@ -26,7 +34,15 @@ export const getAllResumes = async (
         status: true,
         firstName: true,
         lastName: true,
+        email: true,
+        phone: true,
+        location: true,
         profession: true,
+        summary: true,
+        experience: true,
+        education: true,
+        skills: true,
+        languages: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -167,6 +183,38 @@ export const updateResume = async (
     }
     if (updateData.languages) {
       parsedData.languages = JSON.parse(JSON.stringify(updateData.languages));
+    }
+
+    // KRİTİK: Title korunması - Mevcut title ASLA değiştirilmemeli
+    // Autosave sırasında title gönderilmezse, mevcut title korunmalı
+    // Bu sayede CV düzenlendiğinde orijinal title kaybolmaz
+    if (parsedData.title === undefined || parsedData.title === null || parsedData.title === '') {
+      // Title gönderilmemişse, mevcut title'ı koru
+      parsedData.title = existingResume.title;
+    }
+
+    // KRİTİK: Status korunması - COMPLETED CV'ler ASLA status değiştirilemez
+    // Bir kere COMPLETED olan CV, düzenlense bile COMPLETED olarak kalmalı
+    // Sadece açıkça farklı bir status gönderilirse (örneğin ARCHIVED) değiştir
+    // Ama COMPLETED -> DRAFT veya COMPLETED -> IN_PROGRESS gibi değişiklikler YASAK
+    
+    if (existingResume.status === 'COMPLETED') {
+      // COMPLETED bir CV'nin status'u ASLA değiştirilemez (sadece ARCHIVED olabilir)
+      if (parsedData.status && parsedData.status !== 'COMPLETED' && parsedData.status !== 'ARCHIVED') {
+        // COMPLETED -> DRAFT veya başka bir status'a geçiş YASAK
+        console.warn(`⚠️ Attempted to change COMPLETED resume status from COMPLETED to ${parsedData.status}. Status preserved as COMPLETED.`);
+        parsedData.status = 'COMPLETED';
+      } else if (!parsedData.status || parsedData.status === null || parsedData.status === '') {
+        // Status gönderilmemişse, COMPLETED olarak koru
+        parsedData.status = 'COMPLETED';
+      }
+      // Eğer ARCHIVED gönderilmişse, ARCHIVED olabilir (kullanıcı manuel silme)
+    } else {
+      // DRAFT veya başka status'taki CV'ler için normal koruma
+      if (parsedData.status === undefined || parsedData.status === null || parsedData.status === '') {
+        // Status gönderilmemişse, mevcut status'u koru
+        parsedData.status = existingResume.status;
+      }
     }
 
     const resume = await prisma.resume.update({

@@ -427,10 +427,15 @@
                 const profileName = document.getElementById('profile-name');
                 const profileEmail = document.getElementById('profile-email');
                 
+                const professionInput = document.getElementById('profile-profession');
+                const bioTextarea = document.getElementById('profile-bio');
+                
                 if (firstNameInput) firstNameInput.value = user.firstName || '';
                 if (lastNameInput) lastNameInput.value = user.lastName || '';
                 if (emailInput) emailInput.value = user.email || '';
                 if (phoneInput) phoneInput.value = user.phone || '';
+                if (professionInput) professionInput.value = user.profession || '';
+                if (bioTextarea) bioTextarea.value = user.bio || '';
                 if (profileName) {
                     const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
                     profileName.textContent = fullName;
@@ -482,20 +487,29 @@
             saveBtn.textContent = 'Kaydediliyor...';
             
             try {
-                // Kullanıcı bilgilerini güncelle (backend'de user update endpoint'i olmalı)
-                // Şimdilik sadece frontend'de güncelle
-                const profileName = document.getElementById('profile-name');
-                if (profileName) {
-                    const fullName = `${firstName} ${lastName}`.trim() || email;
-                    profileName.textContent = fullName;
+                // Backend'e kaydet
+                const response = await window.apiClient.updateUser({
+                    firstName,
+                    lastName,
+                    phone,
+                    profession,
+                    bio,
+                });
+                
+                if (response.success) {
+                    // Sidebar'daki profil bilgilerini güncelle
+                    const profileName = document.getElementById('profile-name');
+                    if (profileName) {
+                        const fullName = `${firstName} ${lastName}`.trim() || email;
+                        profileName.textContent = fullName;
+                    }
+                    
+                    alert('Profil bilgileri başarıyla kaydedildi!');
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Değişiklikleri Kaydet';
+                } else {
+                    throw new Error(response.message || 'Kayıt başarısız');
                 }
-                
-                // TODO: Backend'e kaydet
-                // await window.apiClient.updateUser({ firstName, lastName, email, phone, profession, bio });
-                
-                alert('Profil bilgileri kaydedildi!');
-                saveBtn.disabled = false;
-                saveBtn.textContent = 'Değişiklikleri Kaydet';
             } catch (error) {
                 console.error('Profil kaydetme hatası:', error);
                 alert('Profil kaydedilemedi: ' + (error.message || 'Bilinmeyen hata'));

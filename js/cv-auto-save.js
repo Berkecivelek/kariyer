@@ -43,35 +43,32 @@
                 // URL'de resume ID varsa, localStorage'a kaydet (edit modu)
                 localStorage.setItem('current-resume-id', resumeId);
                 console.log('💾 Auto-save: Using resume_id from URL:', resumeId);
-            } else {
-                // URL'de resume yoksa, yeni CV oluşturuluyor
-                // Autosave yeni resume oluşturmaz, sadece localStorage'da tutar
-                console.log('ℹ️ Auto-save: No resume_id in URL, skipping database save');
-                return; // Yeni CV için autosave yapma
-            }
-            
-            const resumeData = {
-                title: `${cvData['fullname-first'] || ''} ${cvData['fullname-last'] || ''}`.trim() || 'Yeni Özgeçmiş',
-                templateId: selectedTemplate,
-                status: 'DRAFT', // Auto-save always saves as draft
-                firstName: cvData['fullname-first'] || '',
-                lastName: cvData['fullname-last'] || '',
-                email: cvData.email || '',
-                phone: cvData.phone || '',
-                location: cvData.location || '',
-                profession: cvData.profession || '',
-                summary: cvData.summary || '',
-                experience: experiences.length > 0 ? experiences : null,
-                education: education.length > 0 ? education : null,
-                skills: skills.length > 0 ? skills : null,
-                languages: languages.length > 0 ? languages : null,
-            };
-            
-            if (resumeId) {
+                
+                // KRİTİK: Autosave sırasında title ve status GÖNDERME
+                // Backend'deki updateResume fonksiyonu mevcut title ve status'u otomatik olarak koruyacak
+                // Bu sayede CV düzenlendiğinde orijinal title ve status korunur
+                const resumeData = {
+                    // title GÖNDERME - Backend mevcut title'ı koruyacak
+                    templateId: selectedTemplate,
+                    // status GÖNDERME - Backend mevcut status'u koruyacak
+                    firstName: cvData['fullname-first'] || '',
+                    lastName: cvData['fullname-last'] || '',
+                    email: cvData.email || '',
+                    phone: cvData.phone || '',
+                    location: cvData.location || '',
+                    profession: cvData.profession || '',
+                    summary: cvData.summary || '',
+                    experience: experiences.length > 0 ? experiences : null,
+                    education: education.length > 0 ? education : null,
+                    skills: skills.length > 0 ? skills : null,
+                    languages: languages.length > 0 ? languages : null,
+                };
+                
                 // Mevcut resume'u güncelle
+                // Backend'deki updateResume fonksiyonu mevcut status'u otomatik olarak koruyacak
                 try {
                     const updateResponse = await window.apiClient.updateResume(resumeId, resumeData);
-                    console.log('✅ CV auto-saved to database (updated):', resumeId);
+                    console.log('✅ CV auto-saved to database (updated):', resumeId, '(status preserved by backend)');
                     console.log('Update response:', updateResponse);
                 } catch (error) {
                     console.error('❌ Auto-save update error:', error);
@@ -85,6 +82,11 @@
                         console.warn('Auto-save update failed, but continuing:', error.message);
                     }
                 }
+            } else {
+                // URL'de resume yoksa, yeni CV oluşturuluyor
+                // Autosave yeni resume oluşturmaz, sadece localStorage'da tutar
+                console.log('ℹ️ Auto-save: No resume_id in URL, skipping database save');
+                return; // Yeni CV için autosave yapma
             }
             
             // Auto-save SADECE mevcut resume'u günceller

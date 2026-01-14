@@ -228,6 +228,8 @@ export const getCurrentUser = async (
         firstName: true,
         lastName: true,
         phone: true,
+        profession: true,
+        bio: true,
         createdAt: true,
         subscriptions: {
           where: { isActive: true },
@@ -240,6 +242,54 @@ export const getCurrentUser = async (
     if (!user) {
       throw new AppError('User not found', 404);
     }
+
+    res.json({
+      success: true,
+      data: { user },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      throw new AppError('Not authenticated', 401);
+    }
+
+    const { firstName, lastName, phone, profession, bio } = req.body;
+
+    // Update data object - sadece gönderilen alanları güncelle
+    const updateData: any = {};
+    if (firstName !== undefined) updateData.firstName = firstName;
+    if (lastName !== undefined) updateData.lastName = lastName;
+    if (phone !== undefined) updateData.phone = phone;
+    if (profession !== undefined) updateData.profession = profession;
+    if (bio !== undefined) updateData.bio = bio;
+
+    // Email değiştirilemez (unique constraint)
+    // Password değiştirme ayrı bir endpoint'te olmalı
+
+    const user = await prisma.user.update({
+      where: { id: req.user.userId },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        profession: true,
+        bio: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     res.json({
       success: true,

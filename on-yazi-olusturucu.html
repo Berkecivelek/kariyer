@@ -262,10 +262,48 @@
 
 <p class="text-text-main text-sm font-semibold leading-normal">İş İlanı Metni</p>
 
-<button class="text-primary text-xs font-medium hover:underline">Linkten Çek</button>
-
+<div class="flex items-center gap-2">
+<button id="fetch-from-link-btn" class="flex items-center gap-1 text-primary text-xs font-medium hover:underline">
+<span class="material-symbols-outlined text-sm">link</span>
+<span>Linkten Çek</span>
+</button>
+<button id="upload-screenshot-btn" class="flex items-center gap-1 text-primary text-xs font-medium hover:underline">
+<span class="material-symbols-outlined text-sm">camera_alt</span>
+<span>Ekran Görüntüsü Yükle</span>
+</button>
 </div>
 
+</div>
+<div id="link-input-container" class="hidden mb-2">
+<input type="text" id="job-link-input" class="w-full px-3 py-2 rounded-lg border border-border-color text-sm" placeholder="İş ilanı linkini buraya yapıştırın (örn: LinkedIn, Indeed, Kariyer.net)">
+<div class="flex gap-2 mt-2">
+<button id="fetch-link-btn" class="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-dark">Linki Analiz Et</button>
+<button id="cancel-link-btn" class="px-4 py-1.5 bg-gray-200 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-300">İptal</button>
+</div>
+</div>
+<div id="job-description-error" class="hidden mb-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-sm">error</span>
+<div class="flex-1">
+<p class="font-semibold mb-1">Maalesef bu bağlantıdan veri çekilemedi.</p>
+<p class="mb-2">İlan metnini manuel olarak buraya yapıştırabilir, bir ekran görüntüsü yükleyebilir veya farklı bir link deneyebilirsiniz.</p>
+<div class="flex gap-2">
+<a href="#" class="text-primary hover:underline font-medium">Desteklenen Siteleri Gör</a>
+<span>•</span>
+<button id="try-ocr-btn" class="text-primary hover:underline font-medium">Metni Görselden Ayıkla (OCR)</button>
+</div>
+</div>
+</div>
+</div>
+<div id="ocr-loading" class="hidden mb-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm animate-spin">sync</span>
+<span>Yapay zeka metni ayıklıyor...</span>
+</div>
+<p class="text-xs mt-1 text-blue-600">Bu işlem birkaç saniye sürebilir</p>
+</div>
+<input type="file" id="screenshot-input" accept="image/*" class="hidden" />
+<input type="file" id="ocr-image-input" accept="image/*" class="hidden" />
 <textarea id="job-description" class="form-input flex w-full resize-y overflow-hidden rounded-lg text-text-main focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-border-color bg-white focus:border-primary min-h-[140px] placeholder:text-text-secondary/60 p-4 text-sm font-normal leading-normal transition-all" placeholder="İlan detaylarını ve aranan nitelikleri buraya yapıştırın..."></textarea>
 
 </label>
@@ -434,7 +472,7 @@
 
 <div class="flex items-center gap-2 ml-auto">
 
-<button class="flex items-center gap-2 rounded-lg border border-border-color px-3 py-1.5 text-sm font-bold text-text-main hover:bg-background-light transition-colors">
+<button id="save-cover-letter-btn" class="flex items-center gap-2 rounded-lg border border-border-color px-3 py-1.5 text-sm font-bold text-text-main hover:bg-background-light transition-colors">
 
 <span class="material-symbols-outlined text-lg">save</span>
 
@@ -442,7 +480,7 @@
 
 </button>
 
-<button class="flex items-center gap-2 rounded-lg bg-text-main px-3 py-1.5 text-sm font-bold text-white hover:bg-black transition-colors">
+<button id="download-pdf-btn" class="flex items-center gap-2 rounded-lg bg-text-main px-3 py-1.5 text-sm font-bold text-white hover:bg-black transition-colors">
 
 <span class="material-symbols-outlined text-lg">download</span>
 
@@ -464,21 +502,21 @@
 
 <!-- Header Section of Cover Letter -->
 
-<div class="mb-8 border-b border-gray-100 pb-6">
+<div class="mb-8 border-b border-gray-100 pb-6" id="cover-letter-header">
 
-<h1 class="text-2xl font-bold text-gray-900 mb-1">Ahmet Yılmaz</h1>
+<h1 class="text-2xl font-bold text-gray-900 mb-1" id="cover-letter-name">Ad Soyad</h1>
 
-<div class="flex flex-wrap gap-4 text-sm text-gray-500">
+<div class="flex flex-wrap gap-4 text-sm text-gray-500" id="cover-letter-contact">
 
-<span>ahmet.yilmaz@email.com</span>
-
-<span>•</span>
-
-<span>+90 555 123 45 67</span>
+<span id="cover-letter-email">email@example.com</span>
 
 <span>•</span>
 
-<span>İstanbul, Türkiye</span>
+<span id="cover-letter-phone">Telefon</span>
+
+<span>•</span>
+
+<span id="cover-letter-location">Konum</span>
 
 </div>
 
@@ -486,13 +524,13 @@
 
 <!-- Date & Recipient -->
 
-<div class="mb-8 text-sm text-gray-800">
+<div class="mb-8 text-sm text-gray-800" id="cover-letter-date-recipient">
 
-<p class="mb-4 font-medium">15 Ekim 2023</p>
+<p class="mb-4 font-medium" id="cover-letter-date">15 Ekim 2023</p>
 
 <p>Sayın İşe Alım Yöneticisi,</p>
 
-<p class="font-medium">Teknoloji Çözümleri A.Ş.</p>
+<p class="font-medium" id="cover-letter-company">Şirket Adı</p>
 
 </div>
 
@@ -545,6 +583,7 @@
 </div>
 
 <!-- Scripts -->
+<!-- Tesseract.js removed - OCR now handled by backend -->
 <script src="js/api-client.js"></script>
 <script src="js/auth-guard.js"></script>
 <script src="js/cover-letter-ai.js"></script>

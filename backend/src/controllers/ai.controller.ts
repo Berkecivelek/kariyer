@@ -200,7 +200,7 @@ export const generateCoverLetter = async (
       throw new AppError('Not authenticated', 401);
     }
 
-    const { resumeId, hedefPozisyon, ton } = req.body;
+    const { resumeId, hedefPozisyon, ton, jobDescription } = req.body;
 
     // Validation
     if (!resumeId || typeof resumeId !== 'string' || resumeId.trim() === '') {
@@ -229,7 +229,8 @@ export const generateCoverLetter = async (
       req.user.userId,
       resumeId.trim(),
       hedefPozisyon.trim(),
-      ton as 'samimi' | 'profesyonel' | 'resmi'
+      ton as 'samimi' | 'profesyonel' | 'resmi',
+      jobDescription ? jobDescription.trim() : undefined
     );
 
     console.log('✅ Cover letter generated successfully, length:', result.coverLetter.length);
@@ -280,6 +281,100 @@ export const generateSummarySuggestions = async (
     });
   } catch (error) {
     console.error('❌ generateSummarySuggestions controller error:', error);
+    next(error);
+  }
+};
+
+// Web scraping endpoint - iş ilanı linkinden metin çekme
+export const scrapeJobPosting = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      throw new AppError('Not authenticated', 401);
+    }
+
+    const { url } = req.body;
+
+    if (!url || typeof url !== 'string' || url.trim() === '') {
+      throw new AppError('URL is required', 400);
+    }
+
+    // URL validation
+    let jobUrl: URL;
+    try {
+      jobUrl = new URL(url.trim());
+    } catch (error) {
+      throw new AppError('Geçersiz URL formatı', 400);
+    }
+
+    // Desteklenen siteler kontrolü
+    const supportedDomains = [
+      'linkedin.com',
+      'indeed.com',
+      'kariyer.net',
+      'yeniibiris.com',
+      'secretcv.com',
+      'monster.com',
+      'glassdoor.com',
+    ];
+
+    const domain = jobUrl.hostname.toLowerCase();
+    const isSupported = supportedDomains.some((supported) =>
+      domain.includes(supported)
+    );
+
+    if (!isSupported) {
+      throw new AppError(
+        'Bu site şu anda desteklenmiyor. Desteklenen siteler: LinkedIn, Indeed, Kariyer.net, Yeni İş İris, SecretCV, Monster, Glassdoor',
+        400
+      );
+    }
+
+    const scrapedText = await aiService.scrapeJobPosting(jobUrl.toString());
+
+    res.json({
+      success: true,
+      data: { jobDescription: scrapedText },
+    });
+  } catch (error) {
+    console.error('❌ scrapeJobPosting error:', error);
+    next(error);
+  }
+};
+
+export const parseImageForOCR = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      throw new AppError('Not authenticated', 401);
+    }
+
+    const { imageData } = req.body;
+
+    if (!imageData || typeof imageData !== 'string') {
+      throw new AppError('Image data is required (base64 string)', 400);
+    }
+
+    // Base64 string'i Buffer'a çevir
+    const imageBuffer = Buffer.from(
+      imageData.replace(/^data:image\/\w+;base64,/, ''),
+      'base64'
+    );
+
+    const extractedText = await aiService.parseImageForOCR(imageBuffer);
+
+    res.json({
+      success: true,
+      data: { jobDescription: extractedText },
+    });
+  } catch (error) {
+    console.error('❌ parseImageForOCR error:', error);
     next(error);
   }
 };
