@@ -601,26 +601,35 @@
     }
 
     try {
-      const response = await window.apiClient.scrapeJobPosting(url.trim());
+      console.log('📡 Yeni backend scraping deneniyor...');
+      const response = await window.apiClient.scrapeJobPostingNew(url.trim());
 
-      if (response.success && response.data && response.data.jobDescription) {
+      if (response.success && response.data && response.data.jobText) {
         // İş ilanı metnini textarea'ya doldur
-        jobDescriptionTextarea.value = response.data.jobDescription;
+        jobDescriptionTextarea.value = response.data.jobText;
+        
+        // Auto-resize textarea
+        jobDescriptionTextarea.style.height = 'auto';
+        jobDescriptionTextarea.style.height = jobDescriptionTextarea.scrollHeight + 'px';
         
         // Clear link input
         if (jobLinkInput) {
           jobLinkInput.value = '';
         }
         
-        showSuccess('İş ilanı metni başarıyla çekildi! Ön yazı oluşturuluyor...');
+        showSuccess('✅ İş ilanı başarıyla yüklendi! Ön yazı oluşturuluyor...');
         
         // Link analiz edildikten sonra direkt ön yazı oluşturma akışını başlat
-        // Önce pozisyon sor, sonra ön yazı oluştur
         setTimeout(() => {
           autoGenerateCoverLetterAfterLinkAnalysis();
         }, 500);
+      } else if (response.needsFrontendFetch) {
+        // Backend başarısız, manuel giriş öner
+        console.log('❌ Backend başarısız, manuel giriş öneriliyor');
+        jobDescriptionTextarea.value = '';
+        showError('⚠️ İş ilanı otomatik yüklenemedi. Lütfen iş ilanı metnini manuel olarak yapıştırın veya "Ekran Görüntüsü Yükle" butonunu kullanın.');
       } else {
-        throw new Error(response.error?.message || 'İş ilanı metni çekilemedi.');
+        throw new Error(response.error || 'İş ilanı metni çekilemedi.');
       }
     } catch (error) {
       console.error('Scrape job posting error:', error);
@@ -630,13 +639,22 @@
         jobDescriptionError.classList.remove('hidden');
       }
       
-      const errorMsg = error.message || 'Bilinmeyen hata';
+      // Link input container'ı tekrar göster (kullanıcı tekrar deneyebilsin)
+      if (linkInputContainer) {
+        linkInputContainer.classList.remove('hidden');
+      }
+      
+      const errorMsg = error.message || error.toString() || 'Bilinmeyen hata';
       let userFriendlyMsg = 'İş ilanı metni çekilemedi. ';
       
-      if (errorMsg.includes('timeout') || errorMsg.includes('Navigation') || errorMsg.includes('detached')) {
-        userFriendlyMsg += 'Link analiz edilemedi. Alternatif olarak "Ekran Görüntüsü Yükle" butonunu kullanabilir veya metni manuel olarak yapıştırabilirsiniz.';
-      } else if (errorMsg.includes('desteklenmiyor')) {
-        userFriendlyMsg += 'Bu site şu anda desteklenmiyor. "Ekran Görüntüsü Yükle" butonunu kullanabilir veya metni manuel olarak yapıştırabilirsiniz.';
+      if (errorMsg.includes('timeout') || errorMsg.includes('Navigation') || errorMsg.includes('detached') || errorMsg.includes('zaman aşımı')) {
+        userFriendlyMsg += 'Link analiz edilemedi. LinkedIn bot koruması nedeniyle erişim engellenmiş olabilir. Alternatif olarak "Ekran Görüntüsü Yükle" butonunu kullanabilir veya metni manuel olarak yapıştırabilirsiniz.';
+      } else if (errorMsg.includes('desteklenmiyor') || errorMsg.includes('supported')) {
+        userFriendlyMsg += 'Bu site şu anda desteklenmiyor. Desteklenen siteler: LinkedIn, Indeed, Kariyer.net. "Ekran Görüntüsü Yükle" butonunu kullanabilir veya metni manuel olarak yapıştırabilirsiniz.';
+      } else if (errorMsg.includes('Geçersiz URL') || errorMsg.includes('invalid')) {
+        userFriendlyMsg += 'Geçersiz link formatı. Lütfen geçerli bir LinkedIn iş ilanı linki girin.';
+      } else if (errorMsg.includes('bot koruması') || errorMsg.includes('erişim engellenmiş')) {
+        userFriendlyMsg += 'LinkedIn bot koruması nedeniyle erişim engellenmiş olabilir. "Ekran Görüntüsü Yükle" butonunu kullanabilir veya metni manuel olarak yapıştırabilirsiniz.';
       } else {
         userFriendlyMsg += '"Ekran Görüntüsü Yükle" butonunu kullanabilir veya metni manuel olarak yapıştırabilirsiniz.';
       }

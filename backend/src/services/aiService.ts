@@ -1271,10 +1271,26 @@ export const scrapeJobPosting = async (url: string): Promise<string> => {
     try {
       const page = await browser.newPage();
       
-      // User agent ayarla (bot tespitini önlemek için)
+      // User agent ayarla (bot tespitini önlemek için) - 2026 güncel
       await page.setUserAgent(
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
       );
+      
+      // Ekstra headers (LinkedIn bot korumasını bypass etmek için)
+      await page.setExtraHTTPHeaders({
+        'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+      });
+      
+      // Viewport ayarla (normal bir tarayıcı gibi görün)
+      await page.setViewport({
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 1,
+      });
 
       // Sayfayı yükle - LinkedIn için özel handling
       try {
@@ -1306,85 +1322,202 @@ export const scrapeJobPosting = async (url: string): Promise<string> => {
       let jobText = '';
 
       if (domain.includes('linkedin.com')) {
-        // LinkedIn için - daha fazla selector ve bekleme süresi
-        await page.waitForTimeout(3000); // LinkedIn'in dinamik içeriği için daha fazla bekle
+        // LinkedIn için - 2026 güncel selector'lar ve gelişmiş strateji
+        console.log('🔍 LinkedIn iş ilanı analiz ediliyor...');
         
+        // Sayfanın tam yüklenmesini bekle
+        await page.waitForTimeout(4000); // LinkedIn'in dinamik içeriği için yeterli bekleme
+        
+        // Önce sayfa yapısını kontrol et
+        const pageStructure = await page.evaluate(() => {
+          const doc = (globalThis as any).document;
+          return {
+            hasDescription: !!doc.querySelector('[class*="description"], [class*="job-details"]'),
+            hasShowMore: !!doc.querySelector('button[aria-label*="more"], button[aria-label*="daha"], button[class*="show-more"]'),
+            bodyText: doc.body.innerText.substring(0, 500)
+          };
+        });
+        
+        console.log('📊 Sayfa yapısı:', pageStructure);
+        
+        // Güncel LinkedIn selector'ları (2026)
         const selectors = [
-          '.description__text',
-          '.show-more-less-html__markup',
-          '[data-test-id="job-details-description"]',
+          // Yeni LinkedIn UI selector'ları
           '.jobs-description__text',
           '.jobs-description-content__text',
           '.jobs-box__html-content',
-          '.jobs-description__text--sticky',
-          '[class*="jobs-description"]',
+          '.show-more-less-html__markup',
+          '.description__text',
+          '[data-test-id="job-details-description"]',
+          '[class*="jobs-description-content"]',
+          '[class*="jobs-description__text"]',
+          '[class*="job-details"]',
           '[id*="job-details"]',
+          '[id*="job-description"]',
+          // Genel fallback selector'lar
+          '[class*="description"]',
+          '[class*="job-details"]',
         ];
+        
+        let foundText = false;
         
         for (const selector of selectors) {
           try {
-            await page.waitForSelector(selector, { timeout: 8000 });
+            // Selector'ı bekle (daha uzun timeout)
+            await page.waitForSelector(selector, { timeout: 10000, visible: true }).catch(() => null);
+            
             const element = await page.$(selector);
             if (element) {
-              // "Show more" butonunu kontrol et ve tıkla
-              const showMoreClicked = await page.evaluate((el: any) => {
-                const showMoreBtn = el.querySelector('button[aria-label*="more"], button[aria-label*="daha"], .show-more-text, button[class*="show"]');
-                if (showMoreBtn) {
-                  (showMoreBtn as any).click();
-                  return true;
-                }
-                return false;
-              }, element);
+              console.log(`✅ Selector bulundu: ${selector}`);
               
-              if (showMoreClicked) {
-                await page.waitForTimeout(1000); // Show more tıklandıktan sonra bekle
+              // "Show more" butonunu kontrol et ve tıkla (birden fazla deneme)
+              for (let attempt = 0; attempt < 3; attempt++) {
+                const showMoreClicked = await page.evaluate((sel: string) => {
+                  const doc = (globalThis as any).document;
+                  const container = doc.querySelector(sel);
+                  if (!container) return false;
+                  
+                  // Farklı "Show more" buton selector'ları
+                  const showMoreSelectors = [
+                    'button[aria-label*="more"]',
+                    'button[aria-label*="daha"]',
+                    'button[aria-label*="Show"]',
+                    '.show-more-text',
+                    'button[class*="show"]',
+                    'button[class*="expand"]',
+                    'span.show-more-text',
+                    'button.show-more-less-html__button',
+                  ];
+                  
+                  for (const btnSel of showMoreSelectors) {
+                    const btn = container.querySelector(btnSel) || doc.querySelector(btnSel);
+                    if (btn && (btn as any).offsetParent !== null) {
+                      (btn as any).click();
+                      return true;
+                    }
+                  }
+                  return false;
+                }, selector);
+                
+                if (showMoreClicked) {
+                  console.log(`📖 "Show more" butonu tıklandı (deneme ${attempt + 1})`);
+                  await page.waitForTimeout(2000); // Show more sonrası içeriğin yüklenmesini bekle
+                } else {
+                  break; // Show more butonu yoksa devam et
+                }
               }
               
-              jobText = await page.evaluate((el: any) => el.textContent || el.innerText || '', element);
-              if (jobText && jobText.trim().length > 100) break;
+              // Metni çek
+              jobText = await page.evaluate((sel: string) => {
+                const doc = (globalThis as any).document;
+                const el = doc.querySelector(sel);
+                if (!el) return '';
+                
+                // HTML içeriğini al (formatting korunur)
+                const htmlContent = el.innerHTML || '';
+                // Text içeriğini al
+                const textContent = el.textContent || el.innerText || '';
+                
+                // HTML'den temiz metin çıkar
+                const tempDiv = doc.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                
+                // Script ve style tag'lerini kaldır
+                const scripts = tempDiv.querySelectorAll('script, style');
+                for (let i = 0; i < scripts.length; i++) {
+                  scripts[i].remove();
+                }
+                
+                return tempDiv.textContent || tempDiv.innerText || textContent;
+              }, selector);
+              
+              // Metin yeterli uzunluktaysa kullan
+              if (jobText && jobText.trim().length > 200) {
+                console.log(`✅ İş ilanı metni çekildi (${jobText.length} karakter)`);
+                foundText = true;
+                break;
+              }
             }
           } catch (e) {
             // Selector bulunamadı, devam et
+            console.log(`⚠️ Selector başarısız: ${selector}`, (e as Error).message);
             continue;
           }
         }
         
         // Eğer hala metin bulunamadıysa, genel body'den çek
-        if (!jobText || jobText.trim().length < 100) {
+        if (!foundText || !jobText || jobText.trim().length < 100) {
+          console.log('⚠️ Selector\'larla metin bulunamadı, genel body\'den çekiliyor...');
           try {
             jobText = await page.evaluate(() => {
-              // LinkedIn'deki job description container'larını bul
               const doc = (globalThis as any).document;
-              const containers = doc.querySelectorAll(
-                '[class*="description"], [class*="job-details"], [id*="job-details"], [class*="jobs-description"]'
+              
+              // Önce tüm olası container'ları bul
+              const allContainers = doc.querySelectorAll(
+                '[class*="description"], [class*="job-details"], [id*="job-details"], [class*="jobs-description"], [class*="job-description"], main, article, [role="main"]'
               );
-              for (let i = 0; i < containers.length; i++) {
-                const container = containers[i];
+              
+              // En uzun ve anlamlı metni bul
+              let bestText = '';
+              let bestLength = 0;
+              
+              for (let i = 0; i < allContainers.length; i++) {
+                const container = allContainers[i];
                 const text = container.textContent || container.innerText || '';
-                if (text.length > 200 && !text.includes('Sign in') && !text.includes('Giriş yap')) {
-                  return text;
+                
+                // İş ilanı metni olma ihtimali yüksek kriterler
+                const hasJobKeywords = /pozisyon|iş|job|görev|sorumluluk|nitelik|yetenek|deneyim|experience|qualification|requirement/i.test(text);
+                const isLongEnough = text.length > 200;
+                const isNotNavigation = !text.includes('Sign in') && !text.includes('Giriş yap') && !text.includes('Home') && !text.includes('Ana Sayfa');
+                
+                if (hasJobKeywords && isLongEnough && isNotNavigation && text.length > bestLength) {
+                  bestText = text;
+                  bestLength = text.length;
                 }
               }
+              
+              if (bestText && bestLength > 200) {
+                return bestText;
+              }
+              
               // Son çare: body'den çek ama navigation ve footer'ı hariç tut
               const bodyClone = doc.body.cloneNode(true);
-              const unwanted = bodyClone.querySelectorAll('nav, header, footer, aside, [class*="nav"], [class*="header"], [class*="footer"]');
+              const unwanted = bodyClone.querySelectorAll(
+                'nav, header, footer, aside, [class*="nav"], [class*="header"], [class*="footer"], [class*="sidebar"], [class*="menu"], script, style'
+              );
               for (let i = 0; i < unwanted.length; i++) {
                 unwanted[i].remove();
               }
-              return bodyClone.innerText || bodyClone.textContent || '';
+              
+              const bodyText = bodyClone.innerText || bodyClone.textContent || '';
+              
+              // Body text'ten en anlamlı kısmı bul (ortadaki kısım genelde job description)
+              const lines = bodyText.split('\n').filter(line => line.trim().length > 10);
+              const startIdx = Math.floor(lines.length * 0.2); // İlk %20'yi atla
+              const endIdx = Math.floor(lines.length * 0.9); // Son %10'u atla
+              const relevantLines = lines.slice(startIdx, endIdx);
+              
+              return relevantLines.join('\n');
             });
+            
+            // Body'den çekilen metin yeterli değilse LLM fallback
+            if (!jobText || jobText.trim().length < 100) {
+              throw new Error('Body text extraction insufficient');
+            }
           } catch (evalError) {
-            // Frame detached hatası - LLM fallback kullan
-            console.warn('⚠️ Frame evaluation failed, trying LLM-based extraction...', evalError);
+            // Frame detached hatası veya yetersiz metin - LLM fallback kullan
+            console.warn('⚠️ Direct extraction failed, trying LLM-based extraction...', (evalError as Error).message);
             try {
               // Sayfanın HTML'ini al
               const pageContent = await page.content();
+              console.log('🤖 LLM ile iş ilanı metni çıkarılıyor...');
               // LLM ile job description çıkar
               jobText = await extractJobDescriptionWithLLM(pageContent, url);
+              console.log('✅ LLM extraction başarılı, metin uzunluğu:', jobText.length);
             } catch (llmError) {
               console.error('❌ LLM extraction failed:', llmError);
               throw new AppError(
-                'LinkedIn sayfasından iş ilanı metni çıkarılamadı. LinkedIn bot koruması nedeniyle erişim engellenmiş olabilir. Lütfen iş ilanı metnini manuel olarak yapıştırın.',
+                'LinkedIn sayfasından iş ilanı metni çıkarılamadı. LinkedIn bot koruması nedeniyle erişim engellenmiş olabilir. Lütfen iş ilanı metnini manuel olarak yapıştırın veya "Ekran Görüntüsü Yükle" butonunu kullanın.',
                 400
               );
             }
@@ -1597,6 +1730,13 @@ async function extractJobDescriptionWithLLM(htmlContent: string, url: string): P
       .substring(0, 50000); // LLM token limiti için kısalt
 
     const prompt = `Aşağıdaki metin bir LinkedIn iş ilanı sayfasından alınmıştır. Lütfen sadece iş ilanının açıklamasını, gereksinimlerini, sorumluluklarını ve aranan nitelikleri çıkar. Navigasyon, footer, reklam veya diğer sayfa elementlerini hariç tut.
+
+ÖNEMLİ KURALLAR:
+- Sadece iş ilanı ile ilgili metni çıkar
+- Pozisyon adını, şirket adını, lokasyonu dahil et
+- İş tanımını, sorumlulukları, gereksinimleri ve aranan nitelikleri dahil et
+- Navigasyon menüleri, footer, reklamlar, cookie uyarıları gibi sayfa elementlerini HİÇBİR ŞEKİLDE dahil etme
+- Metni temiz ve okunabilir formatta döndür
 
 URL: ${url}
 

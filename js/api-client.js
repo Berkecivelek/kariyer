@@ -348,6 +348,14 @@ class APIClient {
       body: JSON.stringify({ url }),
     });
   }
+
+  // Yeni LinkedIn scraping metodu (cheerio/axios tabanlı)
+  async scrapeJobPostingNew(url) {
+    return this.request('/ai/scrape-job', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    });
+  }
   
   async parseImageForOCR(imageData) {
     // Backend'e base64 string gönder

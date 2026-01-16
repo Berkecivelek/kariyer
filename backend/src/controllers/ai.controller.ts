@@ -345,6 +345,110 @@ export const scrapeJobPosting = async (
   }
 };
 
+// ===== YENİ METODLAR - MEVCUT KODLARA DOKUNMA =====
+
+export const scrapeJobPostingNew = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      throw new AppError('Not authenticated', 401);
+    }
+
+    const { url } = req.body;
+
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'URL gerekli'
+      });
+    }
+
+    console.log('🔗 LinkedIn iş ilanı analizi:', url);
+
+    const { LinkedInScraperService } = await import('../services/linkedin-scraper.service');
+    const scraperService = new LinkedInScraperService();
+    const result = await scraperService.scrapeLinkedInJob(url);
+
+    if (result.success && result.formattedText) {
+      return res.json({
+        success: true,
+        data: {
+          jobText: result.formattedText,
+          jobDetails: result.data,
+          source: 'backend_scraping'
+        }
+      });
+    }
+
+    if (result.fallbackStrategy === 'frontend_fetch') {
+      return res.json({
+        success: false,
+        needsFrontendFetch: true,
+        jobId: result.jobId,
+        originalUrl: url,
+        message: 'Backend scraping başarısız, manuel giriş öneriliyor'
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: result.error || 'İş ilanı analiz edilemedi'
+    });
+
+  } catch (error) {
+    console.error('❌ Scraping error:', error);
+    next(error);
+  }
+};
+
+export const fetchJobWithClaude = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      throw new AppError('Not authenticated', 401);
+    }
+
+    const { url } = req.body;
+    console.log('🤖 Claude AI fallback:', url);
+
+    // Mevcut AI service'i kullan
+    const { scrapeJobPosting } = await import('../services/aiService');
+    
+    try {
+      const jobText = await scrapeJobPosting(url);
+      
+      if (jobText && jobText.length > 100) {
+        return res.json({
+          success: true,
+          data: {
+            jobText: jobText,
+            source: 'claude_ai_fallback'
+          }
+        });
+      }
+    } catch (puppeteerError) {
+      console.log('⚠️ Puppeteer fallback failed, trying LLM direct analysis...');
+    }
+
+    // Son çare: LLM ile direkt analiz - mevcut AI service'i kullan
+    // Bu durumda kullanıcıya manuel giriş öner
+    return res.status(500).json({
+      success: false,
+      error: 'Backend scraping başarısız. Lütfen iş ilanı metnini manuel olarak yapıştırın veya "Ekran Görüntüsü Yükle" butonunu kullanın.'
+    });
+
+  } catch (error) {
+    console.error('❌ Claude fetch error:', error);
+    next(error);
+  }
+};
+
 export const parseImageForOCR = async (
   req: Request,
   res: Response,

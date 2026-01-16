@@ -52,5 +52,16 @@ router.get('/analyses/:resumeId', analysisController.getResumeAnalyses);
 router.post('/scrape-job-posting', aiController.scrapeJobPosting);
 router.post('/parse-image-ocr', aiController.parseImageForOCR);
 
+// ===== YENİ ROUTE'LAR - MEVCUT ROUTE'LARA DOKUNMA =====
+router.post(
+  '/scrape-job',
+  aiController.scrapeJobPostingNew
+);
+
+router.post(
+  '/fetch-job-with-claude',
+  aiController.fetchJobWithClaude
+);
+
 export default router;
 
