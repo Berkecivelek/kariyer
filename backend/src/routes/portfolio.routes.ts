@@ -1,8 +1,8 @@
-import express from 'express';
+import express, { Router } from 'express';
 import * as portfolioController from '../controllers/portfolio.controller';
 import { authenticate } from '../middleware/auth.middleware';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // All routes require authentication
 router.use(authenticate);

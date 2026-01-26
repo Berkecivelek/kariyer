@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { CVAnalysisController } from '../controllers/cvAnalysis.controller';
 import { authenticate } from '../middleware/auth.middleware';
 
-const router = Router();
+const router: Router = Router();
 const controller = new CVAnalysisController();
 
 router.post(

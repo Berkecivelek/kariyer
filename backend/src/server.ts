@@ -11,7 +11,7 @@ if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY.trim() === '
   console.log('✅ ANTHROPIC_API_KEY is configured (length:', process.env.ANTHROPIC_API_KEY.length, 'chars)');
 }
 
-import express from 'express';
+import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -31,7 +31,7 @@ import interviewRoutes from './routes/interview.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 
-const app = express();
+const app: Application = express();
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
