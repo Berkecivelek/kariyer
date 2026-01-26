@@ -11,11 +11,18 @@
         'cv-olusturucu-egitim.html',
         'cv-olusturucu-yetenekler.html',
         'cv-olusturucu-diller.html',
+        'cv-optimizasyon.html',
+        'cv-analiz.html',
         'profil-ayarlari.html',
         'hesap-ayarlari.html',
         'sifre-ve-guvenlik.html',
         'gizlilik-ayarlari.html',
-        'bildirim-ayarlari.html'
+        'bildirim-ayarlari.html',
+        'belgelerim.html',
+        'on-yazi-olusturucu.html',
+        'mulakat-hazirligi.html',
+        'mulakat-hazirligi-teknik.html',
+        'mulakat-hazirligi-stres.html'
     ];
     
     // Public sayfalar (giriş yapmadan erişilebilen sayfalar)

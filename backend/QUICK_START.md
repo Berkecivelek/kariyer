@@ -123,3 +123,4 @@ npx prisma migrate reset  # Dikkat: Tüm verileri siler
 
 
 
+

@@ -1,617 +1,479 @@
 <!DOCTYPE html>
-
 <html class="light" lang="tr"><head>
-
 <meta charset="utf-8"/>
-
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-
-<title>Yapay Zeka İçerik &amp; Optimizasyon</title>
-
+<title>CareerAI - CV Analizi ve Puanlama</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
-
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
 <script id="tailwind-config">
-
         tailwind.config = {
-
             darkMode: "class",
-
             theme: {
-
                 extend: {
-
                     colors: {
-
                         "primary": "#1337ec",
-
                         "background-light": "#f6f6f8",
-
                         "background-dark": "#101322",
-
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a1d2d",
+                        "error": "#ef4444",
+                        "warning": "#f59e0b",
+                        "success": "#10b981"
                     },
-
                     fontFamily: {
-
                         "display": ["Manrope", "sans-serif"]
-
                     },
-
                     borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-
                 },
-
             },
-
         }
-
     </script>
-
-<style>
-
-        body {
-
-            font-family: 'Manrope', sans-serif;
-
+<style type="text/tailwindcss">
+        @layer utilities {
+            .circular-progress {
+                background: conic-gradient(var(--primary-color) 295.2deg, #e5e7eb 0deg);
+            }
         }
-
-        /* Custom scrollbar for better aesthetics in editor */
-
+        :root {
+            --primary-color: #1337ec;
+        }
         .custom-scrollbar::-webkit-scrollbar {
-
-            width: 8px;
-
+            width: 4px;
         }
-
         .custom-scrollbar::-webkit-scrollbar-track {
-
             background: transparent;
-
         }
-
         .custom-scrollbar::-webkit-scrollbar-thumb {
-
-            background-color: #cbd5e1;
-
-            border-radius: 20px;
-
+            background: #e2e8f0;
+            border-radius: 10px;
         }
-
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
     </style>
-
 </head>
-
-<body class="bg-background-light dark:bg-background-dark text-[#111218] flex flex-col min-h-screen overflow-hidden">
-
-<!-- Top Navigation -->
-
-<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f1f4] dark:border-gray-800 bg-white dark:bg-[#1a1d2d] px-6 py-3 shrink-0 z-20">
-
-<div class="flex items-center gap-8">
-
-<a href="index.html" class="flex items-center gap-4 text-[#111218] dark:text-white">
-
-<div class="size-8 text-primary">
-
-<span class="material-symbols-outlined !text-[32px]">auto_awesome</span>
-
+<body class="bg-background-light dark:bg-background-dark text-[#111218] dark:text-white font-display overflow-x-hidden antialiased">
+<div class="relative flex min-h-screen w-full flex-col">
+<header class="sticky top-0 z-50 w-full bg-surface-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-[#f0f1f4] dark:border-gray-800">
+<div class="flex items-center justify-between px-6 py-4 max-w-[1440px] mx-auto w-full">
+<a href="index.html" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+<div class="text-primary">
+<svg class="size-8" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z" fill="currentColor"></path>
+</svg>
 </div>
-
-<h2 class="text-[#111218] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Kariyer Platformu</h2>
-
+<h2 class="text-[#111218] dark:text-white text-xl font-bold tracking-tight">CareerAI</h2>
 </a>
-
-<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
-
-<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
-
-<div class="text-[#616889] flex border-none bg-[#f0f1f4] dark:bg-gray-800 items-center justify-center pl-4 rounded-l-lg border-r-0">
-
-<span class="material-symbols-outlined text-[20px]">search</span>
-
-</div>
-
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111218] dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f0f1f4] dark:bg-gray-800 focus:border-none h-full placeholder:text-[#616889] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Ara..." value=""/>
-
-</div>
-
-</label>
-
-</div>
-
-<div class="flex items-center justify-end gap-4 md:gap-8">
-
-<div class="flex gap-2">
-
-<button class="flex items-center justify-center overflow-hidden rounded-full size-10 bg-[#f0f1f4] dark:bg-gray-800 text-[#111218] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-
-<span class="material-symbols-outlined text-[20px]">notifications</span>
-
-</button>
-
-<button class="flex items-center justify-center overflow-hidden rounded-full size-10 bg-[#f0f1f4] dark:bg-gray-800 text-[#111218] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-
-<span class="material-symbols-outlined text-[20px]">settings</span>
-
-</button>
-
-</div>
-
-<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-gray-700 shadow-sm" data-alt="User profile picture with a smiling professional" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB7nyqa0gqhZOu0Ygmkh9sUcxX7w97ht-M2y4PzSmrTV2k-8iu_qlfV61snW-hKFEkdlz2FuC0Nnbb7f4G7eDHNFijudANn7WNk_2QVkjtzQuLZ0zXWA-miyxuBQ5et2vVnIcDMbC3UP9wBBUKWxw4qrRxYzUfwhF0Wl-uq5S69DXDocIsf4Qv1KTdkql9Ps6lHeD8SYfeyjhQ45HJwhU1-vrl-7QZ73PomOYsAfRy_pM8kJigpq4W5X5ZiqjaTeEBOn7nWrklmS6TP");'></div>
-
-</div>
-
-</header>
-
-<div class="flex flex-1 overflow-hidden">
-
-<!-- Side Navigation -->
-
-<nav class="hidden lg:flex w-64 flex-col justify-between bg-white dark:bg-[#1a1d2d] border-r border-[#f0f1f4] dark:border-gray-800 p-4 shrink-0 overflow-y-auto">
-
-<div class="flex flex-col gap-6">
-
-<div class="flex gap-3 items-center px-2">
-
-<div class="bg-center bg-no-repeat bg-cover rounded-full size-12" data-alt="Close up user avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFwH1zcu2jNNSocOS94vluDqTjTGN7RC_xOiO1eirAJXWvsqoOyLC4XHnGiDZRNpa1G1H-LdISc_kTsOK3lwXIaP-N3UmJH3KjZRdP6HKHYbRAXU7lZqPEO-DUzDCEVxCxjTUSX-8I8B0zf1W6MP8gUd72eIymvuhfmTEVgMK5JqsN8_pgpx2oXNA2N1iQKl3oEplNQ7xsqXF7yRLaY9HKm8ohfN8sEnpEO8qzQoHabGYMehwa82pQDXkXg1HrtJszAt_P8Wh7Vdxq");'></div>
-
-<div class="flex flex-col">
-
-<h1 class="text-[#111218] dark:text-white text-base font-bold leading-normal">Elif Yılmaz</h1>
-
-<p class="text-[#616889] text-xs font-medium uppercase tracking-wide">Pro Üye</p>
-
-</div>
-
-</div>
-
-<div class="flex flex-col gap-1">
-
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors" href="index.html">
-
-<span class="material-symbols-outlined text-[#616889] group-hover:text-primary transition-colors">dashboard</span>
-
-<p class="text-[#111218] dark:text-gray-300 text-sm font-medium">Panel</p>
-
-</a>
-
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors" href="cv-olusturucu.html">
-
-<span class="material-symbols-outlined text-[#616889] group-hover:text-primary transition-colors">description</span>
-
-<p class="text-[#111218] dark:text-gray-300 text-sm font-medium">Belgelerim</p>
-
-</a>
-
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary" href="cv-optimizasyon.html">
-
-<span class="material-symbols-outlined text-primary fill-current">auto_fix_high</span>
-
-<p class="text-primary text-sm font-bold">Editör</p>
-
-</a>
-
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors" href="#">
-
-<span class="material-symbols-outlined text-[#616889] group-hover:text-primary transition-colors">work</span>
-
-<p class="text-[#111218] dark:text-gray-300 text-sm font-medium">İş İlanları</p>
-
-</a>
-
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 group transition-colors" href="#">
-
-<span class="material-symbols-outlined text-[#616889] group-hover:text-primary transition-colors">analytics</span>
-
-<p class="text-[#111218] dark:text-gray-300 text-sm font-medium">Analizler</p>
-
-</a>
-
-</div>
-
-</div>
-
-<div class="flex flex-col gap-2 mt-auto">
-
-<div class="bg-gradient-to-br from-primary/80 to-primary p-4 rounded-xl text-white mb-4">
-
-<div class="flex items-center justify-between mb-2">
-
-<span class="text-sm font-bold">Premium Plan</span>
-
-<span class="material-symbols-outlined text-white/80 text-lg">workspace_premium</span>
-
-</div>
-
-<p class="text-xs text-white/90 mb-3">Tüm AI özelliklerine sınırsız erişim.</p>
-
-<button class="w-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 rounded transition-colors">Yükselt</button>
-
-</div>
-
-<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#616889]" href="#">
-
-<span class="material-symbols-outlined">settings</span>
-
-<p class="text-sm font-medium">Ayarlar</p>
-
-</a>
-
-<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-[#616889]" href="#">
-
-<span class="material-symbols-outlined">logout</span>
-
-<p class="text-sm font-medium">Çıkış Yap</p>
-
-</a>
-
-</div>
-
+<nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+<a class="text-[#111218] dark:text-gray-300 hover:text-primary transition-colors" href="hizmetler.html">Hizmetler</a>
+<a class="text-[#111218] dark:text-gray-300 hover:text-primary transition-colors" href="tum-sablonlar.html">Şablonlar</a>
+<a class="text-[#111218] dark:text-gray-300 hover:text-primary transition-colors" href="fiyatlandirma.html">Fiyatlandırma</a>
 </nav>
-
-<!-- Main Content Area -->
-
-<main class="flex-1 flex flex-col h-full overflow-hidden relative">
-
-<!-- Header for Editor -->
-
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 pb-2 shrink-0">
-
-<div>
-
-<h1 class="text-2xl font-bold text-[#111218] dark:text-white flex items-center gap-2">
-
-                        CV Optimizasyon Asistanı
-
-                        <span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">BETA</span>
-
-</h1>
-
-<p class="text-[#616889] text-sm mt-1">Yapay zeka önerileri ile özgeçmişinizi mükemmelleştirin.</p>
-
+<div class="flex items-center gap-4">
+<div id="user-info-container" class="flex items-center gap-2 pr-4 border-r border-gray-200 dark:border-gray-700">
+<span id="user-name-display" class="text-sm font-bold text-gray-700 dark:text-gray-300">Yükleniyor...</span>
 </div>
-
-<div class="flex items-center gap-3">
-
-<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 rounded-lg text-sm font-medium text-[#111218] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-
-<span class="material-symbols-outlined text-[18px]">upload_file</span>
-
-                        Yükle
-
-                    </button>
-
-<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-lg shadow-blue-500/30 transition-colors">
-
-<span class="material-symbols-outlined text-[18px]">download</span>
-
-                        Dışa Aktar
-
-                    </button>
-
+<button id="settings-btn" class="material-symbols-outlined text-gray-500 hover:text-primary cursor-pointer transition-colors" title="Ayarlar">settings</button>
 </div>
-
 </div>
-
-<!-- Split View Content -->
-
-<div class="flex flex-col lg:flex-row flex-1 overflow-hidden p-6 gap-6 pt-2">
-
-<!-- Left: Document Editor -->
-
-<div class="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#1a1d2d] rounded-xl shadow-sm border border-[#dbdde6] dark:border-gray-700 overflow-hidden">
-
-<!-- Toolbar -->
-
-<div class="flex items-center justify-between px-4 py-2 border-b border-[#dbdde6] dark:border-gray-700 bg-[#fbfbfc] dark:bg-[#1e2130]">
-
-<div class="flex items-center gap-1">
-
-<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">undo</span></button>
-
-<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">redo</span></button>
-
-<div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
-
-<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">format_bold</span></button>
-
-<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">format_italic</span></button>
-
-<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">format_underlined</span></button>
-
-<div class="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
-
-<button class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-[#616889]"><span class="material-symbols-outlined text-[20px]">format_list_bulleted</span></button>
-
+</header>
+<main class="flex-1 w-full max-w-[1440px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<section class="lg:col-span-5 xl:col-span-4 sticky top-24">
+<div class="bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+<div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
+<h3 class="font-bold text-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-gray-400 text-lg">visibility</span>
+                        Özgeçmiş Önizleme
+                    </h3>
+<div class="flex gap-2">
+<button id="preview-zoom-btn" class="p-1.5 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">zoom_in</span>
+</button>
+<button id="preview-download-btn" class="p-1.5 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">download</span>
+</button>
 </div>
-
-<div class="text-xs text-[#616889] font-medium">
-
-                            Son kaydedilen: Şimdi
-
+</div>
+<div class="p-8 bg-gray-200 dark:bg-gray-900 min-h-[700px] flex justify-center overflow-auto">
+<div id="cv-preview-content" class="w-full max-w-[400px] bg-white shadow-2xl rounded-sm p-8 flex flex-col gap-6 text-[10px] leading-relaxed text-gray-700">
+<div class="border-b-2 border-primary pb-4">
+<div class="w-24 h-3 bg-gray-800 mb-2"></div>
+<div class="w-48 h-2 bg-gray-300"></div>
+</div>
+<div class="space-y-3">
+<div class="w-16 h-2 bg-primary/20"></div>
+<div class="space-y-2">
+<div class="w-full h-1.5 bg-gray-100"></div>
+<div class="w-full h-1.5 bg-gray-100"></div>
+<div class="w-[90%] h-1.5 bg-gray-100"></div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="w-16 h-2 bg-primary/20"></div>
+<div class="space-y-4">
+<div class="flex gap-2">
+<div class="w-1/4 h-1.5 bg-gray-200"></div>
+<div class="flex-1 space-y-1.5">
+<div class="w-3/4 h-1.5 bg-gray-300"></div>
+<div class="w-full h-1.5 bg-gray-100"></div>
+<div class="w-full h-1.5 bg-gray-100"></div>
+</div>
+</div>
+<div class="flex gap-2">
+<div class="w-1/4 h-1.5 bg-gray-200"></div>
+<div class="flex-1 space-y-1.5">
+<div class="w-3/4 h-1.5 bg-gray-300"></div>
+<div class="w-full h-1.5 bg-gray-100"></div>
+<div class="w-full h-1.5 bg-gray-100"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 border-t border-gray-100 text-[8px] italic text-gray-400">
+                            Sayfa 1 / 1
                         </div>
-
 </div>
-
-<!-- Text Area / WYSIWYG -->
-
-<div class="flex-1 overflow-y-auto custom-scrollbar p-8 bg-white dark:bg-[#1a1d2d]">
-
-<div class="max-w-[800px] mx-auto min-h-full outline-none text-[#111218] dark:text-gray-200 font-serif leading-relaxed text-lg" contenteditable="true">
-
-<h1 class="text-3xl font-bold mb-1">Elif Yılmaz</h1>
-
-<p class="text-gray-500 mb-6 text-base border-b pb-4">Senior Software Engineer • Istanbul, TR • elif@example.com</p>
-
-<h2 class="text-lg font-bold uppercase tracking-wider text-primary mb-3">Professional Summary</h2>
-
-<p class="mb-6">
-
-                                Results-oriented <span class="bg-yellow-100 dark:bg-yellow-900/30 px-1 rounded border-b-2 border-yellow-400 cursor-help" title="Daha güçlü bir sıfat kullanmayı deneyin.">Software Engineer</span> with 6+ years of experience in full-stack development. Proven track record of <span class="bg-red-100 dark:bg-red-900/30 px-1 rounded border-b-2 border-red-400 cursor-help" title="Edilgen çatı. 'Spearheaded' gibi bir kelime kullanın.">helping</span> teams deliver high-quality software. Skilled in <span class="bg-green-100 dark:bg-green-900/30 px-1 rounded border-b-2 border-green-400">React, Node.js, and AWS</span>.
-
-                            </p>
-
-<h2 class="text-lg font-bold uppercase tracking-wider text-primary mb-3">Experience</h2>
-
-<div class="mb-4">
-
-<div class="flex justify-between font-bold">
-
-<h3>Senior Developer - TechGlobal Inc.</h3>
-
-<span>2020 - Present</span>
-
 </div>
-
-<ul class="list-disc ml-5 mt-2 space-y-1">
-
-<li>Led a team of 5 developers to rebuild the legacy payment system.</li>
-
-<li>Reduced API latency by 40% through code optimization and caching strategies.</li>
-
-<li><span class="bg-red-100 dark:bg-red-900/30 px-1 rounded border-b-2 border-red-400 cursor-help" title="Zayıf fiil. 'Managed' veya 'Orchestrated' deneyin.">Handled</span> deployment pipelines using Jenkins and Docker.</li>
-
-</ul>
-
 </div>
-
-<div class="mb-4">
-
-<div class="flex justify-between font-bold">
-
-<h3>Software Developer - StartUp Hub</h3>
-
-<span>2018 - 2020</span>
-
+</section>
+<section class="lg:col-span-7 xl:col-span-8 space-y-8">
+<div class="bg-white dark:bg-surface-dark rounded-3xl p-8 shadow-sm border border-gray-200 dark:border-gray-800">
+<div class="flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="text-xl font-bold text-[#111218] dark:text-white mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary font-bold">analytics</span>
+                                Analiz İçin Kaynak Seçin
+                            </h2>
+<p class="text-sm text-gray-500">Özgeçmişinizi seçin ve yapay zeka analizini hemen başlatın.</p>
 </div>
-
-<ul class="list-disc ml-5 mt-2 space-y-1">
-
-<li>Developed responsive frontend components using Vue.js.</li>
-
-<li>Collaborated with UX designers to implement new features.</li>
-
-</ul>
-
 </div>
-
+<div class="flex flex-col md:flex-row items-end gap-4 w-full">
+<div class="flex-1 w-full space-y-2">
+<label class="text-sm font-bold text-[#111218] dark:text-gray-300">Kullanılacak Özgeçmiş</label>
+<div class="relative group">
+<select id="resume-select" class="w-full appearance-none bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-5 py-3.5 text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer">
+<option value="">Özgeçmiş Seçin...</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined">expand_more</span>
 </div>
-
 </div>
-
 </div>
-
-<!-- Right: AI Copilot / Dashboard -->
-
-<div class="w-full lg:w-[400px] flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar pr-1">
-
-<!-- Score Card -->
-
-<div class="bg-white dark:bg-[#1a1d2d] rounded-xl p-6 shadow-sm border border-[#dbdde6] dark:border-gray-700 flex flex-col items-center relative overflow-hidden group">
-
-<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-8 -mt-8 z-0"></div>
-
-<div class="relative z-10 text-center w-full">
-
-<h3 class="text-base font-bold text-[#111218] dark:text-white mb-4 flex items-center justify-center gap-2">
-
-<span class="material-symbols-outlined text-primary">analytics</span>
-
-                                ATS Uyumluluk Skoru
-
-                            </h3>
-
-<div class="relative size-32 mx-auto mb-4 flex items-center justify-center">
-
-<svg class="size-full -rotate-90" viewbox="0 0 36 36">
-
-<path class="text-gray-100 dark:text-gray-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
-
-<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="72, 100" stroke-linecap="round" stroke-width="3"></path>
-
-</svg>
-
-<div class="absolute flex flex-col items-center">
-
-<span class="text-3xl font-black text-[#111218] dark:text-white">72</span>
-
-<span class="text-xs text-[#616889]">/100</span>
-
+<div class="w-full md:w-auto">
+<button id="analyze-btn" disabled class="w-full h-[54px] flex items-center justify-center gap-3 px-6 rounded-xl bg-primary hover:bg-blue-700 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span class="text-sm font-bold whitespace-nowrap">CV'mi Analiz Et</span>
+</button>
 </div>
-
-</svg>
-
 </div>
-
-<p class="text-[#07883f] text-sm font-bold bg-green-50 dark:bg-green-900/20 py-1 px-3 rounded-full inline-block mb-1">+15% artış</p>
-
-<p class="text-[#616889] text-sm mt-2">Belgeniz ATS sistemleri için iyi durumda ancak geliştirilebilir alanlar var.</p>
-
-<button class="w-full mt-5 bg-primary hover:bg-blue-700 text-white py-3 rounded-lg font-bold text-sm shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2">
-
-<span class="material-symbols-outlined text-[18px]">auto_fix_high</span>
-
-                                Yapay Zeka ile Optimize Et
-
-                            </button>
-
 </div>
-
 </div>
-
-<!-- Tabs & Feedback -->
-
-<div class="flex-1 bg-white dark:bg-[#1a1d2d] rounded-xl shadow-sm border border-[#dbdde6] dark:border-gray-700 flex flex-col min-h-[400px]">
-
-<!-- Tabs Header -->
-
-<div class="flex border-b border-[#dbdde6] dark:border-gray-700 overflow-x-auto">
-
-<button class="flex-1 py-3 px-2 text-sm font-bold text-primary border-b-2 border-primary whitespace-nowrap">Öneriler (4)</button>
-
-<button class="flex-1 py-3 px-2 text-sm font-medium text-[#616889] hover:text-[#111218] dark:hover:text-gray-300 border-b-2 border-transparent whitespace-nowrap">Kelimeler</button>
-
-<button class="flex-1 py-3 px-2 text-sm font-medium text-[#616889] hover:text-[#111218] dark:hover:text-gray-300 border-b-2 border-transparent whitespace-nowrap">Dilbilgisi</button>
-
+<div id="analysis-results" class="bg-white dark:bg-surface-dark rounded-3xl p-8 shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col md:flex-row items-center gap-10 hidden">
+<div class="relative flex items-center justify-center">
+<div class="w-48 h-48 rounded-full circular-progress flex items-center justify-center p-3">
+<div class="w-full h-full rounded-full bg-white dark:bg-surface-dark flex flex-col items-center justify-center">
+<span id="cv-score" class="text-5xl font-black text-[#111218] dark:text-white">--</span>
+<span class="text-sm font-bold text-gray-400">/ 100</span>
 </div>
-
-<!-- Feedback List -->
-
-<div class="flex-1 p-4 flex flex-col gap-3 overflow-y-auto">
-
-<!-- Suggestion Card 1 -->
-
-<div class="p-4 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 flex flex-col gap-2">
-
-<div class="flex justify-between items-start">
-
-<div class="flex items-center gap-2">
-
-<span class="material-symbols-outlined text-red-500 text-[20px]">warning</span>
-
-<span class="font-bold text-sm text-[#111218] dark:text-gray-200">Etkisiz Fiil Kullanımı</span>
-
 </div>
-
-<button class="text-[#616889] hover:text-red-500"><span class="material-symbols-outlined text-[18px]">close</span></button>
-
 </div>
-
-<p class="text-sm text-[#616889]">"Handled" kelimesi zayıf kalıyor. Etkiyi artırmak için değiştirin.</p>
-
-<div class="flex gap-2 mt-1">
-
-<button class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-xs font-bold text-[#111218] dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">Managed</button>
-
-<button class="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-xs font-bold text-[#111218] dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">Orchestrated</button>
-
+<div class="flex-1 text-center md:text-left">
+<div id="improvement-badge-container" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold mb-4 hidden">
+<span id="improvement-badge" class="material-symbols-outlined text-sm">trending_up</span>
+                        <span id="improvement-text">HESAPLANIYOR...</span>
+                    </div>
+<h1 id="score-title" class="text-3xl font-black text-[#111218] dark:text-white mb-3">Analiz ediliyor...</h1>
+<p id="score-description" class="text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Lütfen bekleyin...
+                    </p>
+<div class="mt-6 flex flex-wrap gap-4 justify-center md:justify-start">
+<button id="fix-all-btn" class="bg-primary hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20">
+<span class="material-symbols-outlined text-lg">auto_awesome</span>
+                            Tümünü AI ile İyileştir
+                        </button>
+<button id="download-pdf-btn" class="border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 px-6 py-2.5 rounded-lg font-bold text-sm transition-all">
+                            Raporu İndir (PDF)
+                        </button>
 </div>
-
 </div>
-
-<!-- Suggestion Card 2 -->
-
-<div class="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 flex flex-col gap-2">
-
-<div class="flex justify-between items-start">
-
-<div class="flex items-center gap-2">
-
-<span class="material-symbols-outlined text-yellow-600 text-[20px]">lightbulb</span>
-
-<span class="font-bold text-sm text-[#111218] dark:text-gray-200">Sıfat Güçlendirmesi</span>
-
 </div>
-
-<button class="text-[#616889] hover:text-yellow-600"><span class="material-symbols-outlined text-[18px]">close</span></button>
-
+<div class="grid grid-cols-1 gap-6">
+<div class="bg-white dark:bg-surface-dark rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3 bg-red-50/30 dark:bg-red-950/10">
+<div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 flex items-center justify-center">
+<span class="material-symbols-outlined">error</span>
 </div>
-
-<p class="text-sm text-[#616889]">"Software Engineer" başlığı yerine yetkinliğinizi vurgulayan bir sıfat ekleyin.</p>
-
-<button class="w-full mt-1 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded text-xs font-bold transition-colors">
-
-                                    "Senior Full-Stack Engineer" olarak değiştir
-
-                                </button>
-
+<div>
+<h3 class="font-bold text-[#111218] dark:text-white">Kritik Hatalar</h3>
+<p id="critical-count" class="text-xs text-gray-500">Hemen düzeltilmesi önerilen maddeler</p>
 </div>
-
-<!-- Suggestion Card 3 (Missing Keywords) -->
-
-<div class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 flex flex-col gap-2">
-
-<div class="flex justify-between items-start">
-
-<div class="flex items-center gap-2">
-
-<span class="material-symbols-outlined text-primary text-[20px]">key</span>
-
-<span class="font-bold text-sm text-[#111218] dark:text-gray-200">Eksik Anahtar Kelimeler</span>
-
 </div>
-
+<div id="critical-issues-container" class="divide-y divide-gray-100 dark:divide-gray-800">
+<!-- JS ile doldurulacak -->
 </div>
-
-<p class="text-sm text-[#616889]">Sektörünüzde sık aranan şu terimler eksik:</p>
-
-<div class="flex flex-wrap gap-2 mt-1">
-
-<span class="px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 rounded border border-gray-200 dark:border-gray-600 dashed border-dashed">Microservices</span>
-
-<span class="px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 rounded border border-gray-200 dark:border-gray-600 dashed border-dashed">CI/CD</span>
-
-<span class="px-2 py-1 bg-white dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-300 rounded border border-gray-200 dark:border-gray-600 dashed border-dashed">TypeScript</span>
-
 </div>
-
+<div class="bg-white dark:bg-surface-dark rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3 bg-amber-50/30 dark:bg-amber-950/10">
+<div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center">
+<span class="material-symbols-outlined">bolt</span>
 </div>
-
-<!-- Suggestion Card 4 -->
-
-<div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-[#dbdde6] dark:border-gray-700 flex flex-col gap-2">
-
-<div class="flex justify-between items-start">
-
-<div class="flex items-center gap-2">
-
-<span class="material-symbols-outlined text-gray-500 text-[20px]">spellcheck</span>
-
-<span class="font-bold text-sm text-[#111218] dark:text-gray-200">Yazım Hatası</span>
-
+<div>
+<h3 class="font-bold text-[#111218] dark:text-white">Geliştirilebilir Alanlar</h3>
+<p id="improvements-count" class="text-xs text-gray-500">Potansiyeli artıracak öneriler</p>
 </div>
-
-<button class="text-[#616889] hover:text-gray-700"><span class="material-symbols-outlined text-[18px]">close</span></button>
-
 </div>
-
-<p class="text-sm text-[#616889]">"experince" kelimesi yanlış yazılmış olabilir.</p>
-
-<button class="self-start text-xs font-bold text-primary hover:underline">Düzelt: Experience</button>
-
+<div id="improvements-container" class="divide-y divide-gray-100 dark:divide-gray-800">
+<!-- JS ile doldurulacak -->
 </div>
-
 </div>
-
+<div class="bg-white dark:bg-surface-dark rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+<div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3 bg-emerald-50/30 dark:bg-emerald-950/10">
+<div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">
+<span class="material-symbols-outlined">verified</span>
 </div>
-
+<div>
+<h3 class="font-bold text-[#111218] dark:text-white">Güçlü Yönler</h3>
+<p id="strengths-count" class="text-xs text-gray-500">Mükemmel seviyedeki alanlar</p>
 </div>
-
 </div>
-
+<div id="strengths-container" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- JS ile doldurulacak -->
+</div>
+</div>
+</div>
+</section>
 </main>
-
+<footer class="w-full bg-white dark:bg-background-dark border-t border-[#f0f1f4] dark:border-gray-800 px-6 py-8 mt-12">
+<div class="max-w-[1440px] mx-auto w-full flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="text-primary opacity-50">
+<svg class="size-6" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z" fill="currentColor"></path>
+</svg>
 </div>
-
+<p class="text-sm text-gray-500 font-medium">© 2024 CareerAI Analysis Lab</p>
+</div>
+<div class="flex gap-6">
+<a class="text-xs font-bold text-gray-400 hover:text-primary transition-colors uppercase tracking-widest" href="#">Yardım</a>
+<a class="text-xs font-bold text-gray-400 hover:text-primary transition-colors uppercase tracking-widest" href="#">Gizlilik</a>
+<a class="text-xs font-bold text-gray-400 hover:text-primary transition-colors uppercase tracking-widest" href="#">Geri Bildirim</a>
+</div>
+</div>
+</footer>
+</div>
+<div id="ai-improvement-loading-overlay" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden hidden">
+<div class="absolute inset-0 bg-white/80 dark:bg-background-dark/90 backdrop-blur-2xl"></div>
+<div class="relative flex flex-col items-center max-w-lg px-6 text-center">
+<div class="relative mb-12 group">
+<div class="absolute -inset-8 bg-primary/10 rounded-full blur-3xl"></div>
+<div class="w-56 h-56 rounded-full ai-loader-ring p-1 shadow-[0_0_50px_rgba(19,55,236,0.25)]">
+<div class="w-full h-full rounded-full bg-white dark:bg-surface-dark flex flex-col items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent"></div>
+<span id="ai-improvement-progress" class="text-7xl font-black text-primary tracking-tighter">0<span class="text-3xl">%</span></span>
+<div class="mt-2 px-4 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold uppercase tracking-widest">Analiz Ediliyor</div>
+</div>
+</div>
+</div>
+<h2 class="text-2xl md:text-3xl font-black text-[#111218] dark:text-white mb-8 tracking-tight leading-tight">
+                Yapay Zeka Özgeçmişinizi Mükemmel Hale Getiriyor...
+            </h2>
+<div class="flex flex-col gap-4 w-full max-w-xs">
+<div id="ai-step-1" class="flex items-center justify-center gap-3 text-gray-400 dark:text-gray-600 font-medium opacity-60">
+<span class="material-symbols-outlined text-gray-400 text-xl">radio_button_unchecked</span>
+<span class="text-sm">Hatalar gideriliyor</span>
+</div>
+<div id="ai-step-2" class="flex items-center justify-center gap-3 text-gray-400 dark:text-gray-600 font-medium opacity-60">
+<div class="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700"></div>
+<span class="text-sm">Sektörel anahtar kelimeler optimize ediliyor</span>
+</div>
+<div id="ai-step-3" class="flex items-center justify-center gap-3 text-gray-400 dark:text-gray-600 font-medium opacity-60">
+<div class="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700"></div>
+<span class="text-sm">Başarı metrikleri güçlendiriliyor</span>
+</div>
+</div>
+</div>
+</div>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .ai-loader-ring {
+                background: conic-gradient(from 0deg, #1337ec, #6366f1, #a855f7, #1337ec);
+                animation: rotate-ring 3s linear infinite;
+            }
+        }
+        @keyframes rotate-ring {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+<div id="analysis-loading-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-background-light/90 dark:bg-background-dark/95 backdrop-blur-sm hidden">
+<div class="max-w-4xl w-full px-6 flex flex-col items-center gap-12">
+<div class="relative w-full max-w-[400px] h-[520px]">
+<div class="relative w-full h-full bg-white dark:bg-surface-dark rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 p-8 overflow-hidden">
+<div id="scanning-line" class="scanning-line"></div>
+<div class="space-y-6 opacity-40">
+<div class="border-b-2 border-primary/30 pb-4">
+<div class="w-32 h-4 bg-gray-200 dark:bg-gray-700 mb-2 rounded"></div>
+<div class="w-56 h-3 bg-gray-100 dark:bg-gray-800 rounded"></div>
+</div>
+<div class="space-y-4">
+<div class="w-20 h-3 bg-primary/10 rounded"></div>
+<div class="space-y-2">
+<div class="w-full h-2 bg-gray-50 dark:bg-gray-900 rounded"></div>
+<div class="w-full h-2 bg-gray-50 dark:bg-gray-900 rounded"></div>
+<div class="w-4/5 h-2 bg-gray-50 dark:bg-gray-900 rounded"></div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="w-1/4 h-3 bg-gray-100 dark:bg-gray-800 rounded"></div>
+<div class="flex-1 space-y-2">
+<div class="w-3/4 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+<div class="w-full h-2 bg-gray-50 dark:bg-gray-900 rounded"></div>
+<div class="w-full h-2 bg-gray-50 dark:bg-gray-900 rounded"></div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-1/4 h-3 bg-gray-100 dark:bg-gray-800 rounded"></div>
+<div class="flex-1 space-y-2">
+<div class="w-2/3 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+<div class="w-full h-2 bg-gray-50 dark:bg-gray-900 rounded"></div>
+</div>
+</div>
+</div>
+<div class="mt-12 space-y-4">
+<div class="w-20 h-3 bg-primary/10 rounded"></div>
+<div class="flex flex-wrap gap-2">
+<div class="w-16 h-5 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+<div class="w-20 h-5 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+<div class="w-14 h-5 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-primary/5 via-transparent to-primary/5"></div>
+</div>
+<div class="absolute -bottom-8 -right-8 bg-white dark:bg-surface-dark p-4 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 flex flex-col items-center">
+<div class="relative w-24 h-24">
+<svg class="w-full h-full" viewBox="0 0 100 100">
+<circle class="text-gray-200 dark:text-gray-800 stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="8"></circle>
+<circle id="progress-circle" class="text-primary stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-dasharray="251.32" stroke-dashoffset="251.32" stroke-linecap="round" stroke-width="8" style="transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.3s ease;"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span id="progress-percentage" class="text-xl font-black text-primary">0%</span>
+</div>
+</div>
+<span class="text-[10px] font-bold text-gray-400 mt-2 tracking-widest uppercase">Tamamlanıyor</span>
+</div>
+</div>
+<div class="text-center max-w-lg space-y-8">
+<div class="space-y-3">
+<h2 class="text-2xl md:text-3xl font-bold text-[#111218] dark:text-white flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-primary pulse-text">psychology</span>
+                    Özgeçmişiniz yapay zeka tarafından analiz ediliyor...
+                </h2>
+<p class="text-gray-500 dark:text-gray-400">Bu işlem genellikle 10-15 saniye sürer. Lütfen pencereyi kapatmayın.</p>
+</div>
+<div class="flex flex-col gap-3 max-w-sm mx-auto">
+<div id="step-1" class="flex items-center gap-3 bg-white/50 dark:bg-surface-dark/50 px-5 py-3 rounded-xl border border-gray-100 dark:border-gray-800 step-animation opacity-40">
+<span class="material-symbols-outlined text-gray-400 text-xl">radio_button_unchecked</span>
+<span class="text-sm font-medium text-gray-500">ATS uyumluluğu kontrol ediliyor</span>
+</div>
+<div id="step-2" class="flex items-center gap-3 bg-white/50 dark:bg-surface-dark/50 px-5 py-3 rounded-xl border border-gray-100 dark:border-gray-800 step-animation opacity-40" style="animation-delay: 0.2s">
+<span class="material-symbols-outlined text-gray-400 text-xl">radio_button_unchecked</span>
+<span class="text-sm font-medium text-gray-500">Anahtar kelimeler ayıklanıyor</span>
+</div>
+<div id="step-3" class="flex items-center gap-3 bg-white/50 dark:bg-surface-dark/50 px-5 py-3 rounded-xl border border-gray-100 dark:border-gray-800 step-animation opacity-40" style="animation-delay: 0.4s">
+<span class="material-symbols-outlined text-gray-400 text-xl">radio_button_unchecked</span>
+<span class="text-sm font-medium text-gray-500">Başarı metrikleri puanlanıyor</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .scanning-line {
+                height: 4px;
+                background: linear-gradient(90deg, transparent, #1337ec, transparent);
+                box-shadow: 0 0 15px #1337ec, 0 0 5px #1337ec;
+                animation: scan 3s ease-in-out infinite;
+                position: absolute;
+                width: 100%;
+                z-index: 10;
+            }
+            .step-animation {
+                animation: fade-in-up 1s ease-out forwards;
+            }
+        }
+        @keyframes scan {
+            0%, 100% { top: 0%; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .pulse-text {
+            animation: pulse-soft 2s infinite;
+        }
+    </style>
+<script src="js/api-client.js"></script>
+<script src="js/auth-guard.js"></script>
+<script src="js/auth-header.js"></script>
+<script src="js/cv-template-renderer.js"></script>
+<script src="js/cv-analysis.js"></script>
+<script>
+// Ayarlar butonuna tıklama event'i
+document.addEventListener('DOMContentLoaded', function() {
+    const settingsBtn = document.getElementById('settings-btn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', function() {
+            window.location.href = 'profil-ayarlari.html';
+        });
+    }
+    
+    // Kullanıcı adını göster
+    function updateUserName() {
+        if (window.apiClient) {
+            window.apiClient.getCurrentUser()
+                .then(response => {
+                    if (response.success && response.data.user) {
+                        const user = response.data.user;
+                        const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
+                        const userNameDisplay = document.getElementById('user-name-display');
+                        if (userNameDisplay) {
+                            userNameDisplay.textContent = fullName;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Kullanıcı bilgisi yüklenemedi:', error);
+                    const userNameDisplay = document.getElementById('user-name-display');
+                    if (userNameDisplay) {
+                        userNameDisplay.textContent = 'Kullanıcı';
+                    }
+                });
+        }
+    }
+    
+    // API client yüklendikten sonra kullanıcı adını güncelle
+    function waitForAPIClient() {
+        if (window.apiClient) {
+            updateUserName();
+        } else {
+            setTimeout(waitForAPIClient, 100);
+        }
+    }
+    waitForAPIClient();
+});
+</script>
 </body></html>
-
-
-
-
-
-

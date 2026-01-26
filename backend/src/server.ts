@@ -24,6 +24,8 @@ import aiRoutes from './routes/ai.routes';
 import coverLetterRoutes from './routes/coverLetter.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import templateRoutes from './routes/template.routes';
+import cvAnalysisRoutes from './routes/cv-analysis.routes';
+import interviewRoutes from './routes/interview.routes';
 
 // Import middleware
 import { errorHandler } from './middleware/errorHandler';
@@ -95,6 +97,8 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/cover-letters', coverLetterRoutes);
 app.use('/api/portfolios', portfolioRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/cv-analysis', cvAnalysisRoutes);
+app.use('/api/interview', interviewRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

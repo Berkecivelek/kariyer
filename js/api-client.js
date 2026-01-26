@@ -61,49 +61,83 @@ class APIClient {
   // Make API request
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+    const responseType = options.responseType || 'json';
     const config = {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        ...(responseType === 'json' && { 'Content-Type': 'application/json' }),
         ...(this.token && { Authorization: `Bearer ${this.token}` }),
         ...options.headers,
       },
     };
 
+    // responseType'ı config'den kaldır (fetch API'de yok)
+    delete config.responseType;
+
     try {
       const response = await fetch(url, config);
       
-      // Response'un JSON olup olmadığını kontrol et
-      let data;
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        throw new Error(text || 'Invalid response format');
+      // Handle 401 - try to refresh token (tüm response type'lar için)
+      if (!response.ok && response.status === 401 && this.refreshToken) {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) {
+          // Retry original request
+          config.headers.Authorization = `Bearer ${this.token}`;
+          const retryResponse = await fetch(url, config);
+          
+          if (!retryResponse.ok) {
+            const contentType = retryResponse.headers.get('content-type');
+            let errorData;
+            if (contentType && contentType.includes('application/json')) {
+              errorData = await retryResponse.json();
+            } else {
+              const text = await retryResponse.text();
+              throw new Error(text || 'Request failed');
+            }
+            const errorMsg = errorData.error?.message || errorData.message || 'Request failed';
+            throw new Error(errorMsg);
+          }
+          
+          // Retry başarılı, response'u işle
+          if (responseType === 'blob') {
+            return await retryResponse.blob();
+          } else {
+            const contentType = retryResponse.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              return await retryResponse.json();
+            } else {
+              return await retryResponse.text();
+            }
+          }
+        }
       }
 
       if (!response.ok) {
-        // Handle 401 - try to refresh token
-        if (response.status === 401 && this.refreshToken) {
-          const refreshed = await this.refreshAccessToken();
-          if (refreshed) {
-            // Retry original request
-            config.headers.Authorization = `Bearer ${this.token}`;
-            const retryResponse = await fetch(url, config);
-            const retryData = await retryResponse.json();
-            if (!retryResponse.ok) {
-              const errorMsg = retryData.error?.message || retryData.message || 'Request failed';
-              throw new Error(errorMsg);
-            }
-            return retryData;
-          }
+        // Hata durumu
+        const contentType = response.headers.get('content-type');
+        let errorData;
+        if (contentType && contentType.includes('application/json')) {
+          errorData = await response.json();
+        } else {
+          const text = await response.text();
+          throw new Error(text || `Request failed with status ${response.status}`);
         }
-        const errorMsg = data.error?.message || data.message || `Request failed with status ${response.status}`;
+        const errorMsg = errorData.error?.message || errorData.message || `Request failed with status ${response.status}`;
         throw new Error(errorMsg);
       }
 
-      return data;
+      // Başarılı response
+      if (responseType === 'blob') {
+        return await response.blob();
+      } else {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          return await response.json();
+        } else {
+          // JSON değilse text olarak döndür
+          return await response.text();
+        }
+      }
     } catch (error) {
       console.error('API Error:', error);
       // Eğer zaten Error objesi ise direkt fırlat, değilse yeni Error oluştur
@@ -235,53 +269,37 @@ class APIClient {
   }
 
   async downloadPDF(resumeId) {
-    const url = `${this.baseURL}/resumes/${resumeId}/pdf`;
-    
+    // request() metodunu kullan ki otomatik token yenileme çalışsın
     try {
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-        },
+      const response = await this.request(`/resumes/${resumeId}/pdf`, {
+        method: 'GET',
+        responseType: 'blob', // Blob response için özel işaret
       });
 
-      if (!response.ok) {
-        // Hata mesajını al
-        let errorMessage = 'PDF indirilemedi';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error?.message || errorData.message || errorMessage;
-        } catch (e) {
-          // JSON parse edilemezse status text'i kullan
-          errorMessage = response.statusText || `HTTP ${response.status}`;
+      // Eğer response blob ise (PDF)
+      if (response instanceof Blob) {
+        const blob = response;
+        
+        // Blob boyutu kontrolü
+        if (blob.size === 0) {
+          throw new Error('PDF dosyası boş');
         }
-        throw new Error(errorMessage);
+        
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `resume-${resumeId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        setTimeout(() => {
+          window.URL.revokeObjectURL(downloadUrl);
+          document.body.removeChild(a);
+        }, 100);
+      } else {
+        throw new Error('Beklenmeyen response formatı');
       }
-
-      // Content-Type kontrolü
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/pdf')) {
-        throw new Error('Sunucudan PDF formatında veri alınamadı');
-      }
-
-      const blob = await response.blob();
-      
-      // Blob boyutu kontrolü
-      if (blob.size === 0) {
-        throw new Error('PDF dosyası boş');
-      }
-      
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = `resume-${resumeId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Cleanup
-      setTimeout(() => {
-        window.URL.revokeObjectURL(downloadUrl);
-        document.body.removeChild(a);
-      }, 100);
     } catch (error) {
       console.error('PDF download error:', error);
       // Eğer zaten Error objesi ise direkt fırlat
@@ -463,6 +481,57 @@ class APIClient {
 
   async getTemplate(id) {
     return this.request(`/templates/${id}`);
+  }
+
+  // CV Analiz metodları
+  async analyzeCV(cvData) {
+    return this.request('/cv-analysis/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ cvData })
+    });
+  }
+
+  async fixIssue(issueId, currentText, context, cvData) {
+    return this.request('/cv-analysis/fix-issue', {
+      method: 'POST',
+      body: JSON.stringify({ issueId, currentText, context, cvData })
+    });
+  }
+
+  async fixAllIssues(issues, cvData) {
+    return this.request('/cv-analysis/fix-all', {
+      method: 'POST',
+      body: JSON.stringify({ issues, cvData })
+    });
+  }
+
+  // Interview Methods
+  async startInterview(mode, targetPosition, resumeId, totalQuestions = 10) {
+    return this.request('/interview/start', {
+      method: 'POST',
+      body: JSON.stringify({ mode, targetPosition, resumeId, totalQuestions })
+    });
+  }
+
+  async getNextQuestion(sessionId) {
+    return this.request(`/interview/session/${sessionId}/next-question`);
+  }
+
+  async submitAnswer(questionId, textAnswer, codeAnswer, responseTime, audioAnalysis) {
+    return this.request('/interview/answer', {
+      method: 'POST',
+      body: JSON.stringify({ questionId, textAnswer, codeAnswer, responseTime, audioAnalysis })
+    });
+  }
+
+  async endInterview(sessionId) {
+    return this.request(`/interview/session/${sessionId}/end`, {
+      method: 'POST'
+    });
+  }
+
+  async getInterviewHistory(limit = 10, offset = 0) {
+    return this.request(`/interview/history?limit=${limit}&offset=${offset}`);
   }
 }
 

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerAI - Mülakat Hazırlığı</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1337ec",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.375rem", "lg": "0.5rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body { @apply text-slate-900 bg-background-light; }
+            .dark body { @apply text-slate-100 bg-background-dark; }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            @apply bg-transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            @apply bg-slate-200 dark:bg-slate-700 rounded-full;
+        }
+        #termination-modal:target {
+            @apply flex;
+        }
+        /* Başlangıç ekranı varsayılan olarak görünür */
+        #interview-question-card { display: none; }
+        #ai-active-state { display: none; }
+        /* Mülakat başladığında geçiş animasyonları */
+        .interview-started #prep-screen {
+            display: none !important;
+        }
+        .interview-started #interview-question-card {
+            display: flex !important;
+            flex-direction: column;
+            animation: card-entry 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .interview-started #ai-waiting-state { display: none; }
+        .interview-started #ai-active-state {
+            display: flex;
+            animation: slide-left 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .interview-started footer {
+            opacity: 1 !important;
+        }
+        @keyframes card-entry {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes slide-left {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="font-display antialiased">
+<!-- Mülakatı Sonlandır Modal -->
+<div class="hidden fixed inset-0 z-[100] items-center justify-center p-4" id="termination-modal">
+<div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+<div class="relative bg-white dark:bg-surface-dark w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-8 text-center">
+<div class="size-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-red-600 text-3xl">warning</span>
+</div>
+<h3 class="text-xl font-bold mb-2">Mülakatı Sonlandır</h3>
+<p class="text-slate-500 dark:text-slate-400 mb-8">Mülakatı bitirmek istediğinizden emin misiniz? İlerlemeniz kaydedilmeyecektir.</p>
+<div class="flex flex-col gap-3">
+<a class="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors" href="#" id="confirm-end-btn">
+                Mülakatı Bitir
+            </a>
+<a class="w-full py-3.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition-colors" href="#">
+                Vazgeç
+            </a>
+</div>
+</div>
+</div>
+
+<div class="flex h-screen overflow-hidden" id="app-container">
+<!-- Sol Sidebar -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark flex flex-col shrink-0">
+<div class="p-6 flex items-center gap-3">
+<a href="index.html" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+<div class="text-primary">
+<svg class="size-8" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z" fill="currentColor"></path>
+</svg>
+</div>
+<h1 class="font-bold text-xl tracking-tight">CareerAI</h1>
+</a>
+</div>
+<nav class="flex-1 px-4 py-4 space-y-1">
+<p class="px-2 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Mülakat Modu</p>
+<button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-primary text-white font-semibold transition-all">
+<span class="material-symbols-outlined">psychology</span>
+                Davranışsal
+            </button>
+<button onclick="window.location.href='mulakat-hazirligi-teknik.html'" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition-all">
+<span class="material-symbols-outlined">terminal</span>
+                Teknik
+            </button>
+<button onclick="window.location.href='mulakat-hazirligi-stres.html'" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition-all">
+<span class="material-symbols-outlined">bolt</span>
+                Stres Modu
+            </button>
+<div class="mt-8 space-y-4" id="active-interview-info" style="display: none;">
+<div class="px-3">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Hedef Pozisyon</p>
+<p class="text-sm font-semibold" id="sidebar-position">-</p>
+</div>
+<div class="px-3">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Seçilen CV</p>
+<p class="text-sm font-semibold text-primary" id="sidebar-resume">-</p>
+</div>
+</div>
+</nav>
+<div class="p-4 mt-auto">
+<div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-red-500 text-sm">emergency_recording</span>
+<span class="text-xs font-bold uppercase tracking-tight text-red-500">Mülakat Kayıtta</span>
+</div>
+<p class="text-[10px] text-slate-500">Sesiniz analiz edilerek yapay zeka tarafından değerlendirilmektedir.</p>
+</div>
+</div>
+</aside>
+
+<!-- Ana İçerik -->
+<main class="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 overflow-hidden relative">
+<!-- Header -->
+<header class="h-20 shrink-0 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
+<div class="flex items-center gap-6 flex-1 min-w-0">
+<div class="flex flex-col shrink-0">
+<label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="position">Hedef Pozisyon</label>
+<select class="pl-0 pr-8 py-0 border-none bg-transparent text-sm font-bold focus:ring-0 cursor-pointer" id="position">
+<option>Senior Frontend Developer</option>
+<option>Product Manager</option>
+<option>UI/UX Designer</option>
+<option>Data Scientist</option>
+<option>Backend Developer</option>
+<option>Full Stack Developer</option>
+</select>
+</div>
+<div class="h-8 w-px bg-slate-200 dark:bg-slate-800 shrink-0"></div>
+<div class="flex flex-col min-w-0">
+<label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" for="cv-select">Özgeçmiş</label>
+<select class="pl-0 pr-8 py-0 border-none bg-transparent text-sm font-bold focus:ring-0 cursor-pointer text-primary truncate" id="cv-select" required="">
+<option disabled="" selected="" value="">Seçiniz...</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a class="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm shadow-red-200" href="#termination-modal" id="end-interview-btn" style="display: none;">Mülakatı Sonlandır</a>
+<div class="h-8 w-px bg-slate-200 dark:border-slate-800" id="header-divider" style="display: none;"></div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 shrink-0">
+<span class="material-symbols-outlined text-primary text-sm">timer</span>
+<span class="text-xs font-bold" id="timer">12:00</span>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-300">settings</span>
+</button>
+</div>
+</header>
+
+<!-- Başlangıç Ekranı (Karşılama) -->
+<div class="flex-1 p-8 flex flex-col items-center justify-center max-w-4xl mx-auto w-full relative" id="prep-screen">
+<div class="prep-card w-full bg-white dark:bg-surface-dark rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800 overflow-hidden" id="prep-card">
+<div class="p-8 md:p-12 text-center">
+<div class="inline-flex items-center justify-center size-16 rounded-2xl bg-primary/10 text-primary mb-6">
+<span class="material-symbols-outlined text-3xl">rocket_launch</span>
+</div>
+<h2 class="text-3xl font-extrabold mb-4 tracking-tight">Mülakat Hazırlığı</h2>
+<p class="text-slate-500 dark:text-slate-400 mb-10 max-w-md mx-auto">
+                        Seçtiğiniz özgeçmişe ve hedef pozisyona göre kişiselleştirilmiş bir mülakat deneyimi için her şey hazır.
+                    </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 text-left max-w-2xl mx-auto">
+<div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+<span class="material-symbols-outlined text-primary">timer</span>
+<div>
+<p class="text-sm font-bold">Süre: 12 Dakika</p>
+<p class="text-xs text-slate-500">Tahmini tamamlama süresi.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+<span class="material-symbols-outlined text-primary">quiz</span>
+<div>
+<p class="text-sm font-bold">Soru Sayısı: 10 Soru</p>
+<p class="text-xs text-slate-500">Yapay zeka tarafından üretilen sorular.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+<span class="material-symbols-outlined text-amber-500">volume_off</span>
+<div>
+<p class="text-sm font-bold">Sessiz Ortam</p>
+<p class="text-xs text-slate-500">Lütfen sessiz bir ortamda olduğunuzdan emin olun.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+<span class="material-symbols-outlined text-green-500">mic</span>
+<div>
+<p class="text-sm font-bold">Donanım Kontrolü</p>
+<p class="text-xs text-slate-500">Mikrofonunuzu kontrol edin.</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center gap-4">
+<button class="group relative px-12 py-4 bg-primary text-white rounded-full font-bold text-lg shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all hover:-translate-y-1 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none" id="start-button">
+                            Mülakatı Başlat
+                            <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+<p class="text-xs text-slate-400 flex items-center gap-1" id="warning-text">
+<span class="material-symbols-outlined text-sm">info</span>
+                            Lütfen devam etmek için önce bir özgeçmiş seçin.
+                        </p>
+</div>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 px-8 py-4 border-t border-blue-100 dark:border-blue-900/30">
+<p class="text-center text-xs font-medium text-blue-700 dark:text-blue-300">
+                        Yapay zeka, seçtiğiniz özgeçmişteki deneyimlerinize odaklanarak size özel sorular hazırlayacaktır.
+                    </p>
+</div>
+</div>
+</div>
+
+<!-- Mülakat Soruları Ekranı -->
+<div class="flex-1 flex flex-col min-w-0" id="interview-question-card">
+<div class="flex-1 p-8 overflow-y-auto custom-scrollbar">
+<div class="max-w-3xl mx-auto space-y-8">
+<div class="bg-white dark:bg-surface-dark rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 md:p-10 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
+<div class="flex items-start gap-6">
+<div class="shrink-0 size-12 rounded-2xl bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div class="flex-1">
+<span class="text-xs font-bold text-primary uppercase tracking-widest mb-2 block">Yapay Zeka Sorusu</span>
+<h2 class="text-xl md:text-2xl font-bold leading-relaxed mb-6" id="question-text">
+                                Soru yükleniyor...
+                            </h2>
+<div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 flex gap-3" id="hint-container" style="display: none;">
+<span class="material-symbols-outlined text-amber-500">lightbulb</span>
+<div class="text-sm">
+<p class="font-bold text-amber-800 dark:text-amber-300 mb-1">İpucu</p>
+<p class="text-amber-700/80 dark:text-amber-400/80" id="question-hint"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="relative">
+<textarea class="w-full h-48 bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 rounded-3xl p-6 text-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-sm placeholder:text-slate-300" placeholder="Yanıtınızı buraya yazmaya başlayın..." id="answer-textarea"></textarea>
+<div class="absolute bottom-4 right-4 flex flex-col items-end gap-3">
+<span class="text-xs font-medium text-slate-400 italic px-2">Ya da yazmaya devam edin</span>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-bold text-sm transition-all shadow-lg shadow-orange-200/50" id="voice-record-btn">
+<span class="material-symbols-outlined text-sm">mic</span>
+                                    Konuşarak Yanıtla
+                                </button>
+<button class="flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full font-bold text-sm hover:scale-105 transition-transform" id="submit-answer-btn">
+<span class="material-symbols-outlined text-sm">send</span>
+                                    Yanıtı Gönder
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<footer class="h-20 shrink-0 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark px-8 flex items-center justify-between">
+<div class="w-full max-w-4xl mx-auto flex items-center gap-8">
+<div class="flex-1">
+<div class="flex items-center justify-between text-xs mb-2">
+<span class="font-bold text-slate-500 uppercase tracking-widest">Mülakat İlerlemesi</span>
+<span class="font-bold text-primary" id="progress-text">0 / 10 Soru</span>
+</div>
+<div class="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" id="progress-bar" style="width: 0%"></div>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</main>
+
+<!-- Sağ Sidebar (AI Analiz Paneli) -->
+<aside class="w-80 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-dark shrink-0 flex flex-col">
+<div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<h3 class="font-bold text-lg">AI Analizi</h3>
+</div>
+<span class="px-2 py-1 rounded bg-green-100 text-green-700 text-[10px] font-bold uppercase" id="ai-live-indicator" style="display: none;">Canlı</span>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+<div id="ai-waiting-state" class="flex flex-col items-center justify-center p-8 text-center">
+<div class="size-16 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-slate-300 text-3xl">insights</span>
+</div>
+<p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Veri Bekleniyor</p>
+<p class="text-xs text-slate-500">İlk cevabınızı gönderdikten sonra AI analizi burada görünecek.</p>
+</div>
+<div id="ai-active-state" class="hidden space-y-6">
+<div class="space-y-4">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Anlık Değerlendirme</p>
+<div class="space-y-3">
+<div>
+<div class="flex justify-between text-xs font-bold mb-1">
+<span>Netlik</span>
+<span class="text-primary" id="clarity-score">--</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" id="clarity-bar" style="width: 0%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-bold mb-1">
+<span>Özgüven</span>
+<span class="text-primary" id="confidence-score">--</span>
+</div>
+<div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" id="confidence-bar" style="width: 0%"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">STAR Tekniği Akışı</p>
+<div class="space-y-3" id="star-technique-container">
+<div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 opacity-50">
+<span class="material-symbols-outlined text-slate-400 text-sm">radio_button_unchecked</span>
+<div>
+<p class="text-xs font-bold">Situation (Durum)</p>
+<p class="text-[11px]">Bekleniyor...</p>
+</div>
+</div>
+<div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 opacity-50">
+<span class="material-symbols-outlined text-slate-400 text-sm">radio_button_unchecked</span>
+<div>
+<p class="text-xs font-bold">Task (Görev)</p>
+<p class="text-[11px]">Bekleniyor...</p>
+</div>
+</div>
+<div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 opacity-50">
+<span class="material-symbols-outlined text-slate-400 text-sm">radio_button_unchecked</span>
+<div>
+<p class="text-xs font-bold">Action (Eylem)</p>
+<p class="text-[11px]">Bekleniyor...</p>
+</div>
+</div>
+<div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 opacity-50">
+<span class="material-symbols-outlined text-slate-400 text-sm">radio_button_unchecked</span>
+<div>
+<p class="text-xs font-bold">Result (Sonuç)</p>
+<p class="text-[11px]">Bekleniyor...</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 rounded-2xl bg-primary/5 border border-primary/10" id="ai-suggestion-container" style="display: none;">
+<p class="text-[11px] font-bold text-primary uppercase mb-2">AI Önerisi</p>
+<p class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 italic" id="ai-suggestion-text">
+                    AI önerileri burada görünecek.
+                </p>
+</div>
+</div>
+</aside>
+</div>
+
+<!-- API Client -->
+<script src="js/api-client.js"></script>
+<!-- Auth Guard -->
+<script src="js/auth-guard.js"></script>
+<!-- Auth Header Control -->
+<script src="js/auth-header.js"></script>
+<!-- Interview Manager -->
+<script src="js/interview-manager.js"></script>
+<!-- Interview Start Manager -->
+<script src="js/interview-start-manager.js"></script>
+</body></html>

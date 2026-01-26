@@ -29,7 +29,7 @@ interface AISuggestionRequest {
 }
 
 // Check and deduct AI credits
-const checkAndDeductCredits = async (
+export const checkAndDeductCredits = async (
   userId: string,
   creditsRequired: number = 1
 ): Promise<void> => {

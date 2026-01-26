@@ -85,3 +85,4 @@ Gerekli environment değişkenleri `.env.example` dosyasında bulunmaktadır.
 
 
 
+

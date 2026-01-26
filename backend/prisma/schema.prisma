@@ -29,6 +29,18 @@ enum ResumeStatus {
   ARCHIVED
 }
 
+enum InterviewMode {
+  BEHAVIORAL
+  TECHNICAL
+  STRESS
+}
+
+enum InterviewStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -47,6 +59,7 @@ model User {
   portfolios    Portfolio[]
   subscriptions Subscription[]
   usageLogs     UsageLog[]
+  interviews    InterviewSession[]
   
   @@map("users")
 }
@@ -185,5 +198,69 @@ model Template {
   updatedAt   DateTime    @updatedAt
   
   @@map("templates")
+}
+
+model InterviewSession {
+  id            String          @id @default(uuid())
+  userId        String
+  resumeId      String?         // Hangi CV'ye göre soru üretilecek
+  mode          InterviewMode   // BEHAVIORAL, TECHNICAL, STRESS
+  targetPosition String          // Hedef pozisyon
+  status        InterviewStatus @default(IN_PROGRESS)
+  totalQuestions Int             @default(10)
+  currentQuestion Int            @default(0)
+  startTime     DateTime        @default(now())
+  endTime       DateTime?
+  duration      Int?             // Saniye cinsinden
+  overallScore  Int?             // 0-100
+  performanceMetrics Json?       // Performans metrikleri
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  // Relations
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions     InterviewQuestion[]
+  
+  @@index([userId])
+  @@index([status])
+  @@map("interview_sessions")
+}
+
+model InterviewQuestion {
+  id              String   @id @default(uuid())
+  sessionId       String
+  questionNumber  Int
+  question        String   @db.Text
+  hint            String?  @db.Text
+  difficulty      String?  // EASY, MEDIUM, HARD
+  category        String?  // Soru kategorisi
+  codeSnippet     String?  @db.Text // Teknik sorular için kod örneği
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  session         InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  answers         InterviewAnswer[]
+  
+  @@index([sessionId])
+  @@map("interview_questions")
+}
+
+model InterviewAnswer {
+  id              String   @id @default(uuid())
+  questionId      String
+  textAnswer      String?  @db.Text
+  codeAnswer      String?  @db.Text // Teknik sorular için kod çözümü
+  audioUrl        String?  // Ses kaydı URL'i (eğer varsa)
+  responseTime    Int?     // Saniye cinsinden yanıt süresi
+  aiFeedback      Json?    // AI geri bildirimi (anlık öneri, başarılı nokta, vb.)
+  performanceScores Json?  // Performans skorları (netlik, özgüven, teknik derinlik, vb.)
+  stressMetrics   Json?    // Stres modu için özel metrikler
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  question        InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@index([questionId])
+  @@map("interview_answers")
 }
 

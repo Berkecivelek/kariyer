@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerAI - Stres Modu Mülakatı</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ef4444",
+                        "stress-red": "#ff0000",
+                        "background-dark": "#0a0a0c",
+                        "surface-dark": "#16161a",
+                        "border-stress": "#331111",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.375rem", "lg": "0.5rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body { @apply text-slate-100 bg-background-dark; }
+        }
+        .pulse-bg {
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.05) 0%, rgba(10, 10, 12, 0) 70%);
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        .timer-glow {
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+        .stress-bar {
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+        }
+    </style>
+</head>
+<body class="font-display antialiased overflow-hidden">
+<div class="flex h-screen overflow-hidden relative">
+<div class="fixed inset-0 pointer-events-none pulse-bg z-0"></div>
+<aside class="w-64 border-r border-border-stress bg-surface-dark flex flex-col shrink-0 z-10">
+<a href="index.html" class="p-6 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+<div class="text-primary">
+<svg class="size-8" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 42.4379C4 42.4379 14.0962 36.0744 24 41.1692C35.0664 46.8624 44 42.2078 44 42.2078L44 7.01134C44 7.01134 35.068 11.6577 24.0031 5.96913C14.0971 0.876274 4 7.27094 4 7.27094L4 42.4379Z" fill="currentColor"></path>
+</svg>
+</div>
+<h1 class="font-bold text-xl tracking-tight">CareerAI</h1>
+</a>
+<nav class="flex-1 px-4 py-4 space-y-1">
+<p class="px-2 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Mülakat Modu</p>
+<button onclick="window.location.href='mulakat-hazirligi.html'" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-800 font-medium transition-all">
+<span class="material-symbols-outlined">psychology</span>
+                Davranışsal
+            </button>
+<button onclick="window.location.href='mulakat-hazirligi-teknik.html'" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-800 font-medium transition-all">
+<span class="material-symbols-outlined">terminal</span>
+                Teknik
+            </button>
+<button class="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-primary/10 text-primary border border-primary/20 font-bold transition-all shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+<span class="material-symbols-outlined">bolt</span>
+                Stres Modu
+            </button>
+</nav>
+<div class="p-4 mt-auto">
+<div class="p-4 rounded-2xl bg-red-950/20 border border-red-900/30">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm">warning</span>
+<span class="text-xs font-bold uppercase tracking-tight text-primary">Yüksek Tempo</span>
+</div>
+<p class="text-[10px] text-slate-400 mb-3 leading-tight uppercase tracking-wider">Provokatif sorular ve baskı analizi aktif.</p>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-background-dark/50 z-10">
+<header class="h-20 shrink-0 border-b border-border-stress bg-surface-dark/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-10">
+<div class="flex items-center gap-4 flex-1">
+<label class="text-sm font-semibold text-slate-500 shrink-0" for="position">Hedef Pozisyon:</label>
+<div class="relative max-w-sm w-full">
+<select class="w-full pl-4 pr-10 py-2 rounded-lg border-slate-800 bg-slate-900 text-sm font-medium focus:ring-primary focus:border-primary" id="position">
+<option>Senior Software Architect</option>
+<option>Crisis Communications Manager</option>
+<option>Emergency Room Lead</option>
+<option>Cybersecurity Responder</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-1">Kalan Süre</p>
+<p class="text-3xl font-black font-mono text-primary timer-glow leading-none">00:45</p>
+</div>
+<div class="h-10 w-[1px] bg-border-stress"></div>
+<button class="px-6 py-2 bg-primary text-white hover:bg-red-600 rounded-lg text-sm font-black uppercase tracking-widest transition-all shadow-lg shadow-red-500/20">Mülakatı Bitir</button>
+</div>
+</header>
+<div class="flex-1 p-8 flex flex-col gap-8 max-w-4xl mx-auto w-full">
+<section class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+<div class="relative flex flex-col bg-surface-dark p-10 md:p-14 rounded-2xl border border-red-900/50 shadow-2xl">
+<div class="flex items-center gap-2 mb-8">
+<div class="size-2 bg-red-500 rounded-full animate-ping"></div>
+<span class="text-xs font-black text-red-500 uppercase tracking-[0.3em]">Kritik Soru</span>
+</div>
+<h2 class="text-2xl md:text-3xl font-bold leading-tight mb-6 text-slate-100">
+                        "Şu an sistemimiz çöküyor ve saniyede binlerce dolar kaybediyoruz. Takım arkadaşınızın bariz bir hata yaptığını fark ettiniz ama o hatasını kabul etmiyor. Saniyeler içinde karar vermeniz gerek. Ne yaparsınız?"
+                    </h2>
+<div class="flex items-center gap-2 text-red-400/70 text-xs font-bold uppercase tracking-widest">
+<span class="material-symbols-outlined text-sm">timer_3</span>
+                        Hızlı Yanıt Bekleniyor...
+                    </div>
+</div>
+</section>
+<section class="flex flex-col gap-4">
+<div class="bg-surface-dark border border-border-stress rounded-2xl shadow-xl overflow-hidden focus-within:border-primary transition-colors">
+<textarea class="w-full p-8 bg-transparent border-none focus:ring-0 text-xl resize-none min-h-[180px] placeholder:text-slate-700" placeholder="Kararınızı hemen açıklayın..."></textarea>
+<div class="flex items-center justify-between px-8 py-6 bg-slate-900/40 border-t border-border-stress">
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-red-500/30">
+<span class="material-symbols-outlined text-sm">mic</span>
+                                Sesli Yanıtla
+                            </button>
+<div class="flex items-center gap-2 text-slate-500">
+<span class="material-symbols-outlined text-sm animate-pulse">record_voice_over</span>
+<span class="text-[10px] font-bold uppercase">Ses Analizi Aktif</span>
+</div>
+</div>
+<button class="flex items-center gap-2 px-8 py-3 rounded-full bg-white text-black hover:bg-slate-200 font-black text-xs uppercase tracking-widest transition-all">
+                            Gönder
+                            <span class="material-symbols-outlined text-sm">send</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<aside class="w-80 border-l border-border-stress bg-surface-dark shrink-0 flex flex-col z-10">
+<div class="p-6 border-b border-border-stress bg-red-950/10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<h3 class="font-bold text-lg tracking-tight">Stres Analizi</h3>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-8">
+<div class="space-y-4">
+<h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Sakinliği Koruma Oranı</h4>
+<div class="relative h-32 w-full bg-slate-900 rounded-xl overflow-hidden flex items-end p-2 gap-1 border border-border-stress">
+<div class="flex-1 bg-emerald-500/40 rounded-t-sm h-[80%]"></div>
+<div class="flex-1 bg-emerald-500/40 rounded-t-sm h-[75%]"></div>
+<div class="flex-1 bg-amber-500/40 rounded-t-sm h-[60%]"></div>
+<div class="flex-1 bg-red-500/60 rounded-t-sm h-[40%] animate-pulse"></div>
+<div class="flex-1 bg-red-500/80 rounded-t-sm h-[20%] animate-pulse"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="text-3xl font-black text-white/20">64%</span>
+</div>
+</div>
+<div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase">
+<span>Stabil</span>
+<span class="text-primary">Kritik Eşik</span>
+</div>
+</div>
+<div class="space-y-6">
+<h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">AI Geri Bildirim (Canlı)</h4>
+<div class="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-sm">graphic_eq</span>
+<span class="text-xs font-black text-primary uppercase">Ses Analizi</span>
+</div>
+<p class="text-sm text-slate-300 leading-relaxed italic">
+                        "Ses tonunda belirgin titremeler ve 2.4 saniyelik duraksama tespit edildi. Baskı altında tutarlılığın azalıyor."
+                    </p>
+</div>
+<div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-amber-500 text-sm">priority_high</span>
+<span class="text-xs font-black text-amber-500 uppercase">Kriz Yönetimi</span>
+</div>
+<p class="text-sm text-slate-400 leading-relaxed">
+                        Kararın hızlıydı ancak etik riskleri göz ardı ettin. Mantık yürütmen agresifleşiyor.
+                    </p>
+</div>
+</div>
+<div class="space-y-4">
+<h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1">Baskı Parametreleri</h4>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-2">
+<span class="text-slate-400 uppercase">Karar Hızı</span>
+<span class="text-emerald-400">ÇOK HIZLI</span>
+</div>
+<div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-emerald-500" style="width: 95%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-2">
+<span class="text-slate-400 uppercase">Duygusal Kontrol</span>
+<span class="text-red-400">DÜŞÜK</span>
+</div>
+<div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-red-500" style="width: 32%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-2">
+<span class="text-slate-400 uppercase">Mantık Tutarlılığı</span>
+<span class="text-amber-400">ORTA</span>
+</div>
+<div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-amber-500" style="width: 58%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-border-stress bg-red-950/20">
+<div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest mb-3">
+<span>Stres Dayanıklılığı</span>
+<span class="text-primary">4 / 15 Soru</span>
+</div>
+<div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary shadow-[0_0_10px_#ef4444]" style="width: 26%"></div>
+</div>
+</div>
+</aside>
+</div>
+
+<!-- API Client -->
+<script src="js/api-client.js"></script>
+<!-- Auth Guard -->
+<script src="js/auth-guard.js"></script>
+<!-- Auth Header Control -->
+<script src="js/auth-header.js"></script>
+<!-- Interview Manager -->
+<script src="js/interview-manager.js"></script>
+</body></html>
+
