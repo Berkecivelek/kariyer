@@ -1,6 +1,6 @@
 // CareerAI API Client
 class APIClient {
-  constructor(baseURL = 'http://localhost:3000/api') {
+  constructor(baseURL = `${window.location.origin}/api`) {
     this.baseURL = baseURL;
     this.token = localStorage.getItem('authToken');
     this.refreshToken = localStorage.getItem('refreshToken');
