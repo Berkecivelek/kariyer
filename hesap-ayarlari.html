@@ -108,6 +108,8 @@
 
 <div class="flex items-center gap-4 text-slate-900 dark:text-white">
 
+<a href="index.html" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+
 <div class="size-8 text-primary">
 
 <svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -122,7 +124,7 @@
 
 <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Ayarlar</h2>
 
-</div>
+</a>
 
 <div class="flex items-center justify-end gap-6">
 
@@ -438,13 +440,13 @@
 
 <select id="language-select" class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm h-11 pl-10 pr-3 appearance-none">
 
-<option selected="">Türkçe (TR)</option>
+<option value="Türkçe (TR)">Türkçe (TR)</option>
 
-<option>English (US)</option>
+<option value="English (US)">English (US)</option>
 
-<option>Deutsch (DE)</option>
+<option value="Deutsch (DE)">Deutsch (DE)</option>
 
-<option>Español (ES)</option>
+<option value="Español (ES)">Español (ES)</option>
 
 </select>
 
@@ -464,13 +466,13 @@
 
 <select id="timezone-select" class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm h-11 pl-10 pr-3 appearance-none">
 
-<option selected="">(GMT+03:00) İstanbul</option>
+<option value="(GMT+03:00) İstanbul">(GMT+03:00) İstanbul</option>
 
-<option>(GMT+00:00) London</option>
+<option value="(GMT+00:00) London">(GMT+00:00) London</option>
 
-<option>(GMT-05:00) New York</option>
+<option value="(GMT-05:00) New York">(GMT-05:00) New York</option>
 
-<option>(GMT+09:00) Tokyo</option>
+<option value="(GMT+09:00) Tokyo">(GMT+09:00) Tokyo</option>
 
 </select>
 
@@ -526,6 +528,9 @@
 <script src="js/api-client.js"></script>
 <script src="js/auth-guard.js"></script>
 <script src="js/auth-header.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/i18n-helper.js"></script>
+<script src="js/notification.js"></script>
 <script>
 (function() {
     'use strict';
@@ -562,6 +567,44 @@
                     profileName.textContent = fullName;
                 }
                 if (profileEmail) profileEmail.textContent = user.email || '';
+                
+                // Bölgesel ayarları yükle
+                const languageSelect = document.getElementById('language-select');
+                const timezoneSelect = document.getElementById('timezone-select');
+                
+                if (languageSelect && user.language) {
+                    // Kullanıcının dil tercihini seç
+                    const languageMap = {
+                        'tr': 'Türkçe (TR)',
+                        'en': 'English (US)',
+                        'de': 'Deutsch (DE)',
+                        'es': 'Español (ES)'
+                    };
+                    const languageText = languageMap[user.language] || 'Türkçe (TR)';
+                    // Select'teki option'ı bul ve seç
+                    Array.from(languageSelect.options).forEach(option => {
+                        if (option.text === languageText) {
+                            option.selected = true;
+                        }
+                    });
+                }
+                
+                if (timezoneSelect && user.timezone) {
+                    // Kullanıcının timezone tercihini seç
+                    const timezoneMap = {
+                        'Europe/Istanbul': '(GMT+03:00) İstanbul',
+                        'Europe/London': '(GMT+00:00) London',
+                        'America/New_York': '(GMT-05:00) New York',
+                        'Asia/Tokyo': '(GMT+09:00) Tokyo'
+                    };
+                    const timezoneText = timezoneMap[user.timezone] || '(GMT+03:00) İstanbul';
+                    // Select'teki option'ı bul ve seç
+                    Array.from(timezoneSelect.options).forEach(option => {
+                        if (option.text === timezoneText) {
+                            option.selected = true;
+                        }
+                    });
+                }
             } else {
                 // Token geçersiz
                 window.location.href = 'giris.html';
@@ -578,26 +621,88 @@
     
     if (saveRegionalBtn && regionalForm) {
         saveRegionalBtn.addEventListener('click', async () => {
-            const language = document.getElementById('language-select').value;
-            const timezone = document.getElementById('timezone-select').value;
+            const languageSelect = document.getElementById('language-select');
+            const timezoneSelect = document.getElementById('timezone-select');
+            
+            if (!languageSelect || !timezoneSelect) {
+                alert('Form elementleri bulunamadı. Lütfen sayfayı yenileyin.');
+                return;
+            }
+            
+            const languageText = languageSelect.value;
+            const timezoneText = timezoneSelect.value;
+            
+            // Dil metnini kod'a çevir
+            const languageMap = {
+                'Türkçe (TR)': 'tr',
+                'English (US)': 'en',
+                'Deutsch (DE)': 'de',
+                'Español (ES)': 'es'
+            };
+            const language = languageMap[languageText] || 'tr';
+            
+            // Timezone metnini kod'a çevir
+            const timezoneMap = {
+                '(GMT+03:00) İstanbul': 'Europe/Istanbul',
+                '(GMT+00:00) London': 'Europe/London',
+                '(GMT-05:00) New York': 'America/New_York',
+                '(GMT+09:00) Tokyo': 'Asia/Tokyo'
+            };
+            const timezone = timezoneMap[timezoneText] || 'Europe/Istanbul';
             
             saveRegionalBtn.disabled = true;
             saveRegionalBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">hourglass_empty</span> Kaydediliyor...';
             
             try {
-                // TODO: Backend'e kaydet
-                // await window.apiClient.updateUserSettings({ language, timezone });
+                if (!window.apiClient) {
+                    throw new Error('API client yüklenmedi. Lütfen sayfayı yenileyin.');
+                }
                 
-                // Şimdilik sadece localStorage'a kaydet
-                localStorage.setItem('userLanguage', language);
-                localStorage.setItem('userTimezone', timezone);
+                // Backend'e kaydet
+                const response = await window.apiClient.updateUser({
+                    language,
+                    timezone
+                });
                 
-                alert('Bölgesel ayarlar kaydedildi!');
-                saveRegionalBtn.disabled = false;
-                saveRegionalBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">save</span> Ayarları Kaydet';
+                if (response.success) {
+                    // localStorage'a da kaydet (hızlı erişim için)
+                    localStorage.setItem('userLanguage', language);
+                    localStorage.setItem('userTimezone', timezone);
+                    
+                    // i18n sistemini güncelle ve sayfayı çevir
+                    if (window.i18n) {
+                        await window.i18n.setLanguage(language);
+                    }
+                    
+                    // Başarı mesajını çevirilmiş dilde göster (modern notification)
+                    const successMessages = {
+                        'tr': 'Bölgesel ayarlar başarıyla kaydedildi!',
+                        'en': 'Regional settings saved successfully!',
+                        'de': 'Regionale Einstellungen erfolgreich gespeichert!',
+                        'es': '¡Configuración regional guardada exitosamente!'
+                    };
+                    
+                    if (window.showSuccess) {
+                        window.showSuccess(successMessages[language] || successMessages['tr'], 3000);
+                    } else {
+                        alert(successMessages[language] || successMessages['tr']);
+                    }
+                    
+                    // Sayfayı yenile (tüm çevirilerin uygulanması için)
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(response.error?.message || 'Ayarlar kaydedilemedi');
+                }
             } catch (error) {
                 console.error('Ayarlar kaydetme hatası:', error);
-                alert('Ayarlar kaydedilemedi: ' + (error.message || 'Bilinmeyen hata'));
+                const errorMessage = 'Ayarlar kaydedilemedi: ' + (error.message || 'Bilinmeyen hata');
+                if (window.showError) {
+                    window.showError(errorMessage, 4000);
+                } else {
+                    alert(errorMessage);
+                }
                 saveRegionalBtn.disabled = false;
                 saveRegionalBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">save</span> Ayarları Kaydet';
             }

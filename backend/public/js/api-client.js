@@ -1,9 +1,35 @@
 // CareerAI API Client
 class APIClient {
-  constructor(baseURL = 'http://localhost:3000/api') {
-    this.baseURL = baseURL;
+  constructor(baseURL = null) {
+    // BaseURL'i otomatik tespit et
+    this.baseURL = baseURL || this.detectBaseURL();
     this.token = localStorage.getItem('authToken');
     this.refreshToken = localStorage.getItem('refreshToken');
+  }
+  
+  // BaseURL'i otomatik tespit et
+  detectBaseURL() {
+    // Environment variable kontrolü (eğer set edilmişse)
+    if (typeof window !== 'undefined' && window.API_BASE_URL) {
+      return window.API_BASE_URL;
+    }
+    
+    // Production ortamı kontrolü (localhost değilse)
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol;
+    
+    // Production ortamı (AWS EC2)
+    if (hostname === '16.170.227.182' || hostname.includes('16.170.227.182')) {
+      return `${protocol}//${hostname}/api`;
+    }
+    
+    // Development ortamı (localhost)
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:3000/api';
+    }
+    
+    // Diğer durumlar için mevcut hostname'i kullan
+    return `${protocol}//${hostname}/api`;
   }
 
   // Set authentication tokens

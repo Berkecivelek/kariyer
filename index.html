@@ -108,13 +108,13 @@
 
 <div class="flex gap-3" id="auth-buttons">
 
-<a href="giris.html" id="login-btn" class="hidden sm:flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111218] dark:text-white text-sm font-bold transition-colors">
+<a href="giris.html" id="login-btn" class="hidden sm:flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111218] dark:text-white text-sm font-bold transition-colors" data-i18n="Giriş Yap">
 
                         Giriş Yap
 
                     </a>
 
-<a href="cv-olusturucu-kisisel-bilgiler.html" class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-primary hover:bg-blue-700 text-white text-sm font-bold transition-colors shadow-lg shadow-blue-500/20">
+<a href="cv-olusturucu-kisisel-bilgiler.html" class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-primary hover:bg-blue-700 text-white text-sm font-bold transition-colors shadow-lg shadow-blue-500/20" data-i18n="Ücretsiz Dene">
 
                         Ücretsiz Dene
 
@@ -138,7 +138,7 @@
 
 </a>
 
-<button id="logout-btn" class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111218] dark:text-white text-sm font-bold transition-colors">
+<button id="logout-btn" class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-[#111218] dark:text-white text-sm font-bold transition-colors" data-i18n="Çıkış Yap">
 
 Çıkış Yap
 
@@ -762,6 +762,8 @@
 
 <!-- API Client -->
 <script src="js/api-client.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/i18n-helper.js"></script>
 <script>
 (function() {
     'use strict';

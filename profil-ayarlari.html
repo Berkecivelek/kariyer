@@ -110,6 +110,8 @@
 
 <div class="flex items-center gap-4 text-slate-900 dark:text-white">
 
+<a href="index.html" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+
 <div class="size-8 text-primary">
 
 <svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -124,7 +126,7 @@
 
 <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Ayarlar</h2>
 
-</div>
+</a>
 
 <div class="flex items-center justify-end gap-6">
 
@@ -136,7 +138,7 @@
 
 </a>
 
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border-2 border-white dark:border-slate-700 shadow-sm cursor-pointer" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBPtulyC-jyxhu96_BeHp_Uhp1D9-5B3yVAQvdI__pjHMPOCGCa7-7PLigmueLCgya2-Zg49rWVjurDvcW7BZgmkzdCx7vRcSJuT57BqWGwoiTwbON20VpauuAvHtbXASniisuTML24qjMQvQcj4PReD8F7zkvRiPU5YH98HH3pv0yjypYyeYCDFj_CurHOHgY88RuwCpoKTqbQ2HxlzcPNY02bwE5GHBPbgFJ70moEh7LvrXHuNwpnVFqehuVaaXWiaSrp4ZJaMrAE");'></div>
+<div id="header-profile-photo" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border-2 border-white dark:border-slate-700 shadow-sm cursor-pointer bg-slate-200 dark:bg-slate-700"></div>
 
 </div>
 
@@ -150,7 +152,7 @@
 
 <div class="relative group">
 
-<div id="profile-avatar" class="bg-center bg-no-repeat bg-cover rounded-full size-24 border-4 border-white dark:border-slate-700 shadow-lg mb-4" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBPtulyC-jyxhu96_BeHp_Uhp1D9-5B3yVAQvdI__pjHMPOCGCa7-7PLigmueLCgya2-Zg49rWVjurDvcW7BZgmkzdCx7vRcSJuT57BqWGwoiTwbON20VpauuAvHtbXASniisuTML24qjMQvQcj4PReD8F7zkvRiPU5YH98HH3pv0yjypYyeYCDFj_CurHOHgY88RuwCpoKTqbQ2HxlzcPNY02bwE5GHBPbgFJ70moEh7LvrXHuNwpnVFqehuVaaXWiaSrp4ZJaMrAE");'></div>
+<div id="profile-avatar" class="bg-center bg-no-repeat bg-cover rounded-full size-24 border-4 border-white dark:border-slate-700 shadow-lg mb-4"></div>
 
 <button class="absolute bottom-4 right-0 bg-primary text-white rounded-full p-1.5 shadow-md hover:bg-primary-dark transition-colors border-2 border-white dark:border-slate-800">
 
@@ -266,9 +268,9 @@
 
 <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
 
-<div class="size-20 bg-slate-100 rounded-full overflow-hidden shrink-0">
+<div class="size-20 rounded-full overflow-hidden shrink-0" style="background-color: transparent;">
 
-<div id="profile-photo" class="w-full h-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBPtulyC-jyxhu96_BeHp_Uhp1D9-5B3yVAQvdI__pjHMPOCGCa7-7PLigmueLCgya2-Zg49rWVjurDvcW7BZgmkzdCx7vRcSJuT57BqWGwoiTwbON20VpauuAvHtbXASniisuTML24qjMQvQcj4PReD8F7zkvRiPU5YH98HH3pv0yjypYyeYCDFj_CurHOHgY88RuwCpoKTqbQ2HxlzcPNY02bwE5GHBPbgFJ70moEh7LvrXHuNwpnVFqehuVaaXWiaSrp4ZJaMrAE");'></div>
+<div id="profile-photo" class="w-full h-full bg-cover bg-center" style="background-size: cover; background-position: center; background-repeat: no-repeat;"></div>
 
 </div>
 
@@ -280,9 +282,11 @@
 
 <div class="flex gap-3 mt-1">
 
-<button class="text-xs font-bold text-white bg-slate-900 dark:bg-slate-700 px-3 py-1.5 rounded-md shadow-sm hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors" type="button">Yeni Fotoğraf Yükle</button>
+<button id="profile-upload-photo-btn" class="text-xs font-bold text-white bg-slate-900 dark:bg-slate-700 px-3 py-1.5 rounded-md shadow-sm hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors" type="button">Yeni Fotoğraf Yükle</button>
 
-<button class="text-xs font-bold text-slate-500 dark:text-slate-400 px-3 py-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" type="button">Kaldır</button>
+<button id="profile-remove-photo-btn" class="text-xs font-bold text-slate-500 dark:text-slate-400 px-3 py-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden" type="button">Kaldır</button>
+
+<input type="file" id="profile-photo-input" accept="image/jpeg,image/jpg,image/gif,image/png" class="hidden">
 
 </div>
 
@@ -352,13 +356,13 @@
 
 <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Kısa Biyografi</label>
 
-<textarea id="profile-bio" class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm p-3 resize-none" rows="4">5+ yıllık deneyime sahip, yüksek performanslı web uygulamaları geliştirmede uzmanlaşmış sonuç odaklı yazılım mühendisi.</textarea>
+<textarea id="profile-bio" class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm p-3 resize-none" rows="4"></textarea>
 
 <div class="flex justify-between">
 
 <p class="text-xs text-slate-500 dark:text-slate-400">Kısa ve öz bir şekilde kendinizi tanıtın.</p>
 
-<p id="bio-char-count" class="text-xs text-slate-400">142/500</p>
+<p id="bio-char-count" class="text-xs text-slate-400">0/500</p>
 
 </div>
 
@@ -392,6 +396,10 @@
 <script src="js/api-client.js"></script>
 <script src="js/auth-guard.js"></script>
 <script src="js/auth-header.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/i18n-helper.js"></script>
+<script src="js/notification.js"></script>
+<script src="js/profile-photo-manager.js"></script>
 <script>
 (function() {
     'use strict';
@@ -435,12 +443,35 @@
                 if (emailInput) emailInput.value = user.email || '';
                 if (phoneInput) phoneInput.value = user.phone || '';
                 if (professionInput) professionInput.value = user.profession || '';
-                if (bioTextarea) bioTextarea.value = user.bio || '';
+                if (bioTextarea) {
+                    bioTextarea.value = user.bio || '';
+                    // Kullanıcı verisi yüklendikten sonra karakter sayacını güncelle
+                    const bioCharCount = document.getElementById('bio-char-count');
+                    if (bioCharCount) {
+                        bioCharCount.textContent = `${bioTextarea.value.length}/500`;
+                    }
+                }
                 if (profileName) {
                     const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
                     profileName.textContent = fullName;
                 }
                 if (profileEmail) profileEmail.textContent = user.email || '';
+                
+                // Profil fotoğrafını göster
+                if (user.profilePhotoUrl) {
+                    // Global profile photo manager kullan
+                    if (window.profilePhotoManager) {
+                        window.profilePhotoManager.updateAll(user.profilePhotoUrl);
+                    } else {
+                        // Fallback
+                        displayProfilePhoto(user.profilePhotoUrl);
+                    }
+                    
+                    // localStorage'a kaydet
+                    localStorage.setItem('profilePhotoUrl', user.profilePhotoUrl);
+                } else {
+                    localStorage.removeItem('profilePhotoUrl');
+                }
             } else {
                 // Token geçersiz
                 window.location.href = 'giris.html';
@@ -448,6 +479,259 @@
         } catch (error) {
             console.error('Profil yükleme hatası:', error);
             window.location.href = 'giris.html';
+        }
+    }
+    
+    // Profil fotoğrafını göster
+    function displayProfilePhoto(photoUrl) {
+        const photoEl = document.getElementById('profile-photo');
+        const avatarEl = document.getElementById('profile-avatar');
+        const removeBtn = document.getElementById('profile-remove-photo-btn');
+        
+        // URL'i düzelt (eğer relative ise)
+        let fullUrl = photoUrl;
+        if (!photoUrl.startsWith('http')) {
+            // Backend'den gelen URL /uploads/profiles/... formatında olmalı
+            // Eğer / ile başlamıyorsa ekle
+            const urlPath = photoUrl.startsWith('/') ? photoUrl : '/' + photoUrl;
+            fullUrl = window.location.origin + urlPath;
+        }
+        
+        console.log('Profil fotoğrafı gösteriliyor - Original URL:', photoUrl);
+        console.log('Profil fotoğrafı gösteriliyor - Full URL:', fullUrl);
+        console.log('Photo element:', photoEl);
+        console.log('Avatar element:', avatarEl);
+        
+        if (photoEl) {
+            // Background image'i ayarla - !important ile override et
+            photoEl.style.setProperty('background-image', `url("${fullUrl}")`, 'important');
+            photoEl.style.setProperty('background-size', 'cover', 'important');
+            photoEl.style.setProperty('background-position', 'center', 'important');
+            photoEl.style.setProperty('background-repeat', 'no-repeat', 'important');
+            // Background color'ı kaldır
+            photoEl.style.setProperty('background-color', 'transparent', 'important');
+            // bg-slate-200 class'ını kaldır
+            photoEl.classList.remove('bg-slate-200', 'dark:bg-slate-700');
+            // Parent element'in background'ını da kaldır
+            const parentEl = photoEl.parentElement;
+            if (parentEl && parentEl.classList.contains('bg-slate-100')) {
+                parentEl.classList.remove('bg-slate-100');
+                parentEl.style.setProperty('background-color', 'transparent', 'important');
+            }
+            console.log('profile-photo element güncellendi, backgroundImage:', photoEl.style.backgroundImage);
+            console.log('Computed backgroundImage:', window.getComputedStyle(photoEl).backgroundImage);
+            console.log('Parent element:', parentEl);
+        } else {
+            console.error('profile-photo elementi bulunamadı');
+        }
+        
+        if (avatarEl) {
+            // Background image'i ayarla - !important ile override et
+            avatarEl.style.setProperty('background-image', `url("${fullUrl}")`, 'important');
+            avatarEl.style.setProperty('background-size', 'cover', 'important');
+            avatarEl.style.setProperty('background-position', 'center', 'important');
+            avatarEl.style.setProperty('background-repeat', 'no-repeat', 'important');
+            avatarEl.style.setProperty('background-color', 'transparent', 'important');
+            console.log('profile-avatar element güncellendi, backgroundImage:', avatarEl.style.backgroundImage);
+            console.log('Computed backgroundImage:', window.getComputedStyle(avatarEl).backgroundImage);
+        } else {
+            console.error('profile-avatar elementi bulunamadı');
+        }
+        
+        if (removeBtn) {
+            removeBtn.classList.remove('hidden');
+            removeBtn.style.display = '';
+            removeBtn.style.visibility = 'visible';
+            console.log('Kaldır butonu gösterildi');
+        } else {
+            console.error('remove-photo-btn elementi bulunamadı');
+        }
+    }
+    
+    // Profil fotoğrafı yükleme
+    function initProfilePhotoUpload() {
+        const uploadBtn = document.getElementById('profile-upload-photo-btn');
+        const removeBtn = document.getElementById('profile-remove-photo-btn');
+        const photoInput = document.getElementById('profile-photo-input');
+        
+        if (!uploadBtn || !photoInput) return;
+        
+        // Fotoğraf yükle butonuna tıklandığında
+        uploadBtn.addEventListener('click', () => {
+            photoInput.click();
+        });
+        
+        // Dosya seçildiğinde
+        photoInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Format kontrolü
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/gif', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                if (window.showNotification) {
+                    window.showNotification('Lütfen JPG, GIF veya PNG formatında bir dosya seçin.', 'error');
+                } else {
+                    alert('Lütfen JPG, GIF veya PNG formatında bir dosya seçin.');
+                }
+                return;
+            }
+            
+            // Boyut kontrolü (1MB)
+            if (file.size > 1024 * 1024) {
+                if (window.showNotification) {
+                    window.showNotification('Dosya boyutu 1MB\'dan büyük olamaz.', 'error');
+                } else {
+                    alert('Dosya boyutu 1MB\'dan büyük olamaz.');
+                }
+                return;
+            }
+            
+            // Base64'e çevir
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const base64Data = event.target.result;
+                
+                try {
+                    if (!window.apiClient) {
+                        if (window.showNotification) {
+                            window.showNotification('API client yüklenmedi. Lütfen sayfayı yenileyin.', 'error');
+                        } else {
+                            alert('API client yüklenmedi. Lütfen sayfayı yenileyin.');
+                        }
+                        return;
+                    }
+                    
+                    uploadBtn.disabled = true;
+                    uploadBtn.textContent = 'Yükleniyor...';
+                    
+                    const response = await window.apiClient.uploadProfilePhoto(base64Data);
+                    
+                    if (response.success && response.data.profilePhotoUrl) {
+                        // Fotoğrafı göster - tüm yerlerde
+                        const photoUrl = response.data.profilePhotoUrl;
+                        console.log('✅ Fotoğraf yüklendi, URL:', photoUrl);
+                        
+                        // Global profile photo manager ile güncelle
+                        if (window.profilePhotoManager) {
+                            window.profilePhotoManager.updateAll(photoUrl);
+                        } else {
+                            // Fallback: eski yöntem
+                            displayProfilePhoto(photoUrl);
+                        }
+                        
+                        // localStorage'a kaydet
+                        localStorage.setItem('profilePhotoUrl', photoUrl);
+                        
+                        // Şık bildirim göster
+                        if (window.showNotification) {
+                            window.showNotification('Profil fotoğrafı başarıyla yüklendi!', 'success');
+                        } else {
+                            alert('Profil fotoğrafı başarıyla yüklendi!');
+                        }
+                        
+                        // Ekstra kontrol - 500ms sonra tekrar kontrol et
+                        setTimeout(() => {
+                            if (window.profilePhotoManager) {
+                                window.profilePhotoManager.updateAll(photoUrl);
+                            }
+                        }, 500);
+                    } else {
+                        throw new Error(response.error?.message || 'Fotoğraf yüklenemedi');
+                    }
+                } catch (error) {
+                    console.error('Fotoğraf yükleme hatası:', error);
+                    if (window.showNotification) {
+                        window.showNotification('Fotoğraf yüklenemedi: ' + (error.message || 'Bilinmeyen hata'), 'error');
+                    } else {
+                        alert('Fotoğraf yüklenemedi: ' + (error.message || 'Bilinmeyen hata'));
+                    }
+                } finally {
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = 'Yeni Fotoğraf Yükle';
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        });
+        
+        // Kaldır butonu
+        if (removeBtn) {
+            removeBtn.addEventListener('click', async () => {
+                if (!confirm('Profil fotoğrafını kaldırmak istediğinizden emin misiniz?')) {
+                    return;
+                }
+                
+                try {
+                    if (!window.apiClient) {
+                        if (window.showNotification) {
+                            window.showNotification('API client yüklenmedi. Lütfen sayfayı yenileyin.', 'error');
+                        } else {
+                            alert('API client yüklenmedi. Lütfen sayfayı yenileyin.');
+                        }
+                        return;
+                    }
+                    
+                    removeBtn.disabled = true;
+                    removeBtn.textContent = 'Kaldırılıyor...';
+                    
+                    const response = await window.apiClient.removeProfilePhoto();
+                    
+                    if (response.success) {
+                        // Fotoğrafı kaldır
+                        const photoEl = document.getElementById('profile-photo');
+                        const avatarEl = document.getElementById('profile-avatar');
+                        const headerPhotoEl = document.getElementById('header-profile-photo');
+                        
+                        if (photoEl) {
+                            photoEl.style.backgroundImage = 'none';
+                        }
+                        if (avatarEl) {
+                            avatarEl.style.backgroundImage = 'none';
+                        }
+                        if (headerPhotoEl) {
+                            headerPhotoEl.style.backgroundImage = 'none';
+                        }
+                        removeBtn.classList.add('hidden');
+                        
+                        // Global manager ile temizle
+                        if (window.profilePhotoManager) {
+                            const allPhotoElements = [
+                                document.getElementById('cv-profile-photo-preview'),
+                                document.getElementById('profile-photo'),
+                                document.getElementById('profile-avatar'),
+                                document.getElementById('header-profile-photo'),
+                                document.querySelector('.w-10.h-10.rounded-full.bg-cover')
+                            ];
+                            allPhotoElements.forEach(el => {
+                                if (el) {
+                                    el.style.backgroundImage = 'none';
+                                }
+                            });
+                        }
+                        
+                        localStorage.removeItem('profilePhotoUrl');
+                        
+                        if (window.showNotification) {
+                            window.showNotification('Profil fotoğrafı kaldırıldı.', 'success');
+                        } else {
+                            alert('Profil fotoğrafı kaldırıldı.');
+                        }
+                    } else {
+                        throw new Error(response.error?.message || 'Fotoğraf kaldırılamadı');
+                    }
+                } catch (error) {
+                    console.error('Fotoğraf kaldırma hatası:', error);
+                    if (window.showNotification) {
+                        window.showNotification('Fotoğraf kaldırılamadı: ' + (error.message || 'Bilinmeyen hata'), 'error');
+                    } else {
+                        alert('Fotoğraf kaldırılamadı: ' + (error.message || 'Bilinmeyen hata'));
+                    }
+                } finally {
+                    removeBtn.disabled = false;
+                    removeBtn.textContent = 'Kaldır';
+                }
+            });
         }
     }
     
@@ -460,6 +744,7 @@
             bioCharCount.textContent = `${length}/500`;
         }
         bioTextarea.addEventListener('input', updateCharCount);
+        // İlk yüklemede karakter sayacını güncelle (varsayılan 0)
         updateCharCount();
     }
     
@@ -504,7 +789,13 @@
                         profileName.textContent = fullName;
                     }
                     
-                    alert('Profil bilgileri başarıyla kaydedildi!');
+                    // Şık bildirim göster
+                    if (window.showNotification) {
+                        window.showNotification('Profil bilgileri başarıyla kaydedildi!', 'success');
+                    } else {
+                        alert('Profil bilgileri başarıyla kaydedildi!');
+                    }
+                    
                     saveBtn.disabled = false;
                     saveBtn.textContent = 'Değişiklikleri Kaydet';
                 } else {
@@ -512,7 +803,14 @@
                 }
             } catch (error) {
                 console.error('Profil kaydetme hatası:', error);
-                alert('Profil kaydedilemedi: ' + (error.message || 'Bilinmeyen hata'));
+                
+                // Hata mesajı için de şık bildirim göster
+                if (window.showNotification) {
+                    window.showNotification('Profil kaydedilemedi: ' + (error.message || 'Bilinmeyen hata'), 'error');
+                } else {
+                    alert('Profil kaydedilemedi: ' + (error.message || 'Bilinmeyen hata'));
+                }
+                
                 saveBtn.disabled = false;
                 saveBtn.textContent = 'Değişiklikleri Kaydet';
             }
@@ -546,9 +844,11 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             waitForAPIClient(loadUserProfile);
+            initProfilePhotoUpload();
         });
     } else {
         waitForAPIClient(loadUserProfile);
+        initProfilePhotoUpload();
     }
 })();
 </script>

@@ -90,6 +90,12 @@ const projectRoot = path.resolve(backendDir, '..');
 console.log('📁 Serving static files from:', projectRoot);
 app.use(express.static(projectRoot));
 
+// Serve uploaded files from backend/public/uploads
+const backendPublicDir = path.resolve(backendDir, 'public');
+const uploadsDir = path.join(backendPublicDir, 'uploads');
+console.log('📁 Serving uploaded files from:', uploadsDir);
+app.use('/uploads', express.static(uploadsDir));
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);

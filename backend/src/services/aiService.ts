@@ -791,25 +791,42 @@ Lütfen liderlik, ekip çalışması ve iletişim becerileri üzerine odaklanan 
       throw error;
     }
     
-    // Anthropic API hatalarını daha açıklayıcı hale getir
-    if (error && typeof error === 'object' && 'message' in error) {
-      const errorMessage = (error as any).message || '';
-      console.error('Error message:', errorMessage);
-      
-      if (errorMessage.includes('api_key') || errorMessage.includes('authentication') || errorMessage.includes('401')) {
-        throw new AppError('AI service authentication failed. Please check API key configuration.', 503);
-      }
-      if (errorMessage.includes('rate_limit') || errorMessage.includes('quota') || errorMessage.includes('429')) {
-        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
-      }
-      if (errorMessage.includes('insufficient_quota') || errorMessage.includes('payment')) {
-        throw new AppError('AI service quota exceeded. Please check your Claude API account balance.', 402);
-      }
-    }
-    
     // Detaylı hata loglama
     if (error && typeof error === 'object') {
+      console.error('Error type:', error.constructor.name);
       console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      
+      // Anthropic API hatalarını kontrol et
+      const errorMessage = (error as any).message || '';
+      const errorStatus = (error as any).status || (error as any).statusCode || '';
+      console.error('Error message:', errorMessage);
+      console.error('Error status:', errorStatus);
+      
+      // API key kontrolü
+      if (!anthropic) {
+        console.error('❌ Anthropic client is null!');
+        throw new AppError('AI service is not configured. Please contact support.', 503);
+      }
+      
+      if (
+        errorMessage.includes('api_key') ||
+        errorMessage.includes('authentication') ||
+        errorMessage.includes('401') ||
+        errorStatus === 401
+      ) {
+        throw new AppError('AI service authentication failed. Please check API key configuration.', 503);
+      }
+      if (
+        errorMessage.includes('rate_limit') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('429') ||
+        errorStatus === 429
+      ) {
+        throw new AppError('AI service rate limit exceeded. Please try again later.', 429);
+      }
+      if (errorMessage.includes('insufficient_quota') || errorMessage.includes('payment') || errorStatus === 402) {
+        throw new AppError('AI service quota exceeded. Please check your Claude API account balance.', 402);
+      }
     }
     
     throw new AppError(`Failed to generate summary suggestions: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later.`, 500);

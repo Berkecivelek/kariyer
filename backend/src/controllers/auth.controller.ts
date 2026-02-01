@@ -3,6 +3,8 @@ import prisma from '../config/database';
 import { hashPassword, comparePassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken, TokenPayload } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
+import fs from 'fs';
+import path from 'path';
 
 export const register = async (
   req: Request,
@@ -230,6 +232,9 @@ export const getCurrentUser = async (
         phone: true,
         profession: true,
         bio: true,
+        profilePhotoUrl: true,
+        language: true,
+        timezone: true,
         createdAt: true,
         subscriptions: {
           where: { isActive: true },
@@ -262,7 +267,7 @@ export const updateUser = async (
       throw new AppError('Not authenticated', 401);
     }
 
-    const { firstName, lastName, phone, profession, bio } = req.body;
+    const { firstName, lastName, phone, profession, bio, language, timezone, profilePhotoUrl } = req.body;
 
     // Update data object - sadece gönderilen alanları güncelle
     const updateData: any = {};
@@ -271,6 +276,9 @@ export const updateUser = async (
     if (phone !== undefined) updateData.phone = phone;
     if (profession !== undefined) updateData.profession = profession;
     if (bio !== undefined) updateData.bio = bio;
+    if (language !== undefined) updateData.language = language;
+    if (timezone !== undefined) updateData.timezone = timezone;
+    if (profilePhotoUrl !== undefined) updateData.profilePhotoUrl = profilePhotoUrl;
 
     // Email değiştirilemez (unique constraint)
     // Password değiştirme ayrı bir endpoint'te olmalı
@@ -286,6 +294,9 @@ export const updateUser = async (
         phone: true,
         profession: true,
         bio: true,
+        profilePhotoUrl: true,
+        language: true,
+        timezone: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -300,4 +311,137 @@ export const updateUser = async (
   }
 };
 
+// Profil fotoğrafı yükle
+export const uploadProfilePhoto = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      throw new AppError('Not authenticated', 401);
+    }
 
+    const { imageData } = req.body; // Base64 string
+
+    if (!imageData || typeof imageData !== 'string') {
+      throw new AppError('Image data is required (base64 string)', 400);
+    }
+
+    // Base64 string'i parse et
+    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
+    // Dosya boyutu kontrolü (1MB)
+    if (imageBuffer.length > 1024 * 1024) {
+      throw new AppError('Image size must be less than 1MB', 400);
+    }
+
+    // Format kontrolü (JPG, GIF, PNG)
+    const imageType = imageData.match(/data:image\/(\w+);base64/)?.[1]?.toLowerCase();
+    if (!imageType || !['jpeg', 'jpg', 'gif', 'png'].includes(imageType)) {
+      throw new AppError('Image format must be JPG, GIF, or PNG', 400);
+    }
+
+    // Uploads klasörünü oluştur
+    const backendDir = path.resolve(__dirname, '..', '..');
+    const uploadsDir = path.join(backendDir, 'public', 'uploads', 'profiles');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Dosya adı oluştur (userId-timestamp.extension)
+    const userId = req.user.userId;
+    const timestamp = Date.now();
+    const extension = imageType === 'jpeg' ? 'jpg' : imageType;
+    const fileName = `${userId}-${timestamp}.${extension}`;
+    const filePath = path.join(uploadsDir, fileName);
+
+    // Dosyayı kaydet
+    fs.writeFileSync(filePath, imageBuffer);
+
+    // URL oluştur
+    const photoUrl = `/uploads/profiles/${fileName}`;
+
+    // Eski fotoğrafı sil (varsa)
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { profilePhotoUrl: true },
+    });
+
+    if (user?.profilePhotoUrl) {
+      const oldFilePath = path.join(backendDir, 'public', user.profilePhotoUrl);
+      if (fs.existsSync(oldFilePath)) {
+        try {
+          fs.unlinkSync(oldFilePath);
+        } catch (error) {
+          console.warn('Eski profil fotoğrafı silinemedi:', error);
+        }
+      }
+    }
+
+    // Database'e kaydet
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { profilePhotoUrl: photoUrl },
+      select: {
+        id: true,
+        profilePhotoUrl: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      data: { profilePhotoUrl: updatedUser.profilePhotoUrl },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Profil fotoğrafı kaldır
+export const removeProfilePhoto = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      throw new AppError('Not authenticated', 401);
+    }
+
+    const userId = req.user.userId;
+
+    // Kullanıcının mevcut fotoğrafını al
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { profilePhotoUrl: true },
+    });
+
+    // Dosyayı sil
+    if (user?.profilePhotoUrl) {
+      const backendDir = path.resolve(__dirname, '..', '..');
+      const filePath = path.join(backendDir, 'public', user.profilePhotoUrl);
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (error) {
+          console.warn('Profil fotoğrafı silinemedi:', error);
+        }
+      }
+    }
+
+    // Database'den kaldır
+    await prisma.user.update({
+      where: { id: userId },
+      data: { profilePhotoUrl: null },
+    });
+
+    res.json({
+      success: true,
+      data: { message: 'Profile photo removed successfully' },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -11,6 +11,8 @@ router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
 router.get('/me', authenticate, authController.getCurrentUser);
 router.put('/me', authenticate, authController.updateUser);
+router.post('/me/photo', authenticate, authController.uploadProfilePhoto);
+router.delete('/me/photo', authenticate, authController.removeProfilePhoto);
 
 export default router;
 

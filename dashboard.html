@@ -236,7 +236,7 @@
 
 <div class="flex items-center justify-between mb-2">
 
-<span class="text-[#616889] dark:text-gray-400 text-sm font-medium">Toplam Özgeçmiş</span>
+<span class="text-[#616889] dark:text-gray-400 text-sm font-medium">Özgeçmişler</span>
 
 <span class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
 
@@ -246,13 +246,13 @@
 
 </div>
 
-<span class="text-3xl font-bold text-[#111218] dark:text-white">3</span>
+<span id="resume-count" class="text-3xl font-bold text-[#111218] dark:text-white">0</span>
 
-<span class="text-xs text-green-600 font-medium flex items-center gap-1">
+<span id="resume-trend" class="text-xs text-green-600 font-medium flex items-center gap-1 hidden">
 
 <span class="material-symbols-outlined text-sm">trending_up</span>
 
-                        Bu ay +1 yeni
+                        <span id="resume-trend-text"></span>
 
                     </span>
 
@@ -272,9 +272,9 @@
 
 </div>
 
-<span class="text-3xl font-bold text-[#111218] dark:text-white">12</span>
+<span id="cover-letter-count" class="text-3xl font-bold text-[#111218] dark:text-white">0</span>
 
-<span class="text-xs text-[#616889] dark:text-gray-500 font-medium">Son düzenleme 2 gün önce</span>
+<span id="last-edited-text" class="text-xs text-[#616889] dark:text-gray-500 font-medium">Henüz belge oluşturulmadı</span>
 
 </div>
 
@@ -294,7 +294,7 @@
 
 </div>
 
-<span class="text-3xl font-bold text-[#111218] dark:text-white relative z-10">5</span>
+<span id="ai-credits-count" class="text-3xl font-bold text-[#111218] dark:text-white relative z-10">0</span>
 
 <a class="text-xs text-primary font-bold hover:underline relative z-10 flex items-center gap-1 mt-1" href="fiyatlandirma.html">
 
@@ -354,7 +354,7 @@
 
 </div>
 
-<input class="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-[#f0f1f4] dark:bg-gray-800 text-[#111218] dark:text-white placeholder-[#616889] dark:placeholder-gray-500 focus:ring-2 focus:ring-primary text-sm font-medium" placeholder="Belge ara..." type="text"/>
+<input id="document-search-input" class="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-[#f0f1f4] dark:bg-gray-800 text-[#111218] dark:text-white placeholder-[#616889] dark:placeholder-gray-500 focus:ring-2 focus:ring-primary text-sm font-medium" placeholder="Belge ara..." type="text"/>
 
 </div>
 
@@ -668,6 +668,9 @@
 <script src="js/api-client.js"></script>
 <script src="js/auth-guard.js"></script>
 <script src="js/auth-header.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/i18n-helper.js"></script>
+<script src="js/profile-photo-manager.js"></script>
 <script>
 (function() {
     'use strict';
@@ -698,6 +701,30 @@
                 const sidebarNameEl = document.getElementById('sidebar-user-name');
                 if (sidebarNameEl) {
                     sidebarNameEl.textContent = fullName;
+                }
+                
+                // Profil fotoğrafını göster
+                if (user.profilePhotoUrl) {
+                    // Global profile photo manager kullan
+                    if (window.profilePhotoManager) {
+                        window.profilePhotoManager.updateAll(user.profilePhotoUrl);
+                    } else {
+                        // Fallback
+                        const profilePhotoEl = document.querySelector('.w-10.h-10.rounded-full.bg-cover');
+                        if (profilePhotoEl) {
+                            const fullUrl = user.profilePhotoUrl.startsWith('http') 
+                                ? user.profilePhotoUrl 
+                                : (window.location.origin + user.profilePhotoUrl);
+                            profilePhotoEl.style.setProperty('background-image', `url("${fullUrl}")`, 'important');
+                            profilePhotoEl.style.setProperty('background-size', 'cover', 'important');
+                            profilePhotoEl.style.setProperty('background-position', 'center', 'important');
+                            profilePhotoEl.style.setProperty('background-repeat', 'no-repeat', 'important');
+                        }
+                    }
+                    // localStorage'a kaydet
+                    localStorage.setItem('profilePhotoUrl', user.profilePhotoUrl);
+                } else {
+                    localStorage.removeItem('profilePhotoUrl');
                 }
             }
         } catch (error) {
@@ -973,20 +1000,8 @@
                 allDocuments.resumes = resumes;
                 console.log(`✅ ${resumes.length} adet resume bulundu:`, resumes);
                 
-                // Toplam sayıyı güncelle
-                const totalResumesSpan = getTotalResumesSpan();
-                if (totalResumesSpan) {
-                    const parent = totalResumesSpan.closest('div');
-                    if (parent) {
-                        const countSpan = parent.querySelector('span:first-child');
-                        if (countSpan) {
-                            countSpan.textContent = resumes.length;
-                        }
-                    }
-                }
-                
-                // Cover letter sayısını güncelle
-                updateCoverLetterCount();
+                // Özgeçmiş sayısını güncelle
+                updateResumeCount(resumes);
                 
                 // Belgeleri render et
                 renderDocuments();
@@ -1023,8 +1038,9 @@
                 allDocuments.coverLetters = response.data.coverLetters;
                 console.log(`✅ ${allDocuments.coverLetters.length} adet cover letter bulundu`);
                 
-                // Cover letter sayısını güncelle
+                // Cover letter sayısını ve son düzenleme tarihini güncelle
                 updateCoverLetterCount();
+                updateLastEditedDate();
                 
                 // Belgeleri render et
                 renderDocuments();
@@ -1034,17 +1050,100 @@
         }
     }
     
+    // Özgeçmiş sayısını güncelle
+    function updateResumeCount(resumes) {
+        const resumeCountEl = document.getElementById('resume-count');
+        const resumeTrendEl = document.getElementById('resume-trend');
+        const resumeTrendTextEl = document.getElementById('resume-trend-text');
+        
+        if (resumeCountEl) {
+            resumeCountEl.textContent = resumes.length;
+        }
+        
+        // Bu ay oluşturulan özgeçmiş sayısını hesapla
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const thisMonthResumes = resumes.filter(r => {
+            const createdAt = new Date(r.createdAt);
+            return createdAt >= startOfMonth;
+        });
+        
+        if (thisMonthResumes.length > 0 && resumeTrendEl && resumeTrendTextEl) {
+            resumeTrendEl.classList.remove('hidden');
+            resumeTrendTextEl.textContent = `Bu ay +${thisMonthResumes.length} yeni`;
+        } else if (resumeTrendEl) {
+            resumeTrendEl.classList.add('hidden');
+        }
+    }
+    
     // Cover letter sayısını güncelle
     function updateCoverLetterCount() {
         const coverLetterCount = allDocuments.coverLetters.length;
-        const coverLetterCard = document.querySelector('.bg-white.dark\\:bg-\\[\\#1e2130\\] .text-3xl');
-        if (coverLetterCard) {
-            const parent = coverLetterCard.closest('.bg-white');
-            if (parent) {
-                const countSpan = parent.querySelector('span.text-3xl');
-                if (countSpan) {
-                    countSpan.textContent = coverLetterCount;
+        const coverLetterCountEl = document.getElementById('cover-letter-count');
+        
+        if (coverLetterCountEl) {
+            coverLetterCountEl.textContent = coverLetterCount;
+        }
+    }
+    
+    // Son düzenleme tarihini güncelle
+    function updateLastEditedDate() {
+        const lastEditedEl = document.getElementById('last-edited-text');
+        if (!lastEditedEl) return;
+        
+        // Tüm belgeleri birleştir (resume + cover letter)
+        const allDocs = [
+            ...allDocuments.resumes.map(r => ({ updatedAt: r.updatedAt, createdAt: r.createdAt })),
+            ...allDocuments.coverLetters.map(c => ({ updatedAt: c.updatedAt, createdAt: c.createdAt }))
+        ];
+        
+        if (allDocs.length === 0) {
+            lastEditedEl.textContent = 'Henüz belge oluşturulmadı';
+            return;
+        }
+        
+        // En son güncellenen belgeyi bul
+        const sortedDocs = allDocs.sort((a, b) => {
+            const dateA = new Date(a.updatedAt || a.createdAt || 0);
+            const dateB = new Date(b.updatedAt || b.createdAt || 0);
+            return dateB - dateA;
+        });
+        
+        const lastDoc = sortedDocs[0];
+        const lastDate = new Date(lastDoc.updatedAt || lastDoc.createdAt);
+        const formattedDate = formatDate(lastDate.toISOString());
+        
+        lastEditedEl.textContent = `Son düzenleme ${formattedDate}`;
+    }
+    
+    // AI kredisi bilgisini yükle
+    async function loadAICredits() {
+        try {
+            if (!window.apiClient) {
+                return;
+            }
+            
+            const response = await window.apiClient.getCurrentUser();
+            if (response && response.success && response.data && response.data.user) {
+                const user = response.data.user;
+                const subscription = user.subscriptions && user.subscriptions.length > 0 ? user.subscriptions[0] : null;
+                
+                const creditsCountEl = document.getElementById('ai-credits-count');
+                if (creditsCountEl) {
+                    if (subscription) {
+                        const availableCredits = subscription.aiCredits - subscription.usedCredits;
+                        creditsCountEl.textContent = Math.max(0, availableCredits);
+                    } else {
+                        creditsCountEl.textContent = '0';
+                    }
                 }
+            }
+        } catch (error) {
+            console.error('AI kredisi yükleme hatası:', error);
+            // Hata durumunda 0 göster
+            const creditsCountEl = document.getElementById('ai-credits-count');
+            if (creditsCountEl) {
+                creditsCountEl.textContent = '0';
             }
         }
     }
@@ -1071,6 +1170,34 @@
             documentsToShow = allDocuments.resumes.map(r => ({ type: 'resume', data: r }));
         } else if (activeTab === 'cover-letters') {
             documentsToShow = allDocuments.coverLetters.map(c => ({ type: 'cover-letter', data: c }));
+        }
+        
+        // Arama filtresi uygula
+        const searchInput = document.getElementById('document-search-input');
+        if (searchInput && searchInput.value.trim()) {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            documentsToShow = documentsToShow.filter(doc => {
+                if (doc.type === 'resume') {
+                    const title = (doc.data.title || '').toLowerCase();
+                    const firstName = (doc.data.firstName || '').toLowerCase();
+                    const lastName = (doc.data.lastName || '').toLowerCase();
+                    const profession = (doc.data.profession || '').toLowerCase();
+                    return title.includes(searchTerm) || 
+                           firstName.includes(searchTerm) || 
+                           lastName.includes(searchTerm) ||
+                           profession.includes(searchTerm);
+                } else if (doc.type === 'cover-letter') {
+                    const title = (doc.data.title || '').toLowerCase();
+                    const content = (doc.data.content || '').toLowerCase();
+                    const company = (doc.data.company || '').toLowerCase();
+                    const position = (doc.data.position || '').toLowerCase();
+                    return title.includes(searchTerm) || 
+                           content.includes(searchTerm) ||
+                           company.includes(searchTerm) ||
+                           position.includes(searchTerm);
+                }
+                return false;
+            });
         }
         
         // Tarihe göre sırala (en yeni önce)
@@ -1306,15 +1433,35 @@
         });
     }
     
+    // Belge arama fonksiyonu
+    function initSearch() {
+        const searchInput = document.getElementById('document-search-input');
+        if (searchInput) {
+            // Input event listener (gerçek zamanlı arama)
+            searchInput.addEventListener('input', function() {
+                renderDocuments();
+            });
+            
+            // Enter tuşu ile arama
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    renderDocuments();
+                }
+            });
+        }
+    }
+    
     // Sayfa yüklendiğinde resume'ları ve cover letter'ları yükle
     function initResumeLoader() {
         // API client yüklenene kadar bekle
         function waitForAPIClientAndLoad() {
             if (window.apiClient) {
-                // API client hazır, resume'ları ve cover letter'ları yükle
+                // API client hazır, tüm verileri yükle
                 loadResumes();
                 loadCoverLetters();
+                loadAICredits();
                 initTabs();
+                initSearch();
             } else {
                 // API client henüz yüklenmedi, tekrar dene
                 setTimeout(waitForAPIClientAndLoad, 100);
@@ -1333,6 +1480,7 @@
                 console.log('📥 Sayfa görünür oldu, belgeler yeniden yükleniyor...');
                 loadResumes();
                 loadCoverLetters();
+                loadAICredits();
             }
         });
         
@@ -1342,6 +1490,7 @@
                 console.log('📥 Pencere focus oldu, belgeler yeniden yükleniyor...');
                 loadResumes();
                 loadCoverLetters();
+                loadAICredits();
             }
         });
     }
