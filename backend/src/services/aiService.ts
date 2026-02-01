@@ -1509,7 +1509,7 @@ export const scrapeJobPosting = async (url: string): Promise<string> => {
               const bodyText = bodyClone.innerText || bodyClone.textContent || '';
               
               // Body text'ten en anlamlı kısmı bul (ortadaki kısım genelde job description)
-              const lines = bodyText.split('\n').filter((line: string) => line.trim().length > 10);
+              const lines = bodyText.split('\n').filter((line) => line.trim().length > 10);
               const startIdx = Math.floor(lines.length * 0.2); // İlk %20'yi atla
               const endIdx = Math.floor(lines.length * 0.9); // Son %10'u atla
               const relevantLines = lines.slice(startIdx, endIdx);
