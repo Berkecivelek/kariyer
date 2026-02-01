@@ -1,9 +1,9 @@
-import express from 'express';
+import express, { Router } from 'express';
 import * as resumeController from '../controllers/resume.controller';
 import * as pdfController from '../controllers/pdf.controller';
 import { authenticate } from '../middleware/auth.middleware';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // All routes require authentication
 router.use(authenticate);

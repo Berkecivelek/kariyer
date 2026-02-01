@@ -1,8 +1,8 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { InterviewController } from '../controllers/interview.controller';
 import { authenticate } from '../middleware/auth.middleware';
 
-const router = express.Router();
+const router: Router = express.Router();
 const interviewController = new InterviewController();
 
 // Yeni mülakat oturumu başlat

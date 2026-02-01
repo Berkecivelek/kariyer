@@ -1,8 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 
-export interface AppError extends Error {
-  statusCode?: number;
-  isOperational?: boolean;
+export class AppError extends Error {
+  statusCode: number;
+  isOperational: boolean;
+  data?: any;
+
+  constructor(message: string, statusCode: number = 500, data?: any) {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = true;
+    this.data = data;
+    Error.captureStackTrace(this, this.constructor);
+  }
 }
 
 export const errorHandler = (
@@ -29,19 +38,5 @@ export const errorHandler = (
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
     },
   });
-};
-
-export class AppError extends Error {
-  statusCode: number;
-  isOperational: boolean;
-  data?: any;
-
-  constructor(message: string, statusCode: number = 500, data?: any) {
-    super(message);
-    this.statusCode = statusCode;
-    this.isOperational = true;
-    this.data = data;
-    Error.captureStackTrace(this, this.constructor);
-  }
 }
 

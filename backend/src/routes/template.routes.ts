@@ -1,7 +1,7 @@
-import express from 'express';
+import express, { Router } from 'express';
 import * as templateController from '../controllers/template.controller';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // Templates are public (no auth required)
 router.get('/', templateController.getAllTemplates);

@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import * as aiController from '../controllers/ai.controller';
 import * as analysisController from '../controllers/analysis.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { validate, coverLetterValidation } from '../middleware/validation.middleware';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // All routes require authentication
 router.use(authenticate);
@@ -24,7 +24,7 @@ const coverLetterRateLimiter = rateLimit({
   // Kullanıcı bazlı rate limiting için keyGenerator kullan
   keyGenerator: (req) => {
     // req.user authenticate middleware'den geliyor
-    return req.user?.userId || req.ip;
+    return req.user?.userId || req.ip || 'anonymous';
   },
   skip: (req) => {
     // Eğer kullanıcı yoksa (teorik olarak olmamalı çünkü authenticate middleware var)
