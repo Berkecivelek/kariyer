@@ -32,6 +32,36 @@ class APIClient {
     return `${protocol}//${hostname}/api`;
   }
 
+  // Token'ları localStorage'dan yükle
+  loadTokens() {
+    try {
+      this.token = localStorage.getItem('authToken');
+      this.refreshToken = localStorage.getItem('refreshToken');
+      
+      // Token varsa ve geçerliyse, kullanıcı bilgilerini kontrol et
+      if (this.token) {
+        // Token'ın geçerliliğini kontrol et (basit kontrol)
+        try {
+          const payload = JSON.parse(atob(this.token.split('.')[1]));
+          const now = Math.floor(Date.now() / 1000);
+          if (payload.exp && payload.exp < now) {
+            // Token süresi dolmuş, temizle
+            console.warn('Token expired, clearing...');
+            this.clearTokens();
+          }
+        } catch (e) {
+          // Token parse edilemedi, geçersiz
+          console.warn('Invalid token format, clearing...');
+          this.clearTokens();
+        }
+      }
+    } catch (error) {
+      console.error('Error loading tokens:', error);
+      this.token = null;
+      this.refreshToken = null;
+    }
+  }
+
   // Set authentication tokens
   setTokens(accessToken, refreshToken) {
     this.token = accessToken;
