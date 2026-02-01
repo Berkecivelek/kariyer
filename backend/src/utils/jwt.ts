@@ -11,20 +11,20 @@ export interface TokenPayload {
 }
 
 export const generateAccessToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, JWT_SECRET as string, {
     expiresIn: JWT_EXPIRES_IN,
   });
 };
 
 export const generateRefreshToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, JWT_REFRESH_SECRET, {
+  return jwt.sign(payload, JWT_REFRESH_SECRET as string, {
     expiresIn: JWT_REFRESH_EXPIRES_IN,
   });
 };
 
 export const verifyAccessToken = (token: string): TokenPayload => {
   try {
-    return jwt.verify(token, JWT_SECRET) as TokenPayload;
+    return jwt.verify(token, JWT_SECRET as string) as TokenPayload;
   } catch (error) {
     throw new Error('Invalid or expired access token');
   }
@@ -32,7 +32,7 @@ export const verifyAccessToken = (token: string): TokenPayload => {
 
 export const verifyRefreshToken = (token: string): TokenPayload => {
   try {
-    return jwt.verify(token, JWT_REFRESH_SECRET) as TokenPayload;
+    return jwt.verify(token, JWT_REFRESH_SECRET as string) as TokenPayload;
   } catch (error) {
     throw new Error('Invalid or expired refresh token');
   }
