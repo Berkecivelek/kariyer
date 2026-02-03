@@ -7,28 +7,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#ef4444",
-                        "stress-red": "#ff0000",
-                        "background-dark": "#0a0a0c",
-                        "surface-dark": "#16161a",
-                        "border-stress": "#331111",
-                    },
-                    fontFamily: {
-                        "display": ["Manrope", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.375rem", "lg": "0.5rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
-<style type="text/tailwindcss">
+<style type="text/css">
         @layer base {
             body { @apply text-slate-100 bg-background-dark; }
         }
@@ -47,6 +26,8 @@
             background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
         }
     </style>
+<!-- Tailwind CSS -->
+<link rel="stylesheet" href="css/tailwind.css">
 </head>
 <body class="font-display antialiased overflow-hidden">
 <div class="flex h-screen overflow-hidden relative">

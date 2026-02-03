@@ -7,27 +7,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#1337ec",
-                        "primary-dark": "#0f2cb8",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#101322",
-                    },
-                    fontFamily: {
-                        "display": ["Manrope", "sans-serif"]
-                    },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-<style type="text/tailwindcss">
+<style type="text/css">
         .confetti-piece {
             position: absolute;
             width: 10px;
@@ -42,6 +22,8 @@
             background-size: 24px 24px;
         }
     </style>
+<!-- Tailwind CSS -->
+<link rel="stylesheet" href="css/tailwind.css">
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen flex flex-col overflow-hidden">
 <header class="flex shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a1d2d] px-6 py-3 z-20">
@@ -172,19 +154,22 @@
             } catch (error) {
                 console.error('PDF download error:', error);
                 
-                // Backend hatası varsa preview sayfasına yönlendir
+                // Backend hatası varsa direkt preview sayfasına yönlendir
                 // O sayfada print butonu var ve window.print() kullanılıyor (popup blocker'dan etkilenmez)
+                // Safari download popup'ını önlemek için direkt yönlendir
                 if (error.message && (error.message.includes('404') || error.message.includes('not found'))) {
                     // Resume bulunamadı hatası
                     alert('CV bulunamadı. Lütfen önce bir CV oluşturun.');
+                    downloadPdfBtn.disabled = false;
+                    downloadPdfBtn.innerHTML = originalText;
                 } else {
-                    // Diğer hatalar için preview sayfasına yönlendir
+                    // Diğer hatalar için direkt preview sayfasına yönlendir (Safari popup'ını önlemek için)
                     window.location.href = `cv-onizle.html?resume=${resumeId}`;
                     return;
                 }
             } finally {
                 // Butonu tekrar aktif et (sadece hata durumunda ve yönlendirme yapılmadıysa)
-                if (downloadPdfBtn && downloadPdfBtn.disabled) {
+                if (downloadPdfBtn && downloadPdfBtn.disabled && !window.location.href.includes('cv-onizle.html')) {
                     downloadPdfBtn.disabled = false;
                     downloadPdfBtn.innerHTML = originalText;
                 }
