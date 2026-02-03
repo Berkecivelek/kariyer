@@ -123,7 +123,28 @@
     const downloadPdfBtn = document.getElementById('download-pdf-btn');
     if (downloadPdfBtn) {
         downloadPdfBtn.addEventListener('click', async function() {
-            const resumeId = localStorage.getItem('current-resume-id');
+            // Resume ID'yi önce URL parametresinden al
+            const urlParams = new URLSearchParams(window.location.search);
+            let resumeId = urlParams.get('resume');
+            
+            // URL'de yoksa, localStorage'dan al
+            if (!resumeId) {
+                resumeId = localStorage.getItem('current-resume-id');
+            }
+            
+            // Hala yoksa, en son oluşturulan COMPLETED resume'u database'den al
+            if (!resumeId && window.apiClient && window.apiClient.token) {
+                try {
+                    const resumesResponse = await window.apiClient.getResumes(false); // Sadece COMPLETED
+                    if (resumesResponse.success && resumesResponse.data.resumes && resumesResponse.data.resumes.length > 0) {
+                        // En son oluşturulan resume'u al (zaten updatedAt: 'desc' ile sıralı)
+                        resumeId = resumesResponse.data.resumes[0].id;
+                        console.log('✅ En son oluşturulan resume bulundu:', resumeId);
+                    }
+                } catch (error) {
+                    console.error('Resume listesi alınamadı:', error);
+                }
+            }
             
             if (!resumeId) {
                 alert('CV bulunamadı. Lütfen önce bir CV oluşturun.');
@@ -136,29 +157,34 @@
             downloadPdfBtn.innerHTML = '<span class="material-symbols-outlined text-[32px] animate-spin">sync</span><span class="font-bold text-sm">İndiriliyor...</span>';
             
             try {
-                // Önce backend PDF'i dene
+                // Backend PDF'i dene - SADECE backend API kullan
                 if (window.apiClient && window.apiClient.token) {
-                    try {
-                        await window.apiClient.downloadPDF(resumeId);
-                        // Başarılı - butonu tekrar aktif et
-                        downloadPdfBtn.disabled = false;
-                        downloadPdfBtn.innerHTML = originalText;
-                        return;
-                    } catch (backendError) {
-                        console.warn('Backend PDF indirme hatası, frontend fallback deneniyor:', backendError);
-                        // Backend hatası varsa frontend fallback'e geç
-                    }
+                    await window.apiClient.downloadPDF(resumeId);
+                    // Başarılı - butonu tekrar aktif et
+                    downloadPdfBtn.disabled = false;
+                    downloadPdfBtn.innerHTML = originalText;
+                    return;
+                } else {
+                    // API client veya token yoksa preview sayfasına yönlendir
+                    window.location.href = `cv-onizle.html?resume=${resumeId}`;
+                    return;
                 }
-                
-                // Frontend fallback: Preview sayfasına yönlendir
-                // CV verilerini localStorage'dan al ve preview sayfasına gönder
-                window.location.href = 'cv-onizle.html';
             } catch (error) {
                 console.error('PDF download error:', error);
-                alert('PDF indirilemedi: ' + (error.message || 'Bilinmeyen bir hata oluştu'));
+                
+                // Backend hatası varsa preview sayfasına yönlendir
+                // O sayfada print butonu var ve window.print() kullanılıyor (popup blocker'dan etkilenmez)
+                if (error.message && (error.message.includes('404') || error.message.includes('not found'))) {
+                    // Resume bulunamadı hatası
+                    alert('CV bulunamadı. Lütfen önce bir CV oluşturun.');
+                } else {
+                    // Diğer hatalar için preview sayfasına yönlendir
+                    window.location.href = `cv-onizle.html?resume=${resumeId}`;
+                    return;
+                }
             } finally {
-                // Butonu tekrar aktif et
-                if (downloadPdfBtn) {
+                // Butonu tekrar aktif et (sadece hata durumunda ve yönlendirme yapılmadıysa)
+                if (downloadPdfBtn && downloadPdfBtn.disabled) {
                     downloadPdfBtn.disabled = false;
                     downloadPdfBtn.innerHTML = originalText;
                 }

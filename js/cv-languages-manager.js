@@ -479,13 +479,19 @@
                 }
             }
             
-            // KRİTİK: "Bitir ve Tamamla" sonrası current-resume-id'yi TEMİZLE
-            // Bu sayede bir sonraki CV oluşturma akışında yeni resume oluşturulur
+            // KRİTİK: Resume ID'yi URL parametresi olarak success sayfasına gönder
+            // Bu sayede PDF indirme işlemi çalışabilir
+            // current-resume-id'yi temizle (bir sonraki CV oluşturma için)
             localStorage.removeItem('current-resume-id');
             console.log('🧹 CV finalized: current-resume-id cleared for next CV creation');
             
-            // Success screen'e yönlendir
-            window.location.href = 'cv-tamamlandi.html';
+            // Success screen'e yönlendir - resume ID'yi URL parametresi olarak gönder
+            if (resumeId) {
+                window.location.href = `cv-tamamlandi.html?resume=${resumeId}`;
+            } else {
+                // Resume ID yoksa (offline mode veya hata durumu)
+                window.location.href = 'cv-tamamlandi.html';
+            }
         } catch (error) {
             console.error('Error finishing CV:', error);
             alert('CV kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
