@@ -4,6 +4,42 @@ import { AppError } from '../middleware/errorHandler';
 import puppeteer from 'puppeteer';
 import { createWorker } from 'tesseract.js';
 
+// Prompt injection koruması için input sanitization
+const sanitizeInput = (input: string | undefined | null, maxLength: number = 1000): string => {
+  if (!input || typeof input !== 'string') return '';
+
+  // Maksimum uzunluk kontrolü
+  let sanitized = input.slice(0, maxLength);
+
+  // Potansiyel prompt injection pattern'lerini temizle
+  // Yeni satır ve özel karakterleri escape et
+  sanitized = sanitized
+    .replace(/[\r\n]+/g, ' ') // Yeni satırları boşluk ile değiştir
+    .replace(/[<>]/g, '') // HTML tag karakterlerini kaldır
+    .replace(/```/g, '') // Markdown code block'ları kaldır
+    .replace(/\\/g, '') // Backslash'ları kaldır
+    .trim();
+
+  return sanitized;
+};
+
+// Array içindeki tüm stringleri sanitize et
+const sanitizeArray = (arr: any[], maxLength: number = 500): string[] => {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map(item => {
+      if (typeof item === 'string') {
+        return sanitizeInput(item, maxLength);
+      } else if (item && typeof item === 'object') {
+        // Object içindeki name, skill gibi alanları al
+        const value = item.name || item.skill || item.title || '';
+        return sanitizeInput(value, maxLength);
+      }
+      return '';
+    })
+    .filter(Boolean);
+};
+
 // API key kontrolü ve client initialization - Module load time'da
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -237,11 +273,38 @@ export const generateExperienceDescription = async (
 
     await checkAndDeductCredits(userId, 1);
 
-    // Kullanıcının tüm bilgilerini topla
+    // Kullanıcının tüm bilgilerini topla - sanitize edilmiş
     const personalInfo = context?.personalInfo || {};
     const existingExperiences = context?.existingExperience || [];
     const skills = context?.skills || personalInfo.skills || [];
-    const profession = context?.profession || personalInfo.profession || '';
+    const profession = sanitizeInput(context?.profession || personalInfo.profession || '', 200);
+
+    // Sanitize user inputs for prompt injection protection
+    const safeJobTitle = sanitizeInput(jobTitle, 200);
+    const safeCompany = sanitizeInput(company, 200);
+    const safeFirstName = sanitizeInput(personalInfo.firstName, 100);
+    const safeLastName = sanitizeInput(personalInfo.lastName, 100);
+    const safeSkills = sanitizeArray(skills, 100).slice(0, 20).join(', ');
+
+    // Format experiences safely
+    const safeExperiences = existingExperiences.slice(0, 10).map((exp: any, idx: number) => {
+      const title = sanitizeInput(exp.title || exp.jobTitle, 200);
+      const company = sanitizeInput(exp.company, 200);
+      const startMonth = sanitizeInput(exp.startMonth, 20);
+      const startYear = sanitizeInput(exp.startYear?.toString(), 10);
+      const endMonth = sanitizeInput(exp.endMonth, 20);
+      const endYear = sanitizeInput(exp.endYear?.toString(), 10);
+      return `${idx + 1}. ${title} - ${company} (${startMonth} ${startYear} - ${exp.isCurrent ? 'Günümüz' : `${endMonth} ${endYear}`})`;
+    }).join('\n');
+
+    // Format education safely
+    const safeEducation = personalInfo.education && Array.isArray(personalInfo.education)
+      ? personalInfo.education.slice(0, 5).map((edu: any, idx: number) => {
+          const school = sanitizeInput(edu.school || edu.schoolName, 200);
+          const degree = sanitizeInput(edu.degree || edu.field, 200);
+          return `${idx + 1}. ${school} - ${degree}`;
+        }).join('\n')
+      : 'Belirtilmemiş';
 
     // Prompt engineering - Kullanıcının mesleği, ünvanı, deneyimleri ve tercihlerini analiz et
     const prompt = `Sen bir kariyer danışmanısın. Aşağıdaki bilgilere dayanarak profesyonel bir iş deneyimi açıklaması oluştur.
@@ -255,31 +318,21 @@ KURALLAR:
 - Profesyonel ve etkileyici bir dil kullan
 
 KULLANICI BİLGİLERİ:
-Ad Soyad: ${personalInfo.firstName || ''} ${personalInfo.lastName || ''}
+Ad Soyad: ${safeFirstName} ${safeLastName}
 Meslek/Ünvan: ${profession || 'Belirtilmemiş'}
 
 HEDEF POZİSYON:
-İş Unvanı: ${jobTitle}
-Şirket: ${company || 'Belirtilmemiş'}
+İş Unvanı: ${safeJobTitle}
+Şirket: ${safeCompany || 'Belirtilmemiş'}
 
 MEVCUT DENEYİMLER:
-${existingExperiences.length > 0 
-  ? existingExperiences.map((exp, idx) => 
-      `${idx + 1}. ${exp.title || exp.jobTitle || ''} - ${exp.company || ''} (${exp.startMonth || ''} ${exp.startYear || ''} - ${exp.isCurrent ? 'Günümüz' : `${exp.endMonth || ''} ${exp.endYear || ''}`})`
-    ).join('\n')
-  : 'Henüz deneyim eklenmemiş'}
+${safeExperiences || 'Henüz deneyim eklenmemiş'}
 
 YETENEKLER:
-${Array.isArray(skills) && skills.length > 0
-  ? skills.map(s => typeof s === 'string' ? s : s.name || s.skill || '').filter(Boolean).join(', ')
-  : 'Belirtilmemiş'}
+${safeSkills || 'Belirtilmemiş'}
 
 EĞİTİM:
-${personalInfo.education && Array.isArray(personalInfo.education) && personalInfo.education.length > 0
-  ? personalInfo.education.map((edu, idx) => 
-      `${idx + 1}. ${edu.school || edu.schoolName || ''} - ${edu.degree || edu.field || ''}`
-    ).join('\n')
-  : 'Belirtilmemiş'}
+${safeEducation}
 
 Lütfen yukarıdaki bilgilere dayanarak, kullanıcının mesleği ve sektörüne uygun, mevcut deneyimleriyle tutarlı, somut başarılar ve metrikler içeren profesyonel bir iş deneyimi açıklaması oluştur.`;
 
@@ -1509,7 +1562,7 @@ export const scrapeJobPosting = async (url: string): Promise<string> => {
               const bodyText = bodyClone.innerText || bodyClone.textContent || '';
               
               // Body text'ten en anlamlı kısmı bul (ortadaki kısım genelde job description)
-              const lines = bodyText.split('\n').filter((line) => line.trim().length > 10);
+              const lines = bodyText.split('\n').filter((line: string) => line.trim().length > 10);
               const startIdx = Math.floor(lines.length * 0.2); // İlk %20'yi atla
               const endIdx = Math.floor(lines.length * 0.9); // Son %10'u atla
               const relevantLines = lines.slice(startIdx, endIdx);

@@ -25,12 +25,21 @@ export const validate = (validations: any[]) => {
 };
 
 export const registerValidation = [
-  body('email').isEmail().withMessage('Valid email is required'),
+  body('email')
+    .isEmail()
+    .withMessage('Geçerli bir email adresi giriniz')
+    .normalizeEmail(),
   body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters'),
-  body('firstName').optional().isString().withMessage('First name must be a string'),
-  body('lastName').optional().isString().withMessage('Last name must be a string'),
+    .isLength({ min: 8 })
+    .withMessage('Şifre en az 8 karakter olmalıdır')
+    .matches(/[a-z]/)
+    .withMessage('Şifre en az bir küçük harf içermelidir')
+    .matches(/[A-Z]/)
+    .withMessage('Şifre en az bir büyük harf içermelidir')
+    .matches(/[0-9]/)
+    .withMessage('Şifre en az bir rakam içermelidir'),
+  body('firstName').optional().isString().trim().withMessage('İsim metin olmalıdır'),
+  body('lastName').optional().isString().trim().withMessage('Soyisim metin olmalıdır'),
 ];
 
 export const loginValidation = [

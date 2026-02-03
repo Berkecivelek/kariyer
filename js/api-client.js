@@ -1,10 +1,19 @@
 // CareerAI API Client
 class APIClient {
   constructor(baseURL = null) {
+    // Debug mode - sadece development'ta aktif
+    this.debugMode = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     // BaseURL'i otomatik tespit et
     this.baseURL = baseURL || this.detectBaseURL();
     // Token'ları localStorage'dan yükle - her instance oluşturulduğunda
     this.loadTokens();
+  }
+
+  // Debug log - sadece development modunda
+  debugLog(...args) {
+    if (this.debugMode) {
+      console.log(...args);
+    }
   }
   
   // BaseURL'i otomatik tespit et
@@ -13,22 +22,17 @@ class APIClient {
     if (typeof window !== 'undefined' && window.API_BASE_URL) {
       return window.API_BASE_URL;
     }
-    
-    // Production ortamı kontrolü (localhost değilse)
+
     const hostname = window.location.hostname;
     const protocol = window.location.protocol;
-    
-    // Production ortamı (AWS EC2)
-    if (hostname === '16.170.227.182' || hostname.includes('16.170.227.182')) {
-      return `${protocol}//${hostname}/api`;
-    }
-    
+
     // Development ortamı (localhost)
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return 'http://localhost:3000/api';
     }
-    
-    // Diğer durumlar için mevcut hostname'i kullan
+
+    // Production veya diğer ortamlar: mevcut hostname'i kullan
+    // Bu sayede hardcoded IP adresi kaldırıldı
     return `${protocol}//${hostname}/api`;
   }
   
@@ -46,17 +50,17 @@ class APIClient {
           const now = Math.floor(Date.now() / 1000);
           if (payload.exp && payload.exp < now) {
             // Token süresi dolmuş, temizle
-            console.warn('Token expired, clearing...');
+            this.debugLog('Token expired, clearing...');
             this.clearTokens();
           }
         } catch (e) {
           // Token parse edilemedi, geçersiz
-          console.warn('Invalid token format, clearing...');
+          this.debugLog('Invalid token format, clearing...');
           this.clearTokens();
         }
       }
     } catch (error) {
-      console.error('Error loading tokens:', error);
+      this.debugLog('Error loading tokens:', error);
       this.token = null;
       this.refreshToken = null;
     }
@@ -165,7 +169,7 @@ class APIClient {
         }
       }
     } catch (error) {
-      console.error('API Error:', error);
+      this.debugLog('API Error:', error);
       // Eğer zaten Error objesi ise direkt fırlat, değilse yeni Error oluştur
       if (error instanceof Error) {
         throw error;
@@ -195,7 +199,7 @@ class APIClient {
         return true;
       }
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      this.debugLog('Token refresh failed:', error);
       this.clearTokens();
     }
 
@@ -229,12 +233,12 @@ class APIClient {
           localStorage.setItem('userId', data.data.user.id);
         }
         
-        console.log('✅ Login successful, tokens saved');
+        this.debugLog('Login successful, tokens saved');
       }
 
       return data;
     } catch (error) {
-      console.error('Login error:', error);
+      this.debugLog('Login error:', error);
       throw error;
     }
   }
@@ -340,7 +344,7 @@ class APIClient {
         throw new Error('Beklenmeyen response formatı');
       }
     } catch (error) {
-      console.error('PDF download error:', error);
+      this.debugLog('PDF download error:', error);
       // Eğer zaten Error objesi ise direkt fırlat
       if (error instanceof Error) {
         throw error;
@@ -458,17 +462,6 @@ class APIClient {
       method: 'POST',
       body: JSON.stringify(coverLetterData),
     });
-  }
-
-  async updateCoverLetter(id, coverLetterData) {
-    return this.request(`/cover-letters/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(coverLetterData),
-    });
-  }
-
-  async getCoverLetters() {
-    return this.request('/cover-letters');
   }
 
   async updateCoverLetter(id, coverLetterData) {

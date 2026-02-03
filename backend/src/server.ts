@@ -2,13 +2,9 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Debug: Claude API key yüklendi mi kontrol et
-console.log('🔑 Claude API key loaded:', !!process.env.ANTHROPIC_API_KEY);
+// API key kontrolü (sadece varlık kontrolü, değer loglanmıyor)
 if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY.trim() === '') {
   console.error('❌ ANTHROPIC_API_KEY is not set in environment variables!');
-  console.error('   Please add ANTHROPIC_API_KEY to your .env file in the backend directory.');
-} else {
-  console.log('✅ ANTHROPIC_API_KEY is configured (length:', process.env.ANTHROPIC_API_KEY.length, 'chars)');
 }
 
 import express, { Application } from 'express';
@@ -54,24 +50,43 @@ app.use(helmet({
 }));
 app.use(compression());
 
-// CORS configuration
+// CORS configuration - Güvenli yapılandırma
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
-    // Allow localhost on any port
-    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+
+    // Development ortamında localhost'a izin ver
+    if (process.env.NODE_ENV !== 'production') {
+      if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+        return callback(null, true);
+      }
+    }
+
+    // Allow specific origins from env (production ve development için)
+    const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()).filter(Boolean);
+
+    // EC2 IP adresini de ekle
+    const ec2Origins = [
+      'http://16.170.227.182',
+      'https://16.170.227.182'
+    ];
+
+    const allAllowedOrigins = [...allowedOrigins, ...ec2Origins];
+
+    if (allAllowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
-    // Allow specific origins from env
-    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5500,http://localhost:3000').split(',');
-    if (allowedOrigins.includes(origin)) {
+
+    // Development modunda localhost'a da izin ver
+    if (process.env.NODE_ENV !== 'production' &&
+        (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
       return callback(null, true);
     }
-    
-    callback(null, true); // Allow all for development
+
+    // İzin verilmeyen origin
+    console.warn(`CORS blocked origin: ${origin}`);
+    callback(new Error('CORS policy: Origin not allowed'), false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

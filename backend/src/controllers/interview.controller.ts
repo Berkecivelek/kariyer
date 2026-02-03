@@ -385,13 +385,17 @@ export class InterviewController {
           error: 'Unauthorized'
         });
       }
-      const { limit = 10, offset = 0 } = req.query;
+      const { limit = '10', offset = '0' } = req.query;
+
+      // Pagination limitlerini güvenli hale getir
+      const safeLimit = Math.min(Math.max(1, parseInt(limit as string, 10) || 10), 100); // Max 100
+      const safeOffset = Math.max(0, parseInt(offset as string, 10) || 0);
 
       const sessions = await prisma.interviewSession.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
-        take: Number(limit),
-        skip: Number(offset),
+        take: safeLimit,
+        skip: safeOffset,
         include: {
           _count: {
             select: { questions: true }
