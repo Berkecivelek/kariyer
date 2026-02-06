@@ -2,8 +2,58 @@
 (function() {
     'use strict';
     
+    // 🔒 KRİTİK: Kullanıcı değişikliği kontrolü - ÖNCE kontrol et
+    async function checkUserAndClearIfNeeded() {
+        try {
+            const currentToken = localStorage.getItem('authToken');
+            if (!currentToken) {
+                // Token yoksa, temizle
+                clearAllCVData();
+                return;
+            }
+            
+            if (!window.apiClient) {
+                // API client hazır değilse bekle
+                setTimeout(checkUserAndClearIfNeeded, 100);
+                return;
+            }
+            
+            const userResponse = await window.apiClient.getCurrentUser();
+            if (userResponse.success && userResponse.data.user) {
+                const currentUserId = userResponse.data.user.id;
+                const lastUserId = localStorage.getItem('last-logged-in-user-id');
+                
+                // Eğer farklı kullanıcı ise VEYA yeni kullanıcı ise CV verilerini temizle
+                if (!lastUserId || lastUserId !== currentUserId) {
+                    console.log('🔒 User check: Clearing CV data for new/different user');
+                    clearAllCVData();
+                    localStorage.setItem('last-logged-in-user-id', currentUserId);
+                }
+            }
+        } catch (error) {
+            console.error('User check failed:', error);
+            // Hata durumunda temizle (güvenlik önlemi)
+            clearAllCVData();
+        }
+    }
+    
+    // TÜM CV verilerini temizle
+    function clearAllCVData() {
+        console.log('🧹 Clearing all CV data...');
+        localStorage.removeItem('cv-builder-data');
+        localStorage.removeItem('cv-experiences');
+        localStorage.removeItem('cv-education');
+        localStorage.removeItem('cv-skills');
+        localStorage.removeItem('cv-languages');
+        localStorage.removeItem('current-resume-id');
+        localStorage.removeItem('selected-template');
+    }
+    
     // Kullanıcının CV verilerini database'den yükle
     async function loadCVFromDatabase() {
+        // 🔒 KRİTİK: ÖNCE kullanıcı kontrolü yap
+        await checkUserAndClearIfNeeded();
+        
         if (!window.apiClient || !window.apiClient.token) {
             console.log('Not authenticated, skipping CV load');
             return;
@@ -28,10 +78,87 @@
                 console.log('📝 Edit mode: Loading resume from URL:', resumeId);
             } else {
                 // URL'de resume ID yoksa, yeni CV oluşturuluyor demektir
-                // Eski resume ID'yi temizle
+                // 🔒 KRİTİK: Eğer localStorage'da ZATEN veri varsa, TEMİZLEME!
+                // Kullanıcı "Devam Et" butonuna basıp sonraki sayfaya geçtiğinde
+                // localStorage'daki verileri korumalıyız
+                const existingData = localStorage.getItem('cv-builder-data');
+                
+                if (existingData) {
+                    try {
+                        const parsed = JSON.parse(existingData);
+                        // Eğer veri varsa ve kullanıcı verisi ise (isSampleData: false), koru
+                        if (parsed.isSampleData !== true && parsed.isPreviewOnly !== true) {
+                            console.log('✅ CV Builder: Mevcut veriler korunuyor (sayfa geçişi)');
+                            console.log('📊 Mevcut veriler:', {
+                                phone: parsed.phone,
+                                profession: parsed.profession,
+                                location: parsed.location
+                            });
+                            return; // Mevcut verileri koru, temizleme!
+                        }
+                    } catch (e) {
+                        console.error('Error parsing existing data:', e);
+                    }
+                }
+                
+                // SADECE ilk kez CV oluşturuluyorsa (localStorage boşsa) temizle
+                console.log('🆕 New CV mode: First time - Initializing empty CV...');
                 localStorage.removeItem('current-resume-id');
-                console.log('🆕 New CV mode: Cleared old resume ID');
-                return; // Yeni CV için database'den veri yükleme
+                
+                // 🔒 KRİTİK: SADECE localStorage boşsa veya örnek veri varsa temizle
+                if (!existingData) {
+                    localStorage.removeItem('cv-builder-data');
+                    localStorage.setItem('cv-experiences', '[]');
+                    localStorage.setItem('cv-education', '[]');
+                    localStorage.setItem('cv-skills', '[]');
+                    localStorage.setItem('cv-languages', '[]');
+                    localStorage.removeItem('selected-template');
+                    
+                    console.log('✅ All previous CV data cleared (first time)');
+                    
+                    // Kullanıcının kayıt bilgilerini API'den al ve SADECE bunları yükle
+                    try {
+                        const userResponse = await window.apiClient.getCurrentUser();
+                        if (userResponse.success && userResponse.data.user) {
+                            const user = userResponse.data.user;
+                            
+                            // 🔒 KRİTİK: SADECE kayıt bilgilerini yükle, diğer alanlar BOŞ
+                            // isSampleData: false çünkü bu gerçek kullanıcı verisi
+                            const cleanCVData = {
+                                isSampleData: false, // 🔒 KRİTİK: Gerçek kullanıcı verisi
+                                isPreviewOnly: false, // Gerçek veri
+                                'fullname-first': user.firstName || '',
+                                'fullname-last': user.lastName || '',
+                                email: user.email || '',
+                                phone: '', // BOŞ
+                                location: '', // BOŞ
+                                profession: '', // BOŞ
+                                summary: '', // BOŞ
+                            };
+                            
+                            localStorage.setItem('cv-builder-data', JSON.stringify(cleanCVData));
+                            console.log('🆕 New CV mode: Loaded ONLY registration data:', {
+                                firstName: user.firstName,
+                                lastName: user.lastName,
+                                email: user.email,
+                                isSampleData: false
+                            });
+                            
+                            // Form alanlarını doldur (sadece isim, soyisim, email)
+                            fillFormFields(cleanCVData, []);
+                        } else {
+                            // Kullanıcı bilgisi alınamadı → Sadece temizle, hiçbir şey yükleme
+                            console.log('⚠️ User info not available, keeping all fields empty');
+                        }
+                    } catch (error) {
+                        console.error('Error loading user info for new CV:', error);
+                        // Hata durumunda da temizle, hiçbir şey yükleme
+                    }
+                } else {
+                    console.log('✅ CV Builder: Mevcut veriler korunuyor (kullanıcı veri girmiş)');
+                }
+                
+                return; // Yeni CV için database'den resume verisi yükleme
             }
             
             // Resume ID varsa, resume'u yükle
@@ -118,8 +245,14 @@
         }
     }
     
-    // Form alanlarını doldur
+    // Form alanlarını doldur - SADECE dolu alanları doldur
     function fillFormFields(cvData, experiences) {
+        // 🔒 KRİTİK: isSampleData kontrolü - Örnek veriler form alanlarına doldurulmamalı
+        if (cvData.isSampleData === true || cvData.isPreviewOnly === true) {
+            console.log('🔒 Örnek veri tespit edildi: Form alanları doldurulmadı (sadece preview için)');
+            return; // Örnek veri → Form alanlarına doldurma
+        }
+        
         // Kişisel bilgiler
         const firstNameInput = document.getElementById('cv-firstname');
         const lastNameInput = document.getElementById('cv-lastname');
@@ -129,39 +262,63 @@
         const professionInput = document.querySelector('[data-preview="profession"]');
         const summaryInput = document.querySelector('[data-preview="summary"]');
         
-        if (firstNameInput && cvData['fullname-first']) {
+        // 🔒 SADECE dolu alanları doldur, boş alanları placeholder'a bırak
+        if (firstNameInput && cvData['fullname-first'] && cvData['fullname-first'].trim() !== '') {
             firstNameInput.value = cvData['fullname-first'];
             firstNameInput.dispatchEvent(new Event('input', { bubbles: true }));
+        } else if (firstNameInput) {
+            firstNameInput.value = ''; // Boş bırak, placeholder göster
         }
         
-        if (lastNameInput && cvData['fullname-last']) {
+        if (lastNameInput && cvData['fullname-last'] && cvData['fullname-last'].trim() !== '') {
             lastNameInput.value = cvData['fullname-last'];
             lastNameInput.dispatchEvent(new Event('input', { bubbles: true }));
+        } else if (lastNameInput) {
+            lastNameInput.value = ''; // Boş bırak
         }
         
-        if (emailInput && cvData.email) {
+        if (emailInput && cvData.email && cvData.email.trim() !== '') {
             emailInput.value = cvData.email;
             emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+        } else if (emailInput) {
+            emailInput.value = ''; // Boş bırak
         }
         
-        if (phoneInput && cvData.phone) {
-            phoneInput.value = cvData.phone;
-            phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+        // 🔒 Phone, location, profession, summary → SADECE dolu ise doldur
+        if (phoneInput) {
+            if (cvData.phone && cvData.phone.trim() !== '') {
+                phoneInput.value = cvData.phone;
+                phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+            } else {
+                phoneInput.value = ''; // BOŞ - Placeholder göster
+            }
         }
         
-        if (locationInput && cvData.location) {
-            locationInput.value = cvData.location;
-            locationInput.dispatchEvent(new Event('input', { bubbles: true }));
+        if (locationInput) {
+            if (cvData.location && cvData.location.trim() !== '') {
+                locationInput.value = cvData.location;
+                locationInput.dispatchEvent(new Event('input', { bubbles: true }));
+            } else {
+                locationInput.value = ''; // BOŞ - Placeholder göster
+            }
         }
         
-        if (professionInput && cvData.profession) {
-            professionInput.value = cvData.profession;
-            professionInput.dispatchEvent(new Event('input', { bubbles: true }));
+        if (professionInput) {
+            if (cvData.profession && cvData.profession.trim() !== '') {
+                professionInput.value = cvData.profession;
+                professionInput.dispatchEvent(new Event('input', { bubbles: true }));
+            } else {
+                professionInput.value = ''; // BOŞ - Placeholder göster
+            }
         }
         
-        if (summaryInput && cvData.summary) {
-            summaryInput.value = cvData.summary;
-            summaryInput.dispatchEvent(new Event('input', { bubbles: true }));
+        if (summaryInput) {
+            if (cvData.summary && cvData.summary.trim() !== '') {
+                summaryInput.value = cvData.summary;
+                summaryInput.dispatchEvent(new Event('input', { bubbles: true }));
+            } else {
+                summaryInput.value = ''; // BOŞ - Placeholder göster
+            }
         }
     }
     

@@ -1,11 +1,11 @@
 // CV Deneyim Yönetimi İşlevselliği
+// CVStateManager ile entegre çalışır
 (function() {
     'use strict';
-    
-    const STORAGE_KEY = 'cv-experiences';
+
     let editingIndex = null;
     let livePreviewTimeout = null;
-    
+
     // Yıl seçeneklerini doldur (1950'den günümüze)
     function populateYearSelects() {
         const currentYear = new Date().getFullYear();
@@ -39,22 +39,18 @@
         }
     }
     
-    // localStorage'dan deneyimleri oku
+    // CVStateManager'dan deneyimleri oku
     function getExperiences() {
-        try {
-            const data = localStorage.getItem(STORAGE_KEY);
-            return data ? JSON.parse(data) : [];
-        } catch (e) {
-            return [];
+        if (window.CVStateManager) {
+            return window.CVStateManager.getExperiences();
         }
+        return [];
     }
-    
-    // localStorage'a deneyimleri kaydet
+
+    // CVStateManager'a deneyimleri kaydet
     function saveExperiences(experiences) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(experiences));
-        } catch (e) {
-            console.error('Deneyimler kaydedilemedi:', e);
+        if (window.CVStateManager) {
+            window.CVStateManager.setExperiences(experiences);
         }
     }
     
@@ -165,36 +161,13 @@
             const experiences = getExperiences();
             previewContainer.innerHTML = '';
             
+            // 🔒 KRİTİK: Örnek verileri YÜKLEME - Sadece gerçek kullanıcı verilerini göster
+            // Kullanıcı tüm deneyimleri sildiğinde, önizleme de boş kalmalı
             if (experiences.length === 0) {
-                // Varsayılan örnek deneyimler
-                const defaultExperiences = [
-                    {
-                        jobTitle: 'Kıdemli Yazılım Mühendisi',
-                        company: 'TechSolutions Inc.',
-                        startMonth: 'Ocak',
-                        startYear: '2021',
-                        endMonth: '',
-                        endYear: '',
-                        isCurrent: true,
-                        description: 'Mikroservis mimarisine geçiş projesine liderlik ederek sistem performansını %40 artırdım.\nJunior geliştiricilere mentorluk yaparak ekibin kod kalitesini yükselttim.\nCI/CD süreçlerini optimize ederek deployment süresini 15 dakikadan 3 dakikaya indirdim.'
-                    },
-                    {
-                        jobTitle: 'Frontend Geliştirici',
-                        company: 'Creative Web Agency',
-                        startMonth: 'Ocak',
-                        startYear: '2019',
-                        endMonth: 'Aralık',
-                        endYear: '2021',
-                        isCurrent: false,
-                        description: 'React ve Vue.js kullanarak responsive web uygulamaları geliştirdim.\nKullanıcı deneyimini iyileştirmek için A/B testleri yürüttüm.\nEkip içi code review süreçlerine aktif katılım sağladım.'
-                    }
-                ];
-                
-                defaultExperiences.forEach(exp => {
-                    const card = createPreviewExperienceCard(exp);
-                    previewContainer.appendChild(card);
-                });
+                // Deneyimler boş → Önizleme de boş (örnek verileri GÖSTERME)
+                previewContainer.innerHTML = '<p class="text-slate-400 text-xs italic text-center py-4">Deneyimlerinizi eklemek için yukarıdaki formu kullanın.</p>';
             } else {
+                // Gerçek kullanıcı deneyimleri var → Göster
                 experiences.forEach(exp => {
                     const card = createPreviewExperienceCard(exp);
                     previewContainer.appendChild(card);
@@ -254,41 +227,26 @@
         const listContainer = document.getElementById('experience-list');
         if (!listContainer) return;
         
+        // 🔒 KRİTİK: localStorage'dan veriyi oku - SADECE BİR KEZ
         const experiences = getExperiences();
+        console.log('🔧 CV Experience Manager: renderExperiences() called, experiences count:', experiences.length);
+        
+        // 🔒 KRİTİK: renderExperiences() içinde ÖRNEK VERİ KONTROLÜ YAPMA
+        // Çünkü kullanıcı manuel olarak "Kıdemli Yazılım Mühendisi" gibi bir deneyim ekleyebilir
+        // Örnek veri kontrolü SADECE init() içinde yapılmalı
+        
         listContainer.innerHTML = '';
         
+        // 🔒 KRİTİK: Sadece localStorage'daki verileri göster
+        // isNewUser() kontrolünü burada YAPMA - Bu kontrol sadece init() içinde yapılmalı
+        // Çünkü kullanıcı manuel olarak deneyimleri sildiğinde, bu fonksiyon tekrar çağrılıyor
+        // ve isNewUser() kontrolü yanlış sonuç verebilir
+        
         if (experiences.length === 0) {
-            // Varsayılan örnek deneyimler
-            const defaultExperiences = [
-                {
-                    jobTitle: 'Kıdemli Yazılım Mühendisi',
-                    company: 'TechSolutions Inc.',
-                    startMonth: 'Ocak',
-                    startYear: '2021',
-                    endMonth: '',
-                    endYear: '',
-                    isCurrent: true,
-                    description: 'Mikroservis mimarisine geçiş projesine liderlik ederek sistem performansını %40 artırdım.\nJunior geliştiricilere mentorluk yaparak ekibin kod kalitesini yükselttim.\nCI/CD süreçlerini optimize ederek deployment süresini 15 dakikadan 3 dakikaya indirdim.'
-                },
-                {
-                    jobTitle: 'Frontend Geliştirici',
-                    company: 'Creative Web Agency',
-                    startMonth: 'Ocak',
-                    startYear: '2019',
-                    endMonth: 'Aralık',
-                    endYear: '2021',
-                    isCurrent: false,
-                    description: 'React ve Vue.js kullanarak responsive web uygulamaları geliştirdim.\nKullanıcı deneyimini iyileştirmek için A/B testleri yürüttüm.\nEkip içi code review süreçlerine aktif katılım sağladım.'
-                }
-            ];
-            
-            defaultExperiences.forEach((exp, index) => {
-                const card = createExperienceCard(exp, index);
-                listContainer.appendChild(card);
-            });
-            
-            saveExperiences(defaultExperiences);
+            // Deneyimler boş → Boş liste göster (örnek verileri YÜKLEME)
+            listContainer.innerHTML = '<p class="text-slate-500 text-sm italic">Deneyimlerinizi eklemek için yukarıdaki formu kullanın.</p>';
         } else {
+            // localStorage'da deneyimler var → Göster (kullanıcı eklemiş veya CV yüklemiş)
             experiences.forEach((exp, index) => {
                 const card = createExperienceCard(exp, index);
                 listContainer.appendChild(card);
@@ -304,14 +262,32 @@
     
     // Formu temizle
     function clearForm() {
-        document.getElementById('experience-job-title').value = '';
-        document.getElementById('experience-company').value = '';
-        document.getElementById('experience-start-month').value = '';
-        document.getElementById('experience-start-year').value = '';
-        document.getElementById('experience-end-month').value = '';
-        document.getElementById('experience-end-year').value = '';
-        document.getElementById('experience-current-job').checked = false;
-        document.getElementById('experience-description').value = '';
+        console.log('🔧 CV Experience Manager: Clearing form');
+        
+        const jobTitleEl = document.getElementById('experience-job-title');
+        const companyEl = document.getElementById('experience-company');
+        const startMonthEl = document.getElementById('experience-start-month');
+        const startYearEl = document.getElementById('experience-start-year');
+        const endMonthEl = document.getElementById('experience-end-month');
+        const endYearEl = document.getElementById('experience-end-year');
+        const isCurrentEl = document.getElementById('experience-current-job');
+        const descriptionEl = document.getElementById('experience-description');
+        
+        if (jobTitleEl) jobTitleEl.value = '';
+        if (companyEl) companyEl.value = '';
+        if (startMonthEl) startMonthEl.value = '';
+        if (startYearEl) startYearEl.value = '';
+        if (endMonthEl) {
+            endMonthEl.value = '';
+            endMonthEl.disabled = false;
+        }
+        if (endYearEl) {
+            endYearEl.value = '';
+            endYearEl.disabled = false;
+        }
+        if (isCurrentEl) isCurrentEl.checked = false;
+        if (descriptionEl) descriptionEl.value = '';
+        
         editingIndex = null;
         
         const saveBtn = document.getElementById('experience-save-btn');
@@ -321,6 +297,8 @@
         
         // Önizlemeyi güncelle
         renderPreviewExperiences();
+        
+        console.log('✅ CV Experience Manager: Form cleared');
     }
     
     // Formu doldur
@@ -356,21 +334,71 @@
     
     // Deneyim kaydet
     function saveExperience() {
-        const jobTitle = document.getElementById('experience-job-title').value.trim();
-        const company = document.getElementById('experience-company').value.trim();
-        const startMonth = document.getElementById('experience-start-month').value;
-        const startYear = document.getElementById('experience-start-year').value;
-        const endMonth = document.getElementById('experience-end-month').value;
-        const endYear = document.getElementById('experience-end-year').value;
-        const isCurrent = document.getElementById('experience-current-job').checked;
-        const description = document.getElementById('experience-description').value.trim();
+        console.log('🔧 CV Experience Manager: "Ekle" button clicked');
         
+        // Verify all form elements exist
+        const jobTitleEl = document.getElementById('experience-job-title');
+        const companyEl = document.getElementById('experience-company');
+        const startMonthEl = document.getElementById('experience-start-month');
+        const startYearEl = document.getElementById('experience-start-year');
+        const endMonthEl = document.getElementById('experience-end-month');
+        const endYearEl = document.getElementById('experience-end-year');
+        const isCurrentEl = document.getElementById('experience-current-job');
+        const descriptionEl = document.getElementById('experience-description');
+        
+        // Log element detection
+        console.log('🔧 CV Experience Manager: Form elements found:', {
+            jobTitle: !!jobTitleEl,
+            company: !!companyEl,
+            startMonth: !!startMonthEl,
+            startYear: !!startYearEl,
+            endMonth: !!endMonthEl,
+            endYear: !!endYearEl,
+            isCurrent: !!isCurrentEl,
+            description: !!descriptionEl,
+        });
+        
+        // Check for missing elements
+        if (!jobTitleEl || !companyEl) {
+            console.error('❌ CV Experience Manager: Required form elements not found!');
+            alert('Form hatası: Gerekli alanlar bulunamadı. Lütfen sayfayı yenileyin.');
+            return;
+        }
+        
+        // Extract form values with null checks
+        const jobTitle = jobTitleEl ? jobTitleEl.value.trim() : '';
+        const company = companyEl ? companyEl.value.trim() : '';
+        const startMonth = startMonthEl ? startMonthEl.value : '';
+        const startYear = startYearEl ? startYearEl.value : '';
+        const endMonth = endMonthEl ? endMonthEl.value : '';
+        const endYear = endYearEl ? endYearEl.value : '';
+        const isCurrent = isCurrentEl ? isCurrentEl.checked : false;
+        const description = descriptionEl ? descriptionEl.value.trim() : '';
+        
+        console.log('🔧 CV Experience Manager: Form data extracted:', {
+            jobTitle,
+            company,
+            startMonth,
+            startYear,
+            endMonth,
+            endYear,
+            isCurrent,
+            descriptionLength: description.length,
+            editingIndex,
+        });
+        
+        // Validation
         if (!jobTitle || !company) {
+            console.warn('⚠️ CV Experience Manager: Validation failed - missing jobTitle or company');
             alert('Lütfen iş unvanı ve şirket adını girin.');
             return;
         }
         
+        // Get existing experiences
         const experiences = getExperiences();
+        console.log('🔧 CV Experience Manager: Current experiences count:', experiences.length);
+        
+        // Create experience object
         const experience = {
             jobTitle,
             company,
@@ -382,32 +410,118 @@
             description
         };
         
+        console.log('🔧 CV Experience Manager: Experience object created:', experience);
+        
+        // Save to array
         if (editingIndex !== null) {
             // Düzenleme modu
-            experiences[editingIndex] = experience;
+            console.log('🔧 CV Experience Manager: Updating experience at index:', editingIndex);
+            if (editingIndex >= 0 && editingIndex < experiences.length) {
+                experiences[editingIndex] = experience;
+            } else {
+                console.error('❌ CV Experience Manager: Invalid editingIndex:', editingIndex);
+                editingIndex = null; // Reset and add as new
+                experiences.push(experience);
+            }
         } else {
             // Yeni ekleme
+            console.log('🔧 CV Experience Manager: Adding new experience');
             experiences.push(experience);
         }
         
-        saveExperiences(experiences);
-        renderExperiences();
-        clearForm();
+        // Save to localStorage
+        try {
+            saveExperiences(experiences);
+            console.log('🔧 CV Experience Manager: Experiences saved to localStorage, new count:', experiences.length);
+            
+            // Verify save
+            const verifyExperiences = getExperiences();
+            if (verifyExperiences.length !== experiences.length) {
+                console.error('❌ CV Experience Manager: Save verification failed! Expected:', experiences.length, 'Got:', verifyExperiences.length);
+            } else {
+                console.log('✅ CV Experience Manager: Save verified successfully');
+            }
+        } catch (error) {
+            console.error('❌ CV Experience Manager: Error saving to localStorage:', error);
+            alert('Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.');
+            return;
+        }
         
-        // Formu gizle (isteğe bağlı)
+        // Update UI
+        try {
+            renderExperiences();
+            console.log('🔧 CV Experience Manager: UI updated');
+        } catch (error) {
+            console.error('❌ CV Experience Manager: Error rendering experiences:', error);
+        }
+        
+        // Clear form
+        try {
+            clearForm();
+            console.log('🔧 CV Experience Manager: Form cleared');
+        } catch (error) {
+            console.error('❌ CV Experience Manager: Error clearing form:', error);
+        }
+        
+        // Scroll to form
         const formContainer = document.querySelector('.bg-slate-50.dark\\:bg-\\[\\#1a1d2d\\]');
         if (formContainer) {
             formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+        
+        console.log('✅ CV Experience Manager: Save operation completed successfully');
     }
     
     // Deneyim sil
     function deleteExperience(index) {
         if (confirm('Bu deneyimi silmek istediğinize emin misiniz?')) {
+            // 🔒 KRİTİK: Önce mevcut durumu kaydet
             const experiences = getExperiences();
-            experiences.splice(index, 1);
-            saveExperiences(experiences);
-            renderExperiences();
+            console.log('🔧 CV Experience Manager: Deleting experience at index', index, 'Current count:', experiences.length);
+            console.log('🔧 CV Experience Manager: Current experiences:', JSON.stringify(experiences));
+            
+            if (index >= 0 && index < experiences.length) {
+                // Yeni array oluştur (splice mutasyon yapıyor, yeni array daha güvenli)
+                const updatedExperiences = experiences.filter((_, i) => i !== index);
+                console.log('🔧 CV Experience Manager: After deletion, new count:', updatedExperiences.length);
+                console.log('🔧 CV Experience Manager: Updated experiences:', JSON.stringify(updatedExperiences));
+                
+                // 🔒 KRİTİK: localStorage'a kaydet - BOŞ ARRAY BİLE OLSA KAYDET
+                saveExperiences(updatedExperiences);
+                
+                // 🔒 KRİTİK: Kayıt sonrası doğrula
+                const verifyExperiences = getExperiences();
+                console.log('🔧 CV Experience Manager: Verification after save, count:', verifyExperiences.length);
+                
+                if (verifyExperiences.length !== updatedExperiences.length) {
+                    console.error('❌ CV Experience Manager: Save verification failed! Expected:', updatedExperiences.length, 'Got:', verifyExperiences.length);
+                    // Tekrar kaydet
+                    saveExperiences(updatedExperiences);
+                    console.log('🔧 CV Experience Manager: Retrying save...');
+                } else {
+                    console.log('✅ CV Experience Manager: Save verified successfully');
+                }
+                
+                // 🔒 KRİTİK: UI'ı güncelle - SADECE localStorage'daki verileri göster
+                renderExperiences();
+                
+                // 🔒 KRİTİK: Render sonrası tekrar doğrula
+                const finalExperiences = getExperiences();
+                if (finalExperiences.length !== updatedExperiences.length) {
+                    console.error('❌ CV Experience Manager: Render sonrası verification failed! Expected:', updatedExperiences.length, 'Got:', finalExperiences.length);
+                    console.error('❌ CV Experience Manager: Final experiences:', JSON.stringify(finalExperiences));
+                    // Eğer başka bir script örnek verileri yüklediyse, tekrar temizle
+                    if (finalExperiences.length > updatedExperiences.length) {
+                        console.log('🔒 CV Experience Manager: Başka bir script örnek verileri yüklemiş, temizleniyor...');
+                        saveExperiences(updatedExperiences);
+                        renderExperiences();
+                    }
+                } else {
+                    console.log('✅ CV Experience Manager: Experience deletion completed successfully');
+                }
+            } else {
+                console.error('❌ CV Experience Manager: Invalid index for deletion:', index);
+            }
         }
     }
     
@@ -498,25 +612,57 @@
         }
     }
     
+    // Global olarak erişilebilir yap
+    window.renderPreviewExperiences = renderPreviewExperiences;
+    window.renderExperiences = renderExperiences;
+    
     // Sayfa yüklendiğinde başlat
     function init() {
+        // CVStateManager'ın yüklenmesini bekle
+        if (!window.CVStateManager) {
+            console.log('⏳ CV Experience Manager: CVStateManager bekleniyor...');
+            setTimeout(init, 100);
+            return;
+        }
+
+        console.log('✅ CV Experience Manager: CVStateManager bulundu, başlatılıyor...');
         populateYearSelects();
         renderExperiences();
         attachLivePreviewListeners();
         
-        // Kaydet butonu
+        // Kaydet butonu - ensure single listener
         const saveBtn = document.getElementById('experience-save-btn');
         if (saveBtn) {
-            saveBtn.addEventListener('click', saveExperience);
+            // Remove any existing listeners by cloning
+            const newSaveBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+            newSaveBtn.addEventListener('click', saveExperience);
+            console.log('✅ CV Experience Manager: "Ekle" button listener attached');
+        } else {
+            console.warn('⚠️ CV Experience Manager: "Ekle" button not found');
         }
         
-        // Vazgeç butonu
+        // Vazgeç butonu - ensure single listener
         const cancelBtn = document.getElementById('experience-cancel-btn');
         if (cancelBtn) {
-            cancelBtn.addEventListener('click', clearForm);
+            // Remove any existing listeners by cloning
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            newCancelBtn.addEventListener('click', clearForm);
+            console.log('✅ CV Experience Manager: "Vazgeç" button listener attached');
+        } else {
+            console.warn('⚠️ CV Experience Manager: "Vazgeç" button not found');
         }
+
+        // CV verisi güncellendiğinde deneyimleri yeniden render et
+        window.addEventListener('cv-data-updated', function() {
+            console.log('🔄 CV Experience Manager: cv-data-updated event alındı, yeniden render ediliyor...');
+            renderExperiences();
+        });
+
+        console.log('✅ CV Experience Manager initialized');
     }
-    
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

@@ -225,3 +225,4 @@ echo "📝 PM2 loglarını canlı izlemek için:"
 echo "  pm2 logs careerai-backend --lines 100 -f"
 echo ""
 
+

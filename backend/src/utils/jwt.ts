@@ -26,10 +26,10 @@ const getDefaultSecret = (name: string): string => {
 validateSecrets();
 
 const JWT_SECRET: Secret = process.env.JWT_SECRET || getDefaultSecret('JWT_SECRET');
-// Token expiry'yi saniye cinsinden hesapla
-const JWT_EXPIRES_IN_SECONDS = 24 * 60 * 60; // 1 gün = 86400 saniye
+// Token expiry'yi saniye cinsinden hesapla - Daha uzun süreler (token refresh'i iyileştir)
+const JWT_EXPIRES_IN_SECONDS = 7 * 24 * 60 * 60; // 7 gün = 604800 saniye (daha uzun access token)
 const JWT_REFRESH_SECRET: Secret = process.env.JWT_REFRESH_SECRET || getDefaultSecret('JWT_REFRESH_SECRET');
-const JWT_REFRESH_EXPIRES_IN_SECONDS = 7 * 24 * 60 * 60; // 7 gün = 604800 saniye
+const JWT_REFRESH_EXPIRES_IN_SECONDS = 30 * 24 * 60 * 60; // 30 gün = 2592000 saniye (daha uzun refresh token)
 
 export interface TokenPayload {
   userId: string;

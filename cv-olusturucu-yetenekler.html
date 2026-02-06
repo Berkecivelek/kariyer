@@ -4,7 +4,7 @@
 
 <meta charset="utf-8"/>
 
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
 
 <title>Yetenekler Ekranı</title>
 
@@ -15,46 +15,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
 
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-<script id="tailwind-config">
-
-        tailwind.config = {
-
-            darkMode: "class",
-
-            theme: {
-
-                extend: {
-
-                    colors: {
-
-                        "primary": "#1337ec",
-
-                        "primary-dark": "#0f2cb8",
-
-                        "background-light": "#f6f6f8",
-
-                        "background-dark": "#101322",
-
-                    },
-
-                    fontFamily: {
-
-                        "display": ["Manrope", "sans-serif"]
-
-                    },
-
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-
-                },
-
-            },
-
-        }
-
-    </script>
 
 <style>.no-scrollbar::-webkit-scrollbar {
 
@@ -114,7 +74,11 @@
 
     </style>
 
-</head>
+<!-- Tailwind CSS -->
+<link rel="stylesheet" href="css/tailwind.css">
+
+<!-- CV Responsive Fix -->
+<link rel="stylesheet" href="css/cv-responsive-fix.css"></head>
 
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen flex flex-col overflow-hidden">
 
@@ -200,13 +164,13 @@
 
 </a>
 
-<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group transition-colors">
+<a href="cv-olusturucu.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group transition-colors">
 
 <span class="material-symbols-outlined text-green-600 text-[22px]">check_circle</span>
 
 <p class="text-sm font-medium leading-normal">Deneyim</p>
 
-</div>
+</a>
 
 <a href="cv-olusturucu-egitim.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group transition-colors">
 
@@ -224,13 +188,13 @@
 
 </div>
 
-<a href="cv-olusturucu-diller.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group transition-colors">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-50 group transition-colors">
 
 <span class="material-symbols-outlined text-[22px]">language</span>
 
 <p class="text-sm font-medium leading-normal">Diller</p>
 
-</a>
+</div>
 
 </div>
 
@@ -461,7 +425,7 @@
 
 </main>
 
-<aside class="hidden xl:flex w-[950px] bg-slate-100 dark:bg-[#0c0e15] border-l border-slate-200 dark:border-slate-800 flex-col relative z-10 shadow-2xl">
+<aside id="cv-preview-root" class="cv-builder-preview hidden xl:flex bg-slate-100 dark:bg-[#0c0e15] border-l border-slate-200 dark:border-slate-800 flex-col relative z-10 shadow-2xl">
 
 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a1d2d]">
 
@@ -698,7 +662,7 @@
 </div>
 
 <script src="js/api-client.js"></script>
-<script src="js/auth-guard.js"></script>
+<script src="js/cv-clear-on-login.js"></script><script src="js/auth-guard.js"></script>
 <script src="js/auth-header.js"></script>
 <script src="js/template-history.js"></script>
 <script src="js/cv-template-renderer.js"></script>
@@ -707,6 +671,7 @@
 <script src="cv-live-preview.js"></script>
 <script src="cv-backend-sync.js"></script>
 <script src="cv-preview-button.js"></script>
+<script src="js/cv-preview-updater.js"></script>
 <script src="js/cv-data-loader.js"></script>
 <script src="js/cv-auto-save.js"></script>
 <script src="js/cv-skills-ai.js"></script>

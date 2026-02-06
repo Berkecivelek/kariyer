@@ -1,0 +1,131 @@
+/* CV Oluşturma Sayfaları - Responsive Zoom Fix */
+/* Sorun: Zoom yapıldığında sol (form) ve sağ (CV önizleme) paneller orantısız davranıyor */
+/* Çözüm: Zoom seviyelerine göre dinamik ayarlama */
+
+/* Normal zoom (100%) */
+:root {
+    --cv-nav-width: clamp(250px, 20vw, 350px);
+    --cv-preview-width: clamp(400px, 48vw, 1100px);
+}
+
+/* Zoom 125% (Browser zoom in 1 kez) */
+@media (min-resolution: 1.25dppx) and (max-resolution: 1.49dppx) {
+    :root {
+        --cv-nav-width: clamp(220px, 18vw, 320px);
+        --cv-preview-width: clamp(360px, 46vw, 1000px);
+    }
+    
+    /* Main content padding ayarı */
+    main.flex-1 {
+        padding: 1.5rem !important;
+    }
+}
+
+/* Zoom 150% (Browser zoom in 2 kez) */
+@media (min-resolution: 1.5dppx) and (max-resolution: 1.74dppx) {
+    :root {
+        --cv-nav-width: clamp(200px, 16vw, 300px);
+        --cv-preview-width: clamp(320px, 44vw, 900px);
+    }
+    
+    main.flex-1 {
+        padding: 1.25rem !important;
+    }
+    
+    /* Font size küçültme */
+    html {
+        font-size: 14px !important;
+    }
+}
+
+/* Zoom 175% */
+@media (min-resolution: 1.75dppx) and (max-resolution: 1.99dppx) {
+    :root {
+        --cv-nav-width: clamp(180px, 14vw, 280px);
+        --cv-preview-width: clamp(300px, 42vw, 800px);
+    }
+    
+    main.flex-1 {
+        padding: 1rem !important;
+    }
+    
+    html {
+        font-size: 13px !important;
+    }
+}
+
+/* Zoom 200% (Maximum) */
+@media (min-resolution: 2dppx) {
+    :root {
+        --cv-nav-width: clamp(160px, 12vw, 250px);
+        --cv-preview-width: clamp(280px, 40vw, 700px);
+    }
+    
+    main.flex-1 {
+        padding: 0.75rem !important;
+    }
+    
+    html {
+        font-size: 12px !important;
+    }
+    
+    /* Çok küçük elementleri gizle */
+    .text-xs {
+        font-size: 0.7rem !important;
+    }
+}
+
+/* Zoom 75% (Zoom out) */
+@media (max-resolution: 0.9dppx) {
+    :root {
+        --cv-nav-width: clamp(270px, 22vw, 380px);
+        --cv-preview-width: clamp(420px, 50vw, 1200px);
+    }
+}
+
+/* Zoom 50% (Minimum zoom out) */
+@media (max-resolution: 0.6dppx) {
+    :root {
+        --cv-nav-width: clamp(300px, 24vw, 420px);
+        --cv-preview-width: clamp(450px, 52vw, 1300px);
+    }
+    
+    html {
+        font-size: 18px !important;
+    }
+}
+
+/* Tüm CV oluşturma sayfalarında paneller için ortak stil */
+.cv-builder-nav {
+    width: var(--cv-nav-width) !important;
+    flex: 0 0 var(--cv-nav-width) !important;
+    min-width: 180px !important;
+}
+
+.cv-builder-preview {
+    width: var(--cv-preview-width) !important;
+    flex: 0 0 var(--cv-preview-width) !important;
+    min-width: 220px !important;
+}
+
+/* Main content (form) alanı - flex: 1 ile esnek */
+.cv-builder-main {
+    flex: 1 1 auto !important;
+    min-width: 300px !important;
+    max-width: 100% !important;
+}
+
+/* Form içeriği için maksimum genişlik sınırlaması */
+.cv-builder-main .max-w-xl,
+.cv-builder-main .max-w-2xl {
+    max-width: 36rem !important; /* 576px - daha kompakt form alanı */
+}
+
+/* Zoom yapıldığında overflow kontrolü */
+@media (min-resolution: 1.5dppx) {
+    body {
+        overflow-x: auto !important;
+    }
+}
+
+

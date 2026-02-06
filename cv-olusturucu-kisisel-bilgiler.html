@@ -4,7 +4,7 @@
 
 <meta charset="utf-8"/>
 
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
 
 <title>Kişisel Bilgiler - Özgeçmiş Oluşturucu</title>
 
@@ -15,46 +15,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
 
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-<script id="tailwind-config">
-
-        tailwind.config = {
-
-            darkMode: "class",
-
-            theme: {
-
-                extend: {
-
-                    colors: {
-
-                        "primary": "#1337ec",
-
-                        "primary-dark": "#0f2cb8",
-
-                        "background-light": "#f6f6f8",
-
-                        "background-dark": "#101322",
-
-                    },
-
-                    fontFamily: {
-
-                        "display": ["Manrope", "sans-serif"]
-
-                    },
-
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-
-                },
-
-            },
-
-        }
-
-    </script>
 
 <style>.no-scrollbar::-webkit-scrollbar {
 
@@ -72,7 +32,11 @@
 
         .a4-paper {
 
-            width: 210mm;
+            width: 100%;
+
+            max-width: 210mm;
+
+            aspect-ratio: 210 / 297;
 
             min-height: 297mm;
 
@@ -80,10 +44,35 @@
 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
-            transform: scale(0.85);
-
             transform-origin: top center;
 
+            box-sizing: border-box;
+
+        }
+        
+        /* Responsive A4 paper scaling */
+        @media (min-width: 1920px) {
+            .a4-paper {
+                max-width: 210mm;
+            }
+        }
+        
+        @media (max-width: 1536px) {
+            .a4-paper {
+                max-width: min(210mm, 90vw);
+            }
+        }
+        
+        @media (max-width: 1280px) {
+            .a4-paper {
+                max-width: min(210mm, 85vw);
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .a4-paper {
+                max-width: min(210mm, 95vw);
+            }
         }
 
         .custom-scrollbar::-webkit-scrollbar {
@@ -111,9 +100,107 @@
             background-color: #334155;
 
         }
+        
+        /* Responsive layout improvements */
+        * {
+            box-sizing: border-box;
+        }
+        
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
+        body {
+            width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar responsive */
+        @media (max-width: 1024px) {
+            nav.w-64 {
+                width: 100% !important;
+                max-width: 100%;
+            }
+        }
+        
+        /* Preview area responsive */
+        @media (max-width: 1536px) {
+            aside.w-\[950px\] {
+                width: clamp(300px, 40vw, 950px) !important;
+            }
+        }
+        
+        @media (max-width: 1280px) {
+            aside.w-\[950px\] {
+                width: clamp(280px, 35vw, 800px) !important;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            aside.w-\[950px\] {
+                width: 100% !important;
+                max-width: 100%;
+            }
+        }
+        
+        /* Main content responsive */
+        @media (max-width: 1024px) {
+            main.flex-1 {
+                width: 100%;
+            }
+            
+            .max-w-xl {
+                max-width: 100%;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        
+        /* Profile photo responsive */
+        #cv-profile-photo-preview {
+            width: clamp(60px, 12vw, 80px) !important;
+            height: clamp(60px, 12vw, 80px) !important;
+            min-width: clamp(60px, 12vw, 80px) !important;
+            min-height: clamp(60px, 12vw, 80px) !important;
+        }
+        
+        /* Form inputs responsive */
+        @media (max-width: 768px) {
+            .grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        
+        /* Zoom controls responsive */
+        @media (max-width: 768px) {
+            .absolute.bottom-6 {
+                bottom: 1rem;
+                left: 50%;
+                transform: translateX(-50%);
+                width: auto;
+            }
+        }
+        
+        /* Template cards responsive */
+        .template-card {
+            min-width: clamp(80px, 10vw, 100px) !important;
+        }
+        
+        @media (max-width: 1536px) {
+            .template-card {
+                min-width: clamp(70px, 8vw, 90px) !important;
+            }
+        }
 
     </style>
 
+<!-- Tailwind CSS -->
+<link rel="stylesheet" href="css/tailwind.css">
+
+<!-- CV Responsive Fix -->
+<link rel="stylesheet" href="css/cv-responsive-fix.css">
 </head>
 
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen flex flex-col overflow-hidden">
@@ -174,7 +261,7 @@
 
 <div class="flex flex-1 overflow-hidden relative">
 
-<nav class="hidden md:flex flex-col w-64 bg-white dark:bg-[#1a1d2d] border-r border-slate-200 dark:border-slate-800 h-full overflow-y-auto z-10">
+<nav class="hidden md:flex flex-col bg-white dark:bg-[#1a1d2d] border-r border-slate-200 dark:border-slate-800 h-full overflow-y-auto z-10" style="width: clamp(250px, 20vw, 350px); flex: 0 0 clamp(250px, 20vw, 350px);">
 
 <div class="flex flex-col gap-6 p-6">
 
@@ -382,7 +469,7 @@
 
 </div>
 
-<textarea data-preview="location" class="w-full pl-10 rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm p-3 resize-none" placeholder="Cadde, sokak, no, şehir, ülke" rows="2">İstanbul, TR</textarea>
+<textarea data-preview="location" class="w-full pl-10 rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm p-3 resize-none" placeholder="İstanbul, Türkiye" rows="2"></textarea>
 
 </div>
 
@@ -414,7 +501,7 @@
 
 <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Meslek / Unvan</label>
 
-<input data-preview="profession" class="w-full rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm h-11 px-3" placeholder="Örn: Yazılım Mühendisi" type="text" value="Kıdemli Yazılım Mühendisi"/>
+<input data-preview="profession" class="w-full rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-[#12141c] text-slate-900 dark:text-white focus:border-primary focus:ring-primary text-sm h-11 px-3" placeholder="Örn: Yazılım Mühendisi" type="text" value=""/>
 
 </div>
 
@@ -468,7 +555,7 @@
 
 </main>
 
-<aside class="hidden xl:flex w-[950px] bg-slate-100 dark:bg-[#0c0e15] border-l border-slate-200 dark:border-slate-800 flex-col relative z-10 shadow-2xl">
+<aside id="cv-preview-root" class="cv-builder-preview hidden xl:flex bg-slate-100 dark:bg-[#0c0e15] border-l border-slate-200 dark:border-slate-800 flex-col relative z-10 shadow-2xl">
 
 <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a1d2d]">
 
@@ -542,9 +629,9 @@
 
 </div>
 
-<div class="flex-1 overflow-y-auto overflow-x-hidden bg-slate-200/50 dark:bg-black/20 p-8 flex justify-center items-start">
+<div class="flex-1 overflow-y-auto overflow-x-hidden bg-slate-200/50 dark:bg-black/20 p-4 md:p-8 flex justify-center items-start">
 
-<div class="a4-paper p-8 md:p-10 flex flex-col text-slate-800">
+<div class="a4-paper p-4 md:p-8 lg:p-10 flex flex-col text-slate-800" style="width: 100%; max-width: 210mm;">
 
 <div class="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-6">
 
@@ -809,18 +896,36 @@
     
     function updateZoom() {
         if (a4Paper && zoomLevelSpan) {
+            // Viewport genişliğine göre dinamik scale hesapla
+            const container = a4Paper.parentElement;
+            const containerWidth = container ? container.clientWidth : window.innerWidth;
+            const baseWidth = 210; // A4 genişliği (mm)
+            const mmToPx = 3.779527559; // 1mm = 3.78px (yaklaşık)
+            const baseWidthPx = baseWidth * mmToPx;
+            
+            // Container'a sığacak şekilde scale hesapla
+            const maxScale = (containerWidth * 0.9) / baseWidthPx; // %90 padding ile
+            const userScale = currentZoom / 100;
+            const finalScale = Math.min(userScale, maxScale);
+            
             // Zoom seviyesini uygula (transform: scale)
-            const scale = currentZoom / 100;
-            a4Paper.style.transform = `scale(${scale})`;
+            a4Paper.style.transform = `scale(${finalScale})`;
             a4Paper.style.transformOrigin = 'top center';
             
             // Zoom seviyesini göster
-            zoomLevelSpan.textContent = currentZoom + '%';
+            zoomLevelSpan.textContent = Math.round(finalScale * 100) + '%';
             
             // localStorage'a kaydet
             localStorage.setItem('cv-zoom-level', currentZoom.toString());
         }
     }
+    
+    // Window resize'da zoom'u yeniden hesapla
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateZoom, 150);
+    });
     
     // Zoom azalt (-)
     if (zoomDecreaseBtn) {
@@ -847,6 +952,7 @@
 })();
 </script>
 <script src="js/api-client.js"></script>
+<script src="js/cv-clear-on-login.js"></script>
 <script src="js/auth-guard.js"></script>
 <script src="js/auth-header.js"></script>
 <script src="js/notification.js"></script>
@@ -902,10 +1008,10 @@
                     emailInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
                 
-                if (phoneInput && user.phone) {
-                    phoneInput.value = user.phone;
-                    phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
+                // 🔒 VERİ GÜVENLİĞİ: Phone profil bilgisinden YÜKLEME
+                // Profil'deki phone başka kullanıcının olabilir
+                // Sadece kayıt bilgilerini yükle (firstName, lastName, email)
+                // Phone boş kalacak, placeholder gösterilecek
             }
         } catch (error) {
             console.error('Kullanıcı bilgisi yüklenemedi:', error);
@@ -1215,6 +1321,7 @@
 <script src="cv-live-preview.js"></script>
 <script src="cv-backend-sync.js"></script>
 <script src="cv-preview-button.js"></script>
+<script src="js/cv-preview-updater.js"></script>
 <script src="js/cv-data-loader.js"></script>
 <script src="js/cv-auto-save.js"></script>
 <script src="js/cv-pdf-upload.js"></script>

@@ -1,0 +1,16 @@
+{
+  "name": "careerai-frontend",
+  "version": "1.0.0",
+  "description": "CareerAI Frontend",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/container-queries": "^0.1.1"
+  }
+}

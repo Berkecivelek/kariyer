@@ -18,28 +18,37 @@
     function loadPreviewData() {
         const data = getStoredData();
         
+        console.log('🔄 CV Preview Loader: localStorage verileri yükleniyor...', data);
+        
         // Tam İsim - Tüm target'ları güncelle
         if (data['fullname-first'] || data['fullname-last']) {
             const fullNameTargets = document.querySelectorAll('[data-preview-target="fullname"]');
+            console.log('🔍 Full name targets bulundu:', fullNameTargets.length);
             fullNameTargets.forEach(fullNameTarget => {
                 const firstName = data['fullname-first'] || '';
                 const lastName = data['fullname-last'] || '';
-                const fullName = (firstName + ' ' + lastName).trim() || 'Ad Soyad';
-                fullNameTarget.textContent = fullName.toUpperCase();
+                const fullName = (firstName + ' ' + lastName).trim();
+                if (fullName) {
+                    fullNameTarget.textContent = fullName.toUpperCase();
+                    console.log('✅ Full name güncellendi:', fullName, fullNameTarget);
+                }
             });
         }
         
-        // Meslek/Unvan - Tüm target'ları güncelle
-        if (data['profession']) {
+        // Meslek/Unvan - SADECE dolu ise güncelle
+        if (data['profession'] && data['profession'].trim() !== '') {
             const professionTargets = document.querySelectorAll('[data-preview-target="profession"]');
+            console.log('🔍 Profession targets bulundu:', professionTargets.length);
             professionTargets.forEach(professionTarget => {
                 professionTarget.textContent = data['profession'];
+                console.log('✅ Profession güncellendi:', data['profession'], professionTarget);
             });
         }
         
         // E-posta - Tüm target'ları güncelle
-        if (data['email']) {
+        if (data['email'] && data['email'].trim() !== '') {
             const emailTargets = document.querySelectorAll('[data-preview-target="email"]');
+            console.log('🔍 Email targets bulundu:', emailTargets.length);
             emailTargets.forEach(emailTarget => {
                 const icon = emailTarget.querySelector('.material-symbols-outlined');
                 if (icon) {
@@ -48,12 +57,14 @@
                 } else {
                     emailTarget.textContent = data['email'];
                 }
+                console.log('✅ Email güncellendi:', data['email'], emailTarget);
             });
         }
         
-        // Telefon - Tüm target'ları güncelle
-        if (data['phone']) {
+        // Telefon - SADECE dolu ise güncelle
+        if (data['phone'] && data['phone'].trim() !== '') {
             const phoneTargets = document.querySelectorAll('[data-preview-target="phone"]');
+            console.log('🔍 Phone targets bulundu:', phoneTargets.length);
             phoneTargets.forEach(phoneTarget => {
                 const icon = phoneTarget.querySelector('.material-symbols-outlined');
                 if (icon) {
@@ -62,11 +73,12 @@
                 } else {
                     phoneTarget.textContent = data['phone'];
                 }
+                console.log('✅ Phone güncellendi:', data['phone'], phoneTarget);
             });
         }
         
-        // Lokasyon - Tüm target'ları güncelle
-        if (data['location']) {
+        // Lokasyon - SADECE dolu ise güncelle
+        if (data['location'] && data['location'].trim() !== '') {
             const locationTargets = document.querySelectorAll('[data-preview-target="location"]');
             locationTargets.forEach(locationTarget => {
                 const icon = locationTarget.querySelector('.material-symbols-outlined');
@@ -76,15 +88,29 @@
                 } else {
                     locationTarget.textContent = data['location'];
                 }
+                console.log('✅ Location güncellendi:', data['location']);
             });
         }
         
-        // Özet - Tüm target'ları güncelle
-        if (data['summary']) {
+        // Özet - SADECE dolu ise güncelle
+        if (data['summary'] && data['summary'].trim() !== '') {
             const summaryTargets = document.querySelectorAll('[data-preview-target="summary"]');
             summaryTargets.forEach(summaryTarget => {
                 summaryTarget.textContent = data['summary'];
+                console.log('✅ Summary güncellendi:', data['summary']);
             });
+        }
+        
+        // 🔒 KRİTİK: Önyazı sayfasındaki textarea'yı da doldur
+        const summaryTextarea = document.getElementById('summary-textarea');
+        if (summaryTextarea) {
+            if (data['summary'] && data['summary'].trim() !== '') {
+                summaryTextarea.value = data['summary'];
+                summaryTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+                console.log('✅ Summary textarea dolduruldu');
+            } else {
+                summaryTextarea.value = '';
+            }
         }
     }
     

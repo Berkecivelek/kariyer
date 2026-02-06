@@ -87,3 +87,4 @@ echo ""
 echo "🌐 Site: http://$EC2_IP"
 echo "📊 PM2 Logları: ssh -i $EC2_KEY $EC2_USER@$EC2_IP 'pm2 logs careerai-backend'"
 
+

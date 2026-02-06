@@ -7,66 +7,71 @@
     function getCVData() {
         try {
             const data = localStorage.getItem('cv-builder-data');
-            return data ? JSON.parse(data) : {};
+            const parsed = data ? JSON.parse(data) : {};
+            console.log('🔍 getCVData: localStorage\'dan veri okundu', {
+                phone: parsed.phone,
+                profession: parsed.profession,
+                location: parsed.location,
+                email: parsed.email,
+                'fullname-first': parsed['fullname-first'],
+                'fullname-last': parsed['fullname-last']
+            });
+            return parsed;
         } catch (e) {
+            console.error('❌ getCVData: Parse hatası', e);
             return {};
         }
     }
     
-    // Örnek veriler (kullanıcı verisi yoksa gösterilecek)
+    // 🔒 KRİTİK: DEFAULT OLARAK ÖRNEK VERİLER YOK
+    // Kullanıcı verisi yoksa BOŞ gösterilecek - Örnek veriler SADECE görsel placeholder olarak
+    // Bu veriler ASLA form alanlarına doldurulmamalı, ASLA localStorage'a kaydedilmemeli
+    // ASLA AI parsing'e gönderilmemeli
     const exampleData = {
-        'fullname-first': 'Ahmet',
-        'fullname-last': 'Yılmaz',
-        profession: 'Kıdemli Yazılım Mühendisi',
-        email: 'ahmet@example.com',
-        phone: '+90 555 123 45 67',
-        location: 'İstanbul, TR',
-        summary: '5+ yıllık deneyime sahip, yüksek performanslı web uygulamaları geliştirmede uzmanlaşmış sonuç odaklı yazılım mühendisi. Modern JavaScript frameworkleri ve bulut teknolojileri konusunda derin bilgi sahibi. Mikroservis mimarileri, CI/CD süreçleri ve ekip liderliği deneyimine sahip.',
-        experiences: [
-            {
-                jobTitle: 'Kıdemli Yazılım Mühendisi',
-                company: 'TechSolutions Inc.',
-                startMonth: '01',
-                startYear: '2021',
-                endMonth: '',
-                endYear: '',
-                isCurrent: true,
-                description: 'Mikroservis mimarisine geçiş projesine liderlik ederek sistem performansını %40 artırdım.\nJunior geliştiricilere mentorluk yaparak ekibin kod kalitesini yükselttim.\nCI/CD süreçlerini optimize ederek deployment süresini 15 dakikadan 3 dakikaya indirdim.'
-            },
-            {
-                jobTitle: 'Frontend Geliştirici',
-                company: 'Creative Web Agency',
-                startMonth: '06',
-                startYear: '2019',
-                endMonth: '12',
-                endYear: '2021',
-                isCurrent: false,
-                description: '20\'den fazla kurumsal müşteri için responsive web arayüzleri geliştirdim.\nReact ve Redux kullanarak karmaşık state yönetimi gerektiren dashboardlar tasarladım.'
-            }
-        ],
-        education: [
-            {
-                school: 'İstanbul Teknik Üniversitesi',
-                department: 'Bilgisayar Mühendisliği',
-                startYear: '2015',
-                endYear: '2019',
-                description: 'Lisans derecesi, 3.5/4.0 GPA'
-            }
-        ],
-        skills: ['JavaScript (ES6+)', 'React', 'Node.js', 'TypeScript', 'Tailwind CSS', 'Git', 'Docker', 'AWS'],
-        languages: [
-            { language: 'Türkçe', level: 'Anadil' },
-            { language: 'İngilizce', level: 'C1 İleri' }
-        ]
+        isSampleData: true, // 🔒 BU FLAG ÖNEMLİ: Örnek veri olduğunu belirtir
+        isPreviewOnly: true, // Alternatif flag - SADECE görsel önizleme için
+        'fullname-first': 'İsim',
+        'fullname-last': 'Soyisim',
+        profession: 'Profesyonel Ünvan',
+        email: 'ornek@email.com',
+        phone: '+90 5XX XXX XXXX',
+        location: 'İl, İlçe, Türkiye',
+        summary: 'Profesyonel deneyimlerinizi, yeteneklerinizi ve kariyer hedeflerinizi buraya yazın. Bu alan CV\'nizin özeti olarak işveren tarafından ilk okunan kısımdır.',
+        experiences: [], // 🔒 DEFAULT OLARAK BOŞ
+        education: [], // 🔒 DEFAULT OLARAK BOŞ
+        skills: [], // 🔒 DEFAULT OLARAK BOŞ
+        languages: [] // 🔒 DEFAULT OLARAK BOŞ
     };
     
-    // Kullanıcı verisi varsa onu kullan, yoksa örnek veriyi kullan
+    // 🔒 KRİTİK: TAMAMEN YENİDEN YAZILDI - SADECE localStorage'dan veri yükle, HİÇBİR örnek veri döndürme
     // SINGLE SOURCE OF TRUTH: Reads from both cv-builder-data and separate localStorage keys
     function getDataWithExamples() {
-        const userData = getCVData();
+        // 🔒 KRİTİK: localStorage'dan TÜM verileri yükle - DOĞRUDAN OKU
+        let userData = {};
+        try {
+            const rawData = localStorage.getItem('cv-builder-data');
+            if (rawData) {
+                userData = JSON.parse(rawData);
+            }
+        } catch (e) {
+            console.error('❌ getDataWithExamples: localStorage parse hatası', e);
+            userData = {};
+        }
+        
+        console.log('🔍 getDataWithExamples: localStorage\'dan veri okundu', {
+            phone: userData.phone,
+            profession: userData.profession,
+            location: userData.location,
+            email: userData.email,
+            'fullname-first': userData['fullname-first'],
+            'fullname-last': userData['fullname-last'],
+            isSampleData: userData.isSampleData,
+            isPreviewOnly: userData.isPreviewOnly
+        });
+        
         const result = {};
         
-        // Read from separate localStorage keys (for PDF uploads and manual entries)
+        // 🔒 KRİTİK: Her zaman localStorage'dan array verilerini yükle
         let experiences = [];
         let education = [];
         let skills = [];
@@ -96,25 +101,54 @@
             languages = [];
         }
         
-        // Her alan için kullanıcı verisi varsa onu kullan, yoksa örnek veriyi kullan
-        Object.keys(exampleData).forEach(key => {
-            if (key === 'experiences') {
-                // Priority: separate localStorage > cv-builder-data > example
-                result[key] = (experiences.length > 0) ? experiences : 
-                             ((userData[key] && userData[key].length > 0) ? userData[key] : exampleData[key]);
-            } else if (key === 'education') {
-                result[key] = (education.length > 0) ? education : 
-                             ((userData[key] && userData[key].length > 0) ? userData[key] : exampleData[key]);
-            } else if (key === 'skills') {
-                result[key] = (skills.length > 0) ? skills : 
-                             ((userData[key] && userData[key].length > 0) ? userData[key] : exampleData[key]);
-            } else if (key === 'languages') {
-                result[key] = (languages.length > 0) ? languages : 
-                             ((userData[key] && userData[key].length > 0) ? userData[key] : exampleData[key]);
-            } else {
-                // String alanlar için
-                result[key] = (userData[key] && userData[key].trim() !== '') ? userData[key] : exampleData[key];
-            }
+        // 🔒 KRİTİK: SADECE localStorage'dan gelen verileri kullan, HİÇBİR örnek veri yok
+        // String alanlar - EĞER VERİ VARSA KULLAN, YOKSA BOŞ STRING
+        // 🔒 KRİTİK: null, undefined veya boş string kontrolü yap
+        result['fullname-first'] = (userData['fullname-first'] !== null && userData['fullname-first'] !== undefined) ? userData['fullname-first'] : '';
+        result['fullname-last'] = (userData['fullname-last'] !== null && userData['fullname-last'] !== undefined) ? userData['fullname-last'] : '';
+        result.email = (userData.email !== null && userData.email !== undefined) ? userData.email : '';
+        result.phone = (userData.phone !== null && userData.phone !== undefined) ? userData.phone : '';
+        result.location = (userData.location !== null && userData.location !== undefined) ? userData.location : '';
+        result.profession = (userData.profession !== null && userData.profession !== undefined) ? userData.profession : '';
+        result.website = (userData.website !== null && userData.website !== undefined) ? userData.website : '';
+        result.summary = (userData.summary !== null && userData.summary !== undefined) ? userData.summary : '';
+        
+        // 🔒 KRİTİK: Debug - profession değerini özellikle kontrol et
+        if (userData.profession) {
+            console.log('✅ getDataWithExamples: profession değeri bulundu:', userData.profession);
+        } else {
+            console.warn('⚠️ getDataWithExamples: profession değeri YOK veya boş:', userData.profession);
+        }
+        
+        console.log('✅ getDataWithExamples: String alanlar hazırlandı', {
+            phone: result.phone,
+            profession: result.profession,
+            location: result.location,
+            email: result.email,
+            'fullname-first': result['fullname-first'],
+            'fullname-last': result['fullname-last']
+        });
+        
+        // Array alanlar - SADECE localStorage'dan
+        result.experiences = experiences;
+        result.education = education;
+        result.skills = skills;
+        result.languages = languages;
+        
+        // 🔒 KRİTİK: Flag'leri koru
+        result.isSampleData = userData.isSampleData || false;
+        result.isPreviewOnly = userData.isPreviewOnly || false;
+        result.isFromPDFUpload = userData.isFromPDFUpload || false;
+        
+        console.log('✅ getDataWithExamples: Final result', {
+            phone: result.phone,
+            profession: result.profession,
+            location: result.location,
+            email: result.email,
+            'fullname-first': result['fullname-first'],
+            'fullname-last': result['fullname-last'],
+            experiencesCount: result.experiences.length,
+            educationCount: result.education.length
         });
         
         return result;
@@ -224,14 +258,9 @@
     
     // Eğitimleri render et
     function renderEducation(education) {
+        // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
         if (!education || education.length === 0) {
-            return `
-                <div class="mb-3">
-                    <h3 class="text-sm font-bold text-slate-900">Bilgisayar Mühendisliği</h3>
-                    <p class="text-xs text-slate-700">İstanbul Teknik Üniversitesi</p>
-                    <p class="text-xs text-slate-500 mt-1">2015 - 2019</p>
-                </div>
-            `;
+            return '';
         }
         
         return education.map(edu => {
@@ -264,17 +293,9 @@
     
     // Eğitimleri preview şablonu için render et (özel format)
     function renderEducationForPreview(education) {
+        // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
         if (!education || education.length === 0) {
-            return `
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900">Bilgisayar Mühendisliği</h3>
-                        <p class="text-xs font-bold text-slate-500 mt-0.5">İstanbul Teknik Üniversitesi</p>
-                        <p class="text-xs text-slate-500 italic mt-1">3.50 not ortalaması ile mezuniyet</p>
-                    </div>
-                    <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">2015 - 2019</span>
-                </div>
-            `;
+            return '';
         }
         
         return education.map(edu => {
@@ -309,10 +330,9 @@
     
     // Yetenekleri render et
     function renderSkills(skills) {
+        // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
         if (!skills || skills.length === 0) {
-            return ['JavaScript (ES6+)', 'React', 'Node.js', 'TypeScript', 'Tailwind CSS', 'Git', 'Docker'].map(skill => 
-                `<span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-medium">${skill}</span>`
-            ).join('');
+            return '';
         }
         
         return skills.map(skill => {
@@ -323,10 +343,9 @@
     
     // Yetenekleri preview şablonu için render et (özel format)
     function renderSkillsForPreview(skills) {
+        // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
         if (!skills || skills.length === 0) {
-            return ['JavaScript (ES6+)', 'React & Redux', 'Node.js', 'TypeScript', 'Tailwind CSS', 'Git & GitHub', 'Docker'].map(skill => 
-                `<span class="px-2.5 py-1 bg-slate-50 text-slate-700 border border-slate-200 rounded text-[11px] font-bold">${skill}</span>`
-            ).join('');
+            return '';
         }
         
         return skills.map(skill => {
@@ -337,17 +356,9 @@
     
     // Dilleri render et
     function renderLanguages(languages) {
+        // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
         if (!languages || languages.length === 0) {
-            return `
-                <div class="mb-2">
-                    <span class="text-xs text-slate-700 font-medium">Türkçe</span>
-                    <span class="text-xs text-slate-500 ml-2">Anadil</span>
-                </div>
-                <div class="mb-2">
-                    <span class="text-xs text-slate-700 font-medium">İngilizce</span>
-                    <span class="text-xs text-slate-500 ml-2">C1 İleri</span>
-                </div>
-            `;
+            return '';
         }
         
         return languages.map(lang => {
@@ -364,17 +375,9 @@
     
     // Dilleri preview şablonu için render et (özel format)
     function renderLanguagesForPreview(languages) {
+        // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
         if (!languages || languages.length === 0) {
-            return `
-                <div class="flex justify-between items-center text-xs border-b border-dashed border-slate-200 pb-1">
-                    <span class="font-bold text-slate-700">Türkçe</span>
-                    <span class="text-slate-500 font-medium">Anadil</span>
-                </div>
-                <div class="flex justify-between items-center text-xs border-b border-dashed border-slate-200 pb-1">
-                    <span class="font-bold text-slate-700">İngilizce</span>
-                    <span class="text-slate-500 font-medium">C1 İleri</span>
-                </div>
-            `;
+            return '';
         }
         
         return languages.map((lang, index) => {
@@ -393,13 +396,39 @@
     const templateRenderers = {
         // Modern Şablon (Varsayılan)
         modern: function(data) {
-            const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 KRİTİK: Eğer data parametresi yoksa veya boşsa, getDataWithExamples() çağır
+            let cvData;
+            if (data && Object.keys(data).length > 0 && (data.phone || data.profession || data['fullname-first'])) {
+                cvData = data;
+                console.log('🎨 Modern template: data parametresi kullanılıyor', {
+                    phone: cvData.phone,
+                    profession: cvData.profession
+                });
+            } else {
+                cvData = getDataWithExamples();
+                console.log('🎨 Modern template: getDataWithExamples() çağrıldı', {
+                    phone: cvData.phone,
+                    profession: cvData.profession
+                });
+            }
+            
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
+            
+            console.log('🎨 Modern template render - Final değerler:', {
+                fullName: fullName,
+                profession: profession,
+                email: email,
+                phone: phone,
+                location: location,
+                summary: summary ? summary.substring(0, 50) + '...' : ''
+            });
             
             // Deneyimleri, eğitimleri, yetenekleri ve dilleri render et
             const experiencesHtml = renderExperiences(cvData.experiences || []);
@@ -452,12 +481,14 @@
         // Kurumsal Şablon
         kurumsal: function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
             // Deneyimleri render et
             const experiencesHtml = renderExperiences(cvData.experiences || []);
@@ -512,12 +543,14 @@
         // Yaratıcı Şablon
         yaratici: function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
             // Deneyimleri render et
             const experiencesHtml = renderExperiences(cvData.experiences || []);
@@ -570,12 +603,14 @@
         // Minimal Şablon
         minimal: function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
             // Deneyimleri render et
             const experiencesHtml = renderExperiences(cvData.experiences || []);
@@ -621,12 +656,14 @@
         // Akademik Şablon
         akademik: function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
             // Deneyimleri render et
             const experiencesHtml = renderExperiences(cvData.experiences || []);
@@ -672,12 +709,14 @@
         // Executive Şablon
         executive: function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
             // Deneyimleri render et
             const experiencesHtml = renderExperiences(cvData.experiences || []);
@@ -732,12 +771,14 @@
         // Basit Şablon
         basit: function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
             // Deneyimleri render et
             const experiencesHtml = renderExperiences(cvData.experiences || []);
@@ -783,27 +824,29 @@
         // Global Tech Şablon
         global: function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
-            // Deneyimleri render et (örnek veri ile fallback)
-            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : exampleData.experiences;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : [];
             const experiencesHtml = renderExperiences(experiences);
             
-            // Eğitimleri render et (örnek veri ile fallback)
-            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : exampleData.education;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : [];
             const educationHtml = renderEducation(education);
             
-            // Yetenekleri render et (örnek veri ile fallback)
-            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : exampleData.skills;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : [];
             const skillsHtml = renderSkills(skills);
             
-            // Dilleri render et (örnek veri ile fallback)
-            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : exampleData.languages;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : [];
             const languagesHtml = renderLanguages(languages);
             
             return `
@@ -851,27 +894,29 @@
         // Global Tech Şablonu - Modern teknoloji odaklı tasarım
         'global-tech': function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
-            // Deneyimleri render et (örnek veri ile fallback)
-            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : exampleData.experiences;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : [];
             const experiencesHtml = renderExperiences(experiences);
             
-            // Eğitimleri render et (örnek veri ile fallback)
-            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : exampleData.education;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : [];
             const educationHtml = renderEducation(education);
             
-            // Yetenekleri render et (örnek veri ile fallback)
-            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : exampleData.skills;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : [];
             const skillsHtml = renderSkills(skills);
             
-            // Dilleri render et (örnek veri ile fallback)
-            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : exampleData.languages;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : [];
             const languagesHtml = renderLanguages(languages);
             
             return `
@@ -916,27 +961,29 @@
         // Evrensel Uyum Şablonu - ATS dostu, uluslararası standart
         'evrensel-uyum': function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
-            // Deneyimleri render et (örnek veri ile fallback)
-            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : exampleData.experiences;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : [];
             const experiencesHtml = renderExperiences(experiences);
             
-            // Eğitimleri render et (örnek veri ile fallback)
-            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : exampleData.education;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : [];
             const educationHtml = renderEducation(education);
             
-            // Yetenekleri render et (örnek veri ile fallback)
-            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : exampleData.skills;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : [];
             const skillsHtml = renderSkills(skills);
             
-            // Dilleri render et (örnek veri ile fallback)
-            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : exampleData.languages;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : [];
             const languagesHtml = renderLanguages(languages);
             
             return `
@@ -981,20 +1028,26 @@
         // Overleaf Academic - Tek sütun, temiz ve minimalist (SUNIL KUMAR JAIN referansı)
         'overleaf-academic': function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
-            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : exampleData.experiences;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : [];
             const experiencesHtml = renderExperiences(experiences);
-            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : exampleData.education;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : [];
             const educationHtml = renderEducation(education);
-            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : exampleData.skills;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : [];
             const skillsHtml = renderSkills(skills);
-            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : exampleData.languages;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : [];
             const languagesHtml = renderLanguages(languages);
             
             return `
@@ -1034,20 +1087,26 @@
         // Overleaf Professional - İki sütun, koyu gri header (DR. NICO KRIEGER referansı)
         'overleaf-professional': function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
-            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : exampleData.experiences;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : [];
             const experiencesHtml = renderExperiences(experiences);
-            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : exampleData.education;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : [];
             const educationHtml = renderEducation(education);
-            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : exampleData.skills;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : [];
             const skillsHtml = renderSkills(skills);
-            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : exampleData.languages;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : [];
             const languagesHtml = renderLanguages(languages);
             
             return `
@@ -1107,20 +1166,26 @@
         // Overleaf Modern - İki sütun, yeşil vurgular (CESAR LAURA referansı)
         'overleaf-modern': function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
-            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : exampleData.experiences;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : [];
             const experiencesHtml = renderExperiences(experiences);
-            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : exampleData.education;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : [];
             const educationHtml = renderEducation(education);
-            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : exampleData.skills;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : [];
             const skillsHtml = renderSkills(skills);
-            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : exampleData.languages;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : [];
             const languagesHtml = renderLanguages(languages);
             
             return `
@@ -1166,20 +1231,26 @@
         // Overleaf Business - İki sütun, sol deneyim/eğitim, sağ yetenekler (JAYDEV VARMA referansı)
         'overleaf-business': function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
-            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : exampleData.experiences;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const experiences = (cvData.experiences && cvData.experiences.length > 0) ? cvData.experiences : [];
             const experiencesHtml = renderExperiences(experiences);
-            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : exampleData.education;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const education = (cvData.education && cvData.education.length > 0) ? cvData.education : [];
             const educationHtml = renderEducation(education);
-            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : exampleData.skills;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const skills = (cvData.skills && cvData.skills.length > 0) ? cvData.skills : [];
             const skillsHtml = renderSkills(skills);
-            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : exampleData.languages;
+            // 🔒 DEFAULT OLARAK BOŞ ARRAY - Örnek veriler YOK
+            const languages = (cvData.languages && cvData.languages.length > 0) ? cvData.languages : [];
             const languagesHtml = renderLanguages(languages);
             
             return `
@@ -1221,12 +1292,14 @@
         tech: function(data) {
             // Tech Minimal şablonu - Modern şablonun varyasyonu
             const cvData = data || getCVData();
-            const fullName = (cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '') || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             
             return templateRenderers.modern(data);
         },
@@ -1307,12 +1380,14 @@
         // Önizleme Şablonu (Kullanıcının verdiği tasarım)
         'preview': function(data) {
             const cvData = data || getDataWithExamples();
-            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || 'Ad Soyad';
-            const profession = cvData.profession || 'Meslek';
-            const email = cvData.email || 'email@example.com';
-            const phone = cvData.phone || '+90 555 123 45 67';
-            const location = cvData.location || 'İstanbul, TR';
-            const summary = cvData.summary || 'Profesyonel özetinizi buraya yazın...';
+            // 🔒 DEFAULT OLARAK BOŞ - Sadece kullanıcı verisi varsa göster
+            const fullName = ((cvData['fullname-first'] || '') + ' ' + (cvData['fullname-last'] || '')).trim() || '';
+            // 🔒 DEFAULT OLARAK BOŞ - Örnek veriler YOK
+            const profession = cvData.profession || '';
+            const email = cvData.email || '';
+            const phone = cvData.phone || '';
+            const location = cvData.location || '';
+            const summary = cvData.summary || '';
             const website = cvData.website || cvData.linkedin || '';
             
             // Deneyimleri preview formatında render et
@@ -1434,11 +1509,42 @@
     // Şablonu değiştir
     function changeTemplate(templateName) {
         const previewContainer = document.querySelector('.a4-paper');
-        if (!previewContainer) return;
+        if (!previewContainer) {
+            console.warn('⚠️ .a4-paper bulunamadı!');
+            return;
+        }
         
-        // Şablonu render et
-        const html = renderTemplate(templateName);
+        // 🔒 KRİTİK: Her sayfa geçişinde localStorage'dan TÜM verileri yükle ve render et
+        // Bu sayede her sayfada aynı veriler görünür
+        const cvData = getDataWithExamples();
+        
+        console.log('🔄 changeTemplate: Template render ediliyor...', {
+            template: templateName,
+            cvData: {
+                'fullname-first': cvData['fullname-first'],
+                'fullname-last': cvData['fullname-last'],
+                profession: cvData.profession,
+                email: cvData.email,
+                phone: cvData.phone,
+                location: cvData.location
+            }
+        });
+        
+        // 🔒 KRİTİK: Şablonu render et - getDataWithExamples() zaten localStorage'dan veriyi yüklüyor
+        const html = renderTemplate(templateName, cvData);
         previewContainer.innerHTML = html;
+        
+        console.log('✅ Template HTML render edildi');
+        
+        // 🔒 KRİTİK: Render edilen HTML'de phone ve profession var mı kontrol et
+        const phoneInHtml = html.includes(cvData.phone || '');
+        const professionInHtml = html.includes(cvData.profession || '');
+        console.log('🔍 Render edilen HTML kontrol:', {
+            phoneInHtml: phoneInHtml,
+            professionInHtml: professionInHtml,
+            phoneValue: cvData.phone,
+            professionValue: cvData.profession
+        });
         
         // localStorage'a kaydet
         localStorage.setItem('selected-template', templateName);
@@ -1450,16 +1556,18 @@
             window.TemplateHistory.updateList();
         }
         
-        // Kısa bir gecikme ile live preview'ı yeniden başlat (DOM güncellemesi için)
+        // 🔒 KRİTİK: DOM güncellenene kadar bekle, sonra loadPreviewData çağır
         setTimeout(() => {
+            console.log('🔄 DOM güncellendi, preview fonksiyonları çağrılıyor...');
+            
+            // Preview loader'ı çalıştır (ÖNCE BU - çünkü template içindeki verileri günceller)
+            if (window.loadPreviewData) {
+                window.loadPreviewData();
+            }
+            
             // Live preview'ı yeniden başlat
             if (window.initLivePreview) {
                 window.initLivePreview();
-            }
-            
-            // Preview loader'ı çalıştır
-            if (window.loadPreviewData) {
-                window.loadPreviewData();
             }
             
             // Experience manager'ı çalıştır
@@ -1481,15 +1589,66 @@
             if (window.renderPreviewLanguages) {
                 window.renderPreviewLanguages();
             }
-        }, 50);
+        }, 200);
+    }
+    
+    // 🔒 KRİTİK: Her sayfa yüklendiğinde CV preview'ı güncelle
+    function updateCVPreview() {
+        const previewContainer = document.querySelector('.a4-paper');
+        if (!previewContainer) {
+            console.warn('⚠️ .a4-paper bulunamadı!');
+            return;
+        }
+        
+        // Seçili şablonu al
+        const selectedTemplate = localStorage.getItem('selected-template') || 'modern';
+        
+        // localStorage'dan TÜM verileri yükle
+        const cvData = getDataWithExamples();
+        
+        console.log('🔄 updateCVPreview: Template render ediliyor...', {
+            template: selectedTemplate,
+            cvData: cvData
+        });
+        
+        // Şablonu render et - localStorage'dan yüklenen verilerle
+        const html = renderTemplate(selectedTemplate, cvData);
+        previewContainer.innerHTML = html;
+        
+        console.log('✅ Template HTML güncellendi');
+        
+        // 🔒 KRİTİK: DOM güncellenene kadar bekle, sonra loadPreviewData çağır
+        setTimeout(() => {
+            console.log('🔄 DOM güncellendi, loadPreviewData çağrılıyor...');
+            if (window.loadPreviewData) {
+                window.loadPreviewData();
+            }
+            if (window.initLivePreview) {
+                window.initLivePreview();
+            }
+            if (window.renderPreviewExperiences) {
+                window.renderPreviewExperiences();
+            }
+            if (window.renderPreviewEducation) {
+                window.renderPreviewEducation();
+            }
+            if (window.renderPreviewSkills) {
+                window.renderPreviewSkills();
+            }
+            if (window.renderPreviewLanguages) {
+                window.renderPreviewLanguages();
+            }
+        }, 200);
     }
     
     // Global olarak erişilebilir yap
     window.CVTemplateRenderer = {
         render: renderTemplate,
         change: changeTemplate,
+        update: updateCVPreview,
         templates: Object.keys(templateRenderers)
     };
+    window.updateCVPreview = updateCVPreview;
     
     // Sayfa yüklendiğinde seçili şablonu yükle
     if (document.readyState === 'loading') {
@@ -1499,8 +1658,11 @@
             const savedTemplate = localStorage.getItem('selected-template') || 'modern';
             const templateToUse = templateFromUrl || savedTemplate;
             
+            console.log('📄 DOMContentLoaded: Template yükleniyor...', templateToUse);
             if (templateToUse) {
                 changeTemplate(templateToUse);
+            } else {
+                updateCVPreview();
             }
         });
     } else {
@@ -1509,8 +1671,11 @@
         const savedTemplate = localStorage.getItem('selected-template') || 'modern';
         const templateToUse = templateFromUrl || savedTemplate;
         
+        console.log('📄 Sayfa zaten yüklü: Template yükleniyor...', templateToUse);
         if (templateToUse) {
             changeTemplate(templateToUse);
+        } else {
+            updateCVPreview();
         }
     }
 })();

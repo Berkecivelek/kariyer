@@ -348,10 +348,7 @@
                     tempContainer.innerHTML = html;
                     document.body.appendChild(tempContainer);
                     
-                    // Tailwind CSS stillerini uygula (gerekirse)
-                    if (window.tailwind) {
-                        window.tailwind.refresh();
-                    }
+                    // Tailwind CSS artık yerel dosyadan yükleniyor, refresh gerekmez
                     
                     // html2canvas ile görsel oluştur
                     setTimeout(() => {

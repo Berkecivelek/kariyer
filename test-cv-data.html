@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CV Data Test</title>
+</head>
+<body>
+    <h1>CV Data Test</h1>
+    <button onclick="testData()">Test localStorage</button>
+    <button onclick="clearData()">Clear localStorage</button>
+    <pre id="output"></pre>
+    
+    <script>
+        function testData() {
+            const data = localStorage.getItem('cv-builder-data');
+            const parsed = data ? JSON.parse(data) : {};
+            document.getElementById('output').textContent = JSON.stringify(parsed, null, 2);
+        }
+        
+        function clearData() {
+            localStorage.clear();
+            alert('localStorage cleared!');
+        }
+        
+        // Sayfa yüklendiğinde göster
+        testData();
+    </script>
+</body>
+</html>

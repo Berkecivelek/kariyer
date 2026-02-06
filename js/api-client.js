@@ -48,10 +48,22 @@ class APIClient {
         try {
           const payload = JSON.parse(atob(this.token.split('.')[1]));
           const now = Math.floor(Date.now() / 1000);
+          // Token süresinin dolmasına 1 saat kala refresh dene
+          const oneHour = 60 * 60; // 1 saat = 3600 saniye
           if (payload.exp && payload.exp < now) {
-            // Token süresi dolmuş, temizle
-            this.debugLog('Token expired, clearing...');
-            this.clearTokens();
+            // Token süresi dolmuş, refresh token varsa dene
+            this.debugLog('Token expired, attempting refresh...');
+            if (this.refreshToken) {
+              // Refresh'i async yapacağız ama bu senkron fonksiyon
+              // Kullanıcı bir istek yaparsa otomatik refresh olacak
+              this.debugLog('Will refresh token on next API call');
+            } else {
+              // Refresh token da yoksa tamamen temizle
+              this.clearTokens();
+            }
+          } else if (payload.exp && (payload.exp - now) < oneHour) {
+            // Token süresine 1 saatten az kaldıysa, proaktif olarak refresh dene
+            this.debugLog('Token expires soon, will refresh on next API call');
           }
         } catch (e) {
           // Token parse edilemedi, geçersiz
@@ -83,9 +95,17 @@ class APIClient {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('userId');
     localStorage.removeItem('current-resume-id');
-    // CV verilerini temizleme - kullanıcı çıkış yapana kadar tutulabilir
-    // localStorage.removeItem('cv-builder-data');
-    // localStorage.removeItem('cv-experiences');
+    
+    // 🔒 KRİTİK VERİ GÜVENLİĞİ: Logout olduğunda TÜM CV verilerini temizle
+    // Bir sonraki kullanıcı önceki kullanıcının verilerini GÖRMESİN
+    localStorage.removeItem('cv-builder-data');
+    localStorage.removeItem('cv-experiences');
+    localStorage.removeItem('cv-education');
+    localStorage.removeItem('cv-skills');
+    localStorage.removeItem('cv-languages');
+    localStorage.removeItem('selected-template');
+    
+    console.log('🧹 Logout: TÜM kullanıcı ve CV verileri temizlendi');
   }
 
   // Make API request
@@ -169,6 +189,14 @@ class APIClient {
         }
       }
     } catch (error) {
+      // 🔒 CORS veya network hatalarını gizle (kullanıcıya gösterilmemeli)
+      // Sadece gerçek API hatalarını göster
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        // Network/CORS hatası - sessizce devam et (offline mode)
+        this.debugLog('Network/CORS error (silent):', error.message);
+        throw new Error('Network error - offline mode');
+      }
+      
       this.debugLog('API Error:', error);
       // Eğer zaten Error objesi ise direkt fırlat, değilse yeni Error oluştur
       if (error instanceof Error) {

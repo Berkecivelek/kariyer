@@ -9,7 +9,7 @@ const router: Router = express.Router();
 // Rate limiting for auth endpoints - brute force koruması
 const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 dakika
-  max: 5, // 15 dakikada maksimum 5 başarısız deneme
+  max: 20, // 15 dakikada maksimum 20 başarısız deneme (daha esnek)
   message: {
     success: false,
     error: 'Çok fazla giriş denemesi. Lütfen 15 dakika sonra tekrar deneyin.'
@@ -25,7 +25,7 @@ const authRateLimiter = rateLimit({
 // Register için daha yüksek limit (spam hesap koruması)
 const registerRateLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 saat
-  max: 10, // Saatte maksimum 10 kayıt
+  max: 20, // Saatte maksimum 20 kayıt (daha esnek)
   message: {
     success: false,
     error: 'Çok fazla kayıt denemesi. Lütfen daha sonra tekrar deneyin.'

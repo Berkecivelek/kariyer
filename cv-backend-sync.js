@@ -28,7 +28,7 @@
                 experiences: experiences ? JSON.parse(experiences) : []
             };
         } catch (e) {
-            console.error('CV data okunamadı:', e);
+            // CV data okuma hatası - sessizce devam et
             return { personalInfo: {}, experiences: [] };
         }
     }
@@ -81,7 +81,8 @@
                         }
                     }
                 } catch (error) {
-                    console.error('Resume listesi alınamadı:', error);
+                    // 🔒 CORS/Network hatası - sessizce devam et (offline mode)
+                    // Console'a hata yazdırma - kullanıcıya gösterilmemeli
                 }
             }
             
@@ -99,7 +100,9 @@
                 }
             }
         } catch (error) {
-            console.error('Backend kayıt hatası:', error);
+            // 🔒 Backend kayıt hatası - sessizce devam et (offline mode desteklenir)
+            // Network sorunu, CORS hatası veya backend erişilemez durumunda normal
+            // Console'a hata yazdırma - kullanıcıya gösterilmemeli
         }
     }
     

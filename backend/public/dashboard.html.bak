@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+
+<meta charset="utf-8"/>
+
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>Kariyer.ai - Kullanıcı Paneli</title>
+
+<!-- Fonts -->
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+
+<!-- Material Symbols -->
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<!-- Tailwind CSS -->
+
+<link rel="stylesheet" href="/css/tailwind.css">
+
+<!-- Theme Config -->
+
+<script>
+
+        tailwind.config = {
+
+            darkMode: "class",
+
+            theme: {
+
+                extend: {
+
+                    colors: {
+
+                        "primary": "#1337ec",
+
+                        "primary-dark": "#0f2cb8",
+
+                        "background-light": "#f6f6f8",
+
+                        "background-dark": "#101322",
+
+                    },
+
+                    fontFamily: {
+
+                        "display": ["Manrope", "sans-serif"]
+
+                    },
+
+                    borderRadius: {
+
+                        "DEFAULT": "0.25rem",
+
+                        "lg": "0.5rem",
+
+                        "xl": "0.75rem",
+
+                        "2xl": "1rem",
+
+                        "full": "9999px"
+
+                    },
+
+                },
+
+            },
+
+        }
+
+    </script>
+
+<style>
+
+        .material-symbols-outlined {
+
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+
+        }
+
+        .icon-filled {
+
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-[#111218] dark:text-white font-display h-screen flex overflow-hidden">
+
+<!-- Side Navigation -->
+
+<aside class="w-72 bg-white dark:bg-[#1e2130] flex flex-col h-full border-r border-[#dbdde6] dark:border-gray-700 flex-shrink-0">
+
+<div class="p-6">
+
+<a href="index.html" class="flex items-center gap-3 mb-8">
+
+<div class="bg-primary/10 flex items-center justify-center rounded-xl w-10 h-10 text-primary">
+
+<span class="material-symbols-outlined text-2xl icon-filled">smart_toy</span>
+
+</div>
+
+<div class="flex flex-col">
+
+<h1 class="text-lg font-bold leading-none tracking-tight">Kariyer.ai</h1>
+
+<p class="text-[#616889] dark:text-gray-400 text-xs font-medium mt-1">Yapay Zeka Asistanı</p>
+
+</div>
+
+</a>
+
+<nav class="flex flex-col gap-2">
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary group transition-colors" href="dashboard.html">
+
+<span class="material-symbols-outlined icon-filled">dashboard</span>
+
+<span class="text-sm font-bold">Panel</span>
+
+</a>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#616889] dark:text-gray-300 hover:bg-[#f0f1f4] dark:hover:bg-gray-700 transition-colors" href="cv-optimizasyon.html">
+
+<span class="material-symbols-outlined">auto_awesome</span>
+
+<span class="text-sm font-medium">AI Araçları</span>
+
+</a>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#616889] dark:text-gray-300 hover:bg-[#f0f1f4] dark:hover:bg-gray-700 transition-colors" href="cv-olusturucu.html">
+
+<span class="material-symbols-outlined">description</span>
+
+<span class="text-sm font-medium">Belgelerim</span>
+
+</a>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#616889] dark:text-gray-300 hover:bg-[#f0f1f4] dark:hover:bg-gray-700 transition-colors" href="#">
+
+<span class="material-symbols-outlined">person</span>
+
+<span class="text-sm font-medium">Profil Ayarları</span>
+
+</a>
+
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#616889] dark:text-gray-300 hover:bg-[#f0f1f4] dark:hover:bg-gray-700 transition-colors" href="fiyatlandirma.html">
+
+<span class="material-symbols-outlined">credit_card</span>
+
+<span class="text-sm font-medium">Abonelik</span>
+
+</a>
+
+</nav>
+
+</div>
+
+<div class="mt-auto p-6 border-t border-[#dbdde6] dark:border-gray-700">
+
+<div class="flex items-center gap-3">
+
+<div class="relative">
+
+<div class="w-10 h-10 rounded-full bg-cover bg-center" data-alt="User profile picture showing a young professional man" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAcTIYvmjbxiSGytgkAfyEs2Tt5Oh05X4BXwXWS1ENVGBpPUHndF37DRX9sAmm4tbVOgyEel42gBLITY1W-dOEwZNHsCwL3UU_YTHHzXsGWmis8QiQGilU8XcmcytFKEcTXNAPr19UrAqTkbrG_zB84LeJe7wLDlxERB1Nf-wdDNkqBNVtAzEmGdcyBgeynGaayNFauTdna9Y-cN0Wd3VJhVzUrNNIc2VUfvxM0-N-ScBfc2wA49ahN5Ozw0Jqboma-OY8o3jUUjD4p');"></div>
+
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-[#1e2130] rounded-full"></div>
+
+</div>
+
+<div class="flex flex-col overflow-hidden">
+
+<p class="text-sm font-bold truncate text-[#111218] dark:text-white">Ahmet Yılmaz</p>
+
+<p class="text-xs text-[#616889] dark:text-gray-400 truncate">Pro Plan Üyesi</p>
+
+</div>
+
+<button class="ml-auto text-[#616889] hover:text-[#111218] dark:hover:text-white">
+
+<span class="material-symbols-outlined">logout</span>
+
+</button>
+
+</div>
+
+</div>
+
+</aside>
+
+<!-- Main Content Area -->
+
+<main class="flex-1 flex flex-col h-full overflow-y-auto relative">
+
+<div class="max-w-[1200px] w-full mx-auto p-6 md:p-8 lg:p-12 flex flex-col gap-8">
+
+<!-- Header Section -->
+
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+
+<div class="flex flex-col gap-1">
+
+<h1 class="text-3xl md:text-4xl font-black tracking-tight text-[#111218] dark:text-white">Hoş geldin, Ahmet 👋</h1>
+
+<p class="text-[#616889] dark:text-gray-400 text-base font-medium">Kariyer yolculuğunu bugün nereye taşımak istersin?</p>
+
+</div>
+
+<a href="cv-olusturucu.html" class="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-5 py-3 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 transition-all active:scale-95">
+
+<span class="material-symbols-outlined">add</span>
+
+                    Yeni Belge Oluştur
+
+                </a>
+
+</div>
+
+<!-- Stats Overview -->
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+<div class="bg-white dark:bg-[#1e2130] border border-[#dbdde6] dark:border-gray-700 rounded-xl p-5 flex flex-col gap-1 shadow-sm">
+
+<div class="flex items-center justify-between mb-2">
+
+<span class="text-[#616889] dark:text-gray-400 text-sm font-medium">Toplam Özgeçmiş</span>
+
+<span class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
+
+<span class="material-symbols-outlined text-xl">description</span>
+
+</span>
+
+</div>
+
+<span class="text-3xl font-bold text-[#111218] dark:text-white">3</span>
+
+<span class="text-xs text-green-600 font-medium flex items-center gap-1">
+
+<span class="material-symbols-outlined text-sm">trending_up</span>
+
+                        Bu ay +1 yeni
+
+                    </span>
+
+</div>
+
+<div class="bg-white dark:bg-[#1e2130] border border-[#dbdde6] dark:border-gray-700 rounded-xl p-5 flex flex-col gap-1 shadow-sm">
+
+<div class="flex items-center justify-between mb-2">
+
+<span class="text-[#616889] dark:text-gray-400 text-sm font-medium">Ön Yazılar</span>
+
+<span class="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg">
+
+<span class="material-symbols-outlined text-xl">edit_note</span>
+
+</span>
+
+</div>
+
+<span class="text-3xl font-bold text-[#111218] dark:text-white">12</span>
+
+<span class="text-xs text-[#616889] dark:text-gray-500 font-medium">Son düzenleme 2 gün önce</span>
+
+</div>
+
+<div class="bg-white dark:bg-[#1e2130] border border-[#dbdde6] dark:border-gray-700 rounded-xl p-5 flex flex-col gap-1 shadow-sm relative overflow-hidden group">
+
+<div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full"></div>
+
+<div class="flex items-center justify-between mb-2 relative z-10">
+
+<span class="text-[#616889] dark:text-gray-400 text-sm font-medium">AI Kredisi</span>
+
+<span class="p-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 rounded-lg">
+
+<span class="material-symbols-outlined text-xl icon-filled">bolt</span>
+
+</span>
+
+</div>
+
+<span class="text-3xl font-bold text-[#111218] dark:text-white relative z-10">5</span>
+
+<a class="text-xs text-primary font-bold hover:underline relative z-10 flex items-center gap-1 mt-1" href="fiyatlandirma.html">
+
+                        Daha fazla kredi al <span class="material-symbols-outlined text-xs">arrow_forward</span>
+
+</a>
+
+</div>
+
+</div>
+
+<!-- Content Area: Search, Tabs, Grid -->
+
+<div class="flex flex-col gap-6">
+
+<!-- Toolbar -->
+
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-[#dbdde6] dark:border-gray-700 pb-1">
+
+<!-- Tabs -->
+
+<div class="flex gap-6 w-full md:w-auto overflow-x-auto no-scrollbar">
+
+<button class="pb-3 border-b-2 border-[#111218] dark:border-white text-[#111218] dark:text-white font-bold text-sm whitespace-nowrap">
+
+                            Tümü
+
+                        </button>
+
+<button class="pb-3 border-b-2 border-transparent hover:border-gray-300 text-[#616889] dark:text-gray-400 hover:text-[#111218] dark:hover:text-white font-medium text-sm transition-all whitespace-nowrap">
+
+                            Özgeçmişler
+
+                        </button>
+
+<button class="pb-3 border-b-2 border-transparent hover:border-gray-300 text-[#616889] dark:text-gray-400 hover:text-[#111218] dark:hover:text-white font-medium text-sm transition-all whitespace-nowrap">
+
+                            Ön Yazılar
+
+                        </button>
+
+<button class="pb-3 border-b-2 border-transparent hover:border-gray-300 text-[#616889] dark:text-gray-400 hover:text-[#111218] dark:hover:text-white font-medium text-sm transition-all whitespace-nowrap">
+
+                            Portfolyolar
+
+                        </button>
+
+</div>
+
+<!-- Search -->
+
+<div class="relative w-full md:w-72 mb-2 md:mb-0">
+
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+
+<span class="material-symbols-outlined text-[#616889] dark:text-gray-500">search</span>
+
+</div>
+
+<input class="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-[#f0f1f4] dark:bg-gray-800 text-[#111218] dark:text-white placeholder-[#616889] dark:placeholder-gray-500 focus:ring-2 focus:ring-primary text-sm font-medium" placeholder="Belge ara..." type="text"/>
+
+</div>
+
+</div>
+
+<!-- Grid -->
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-12">
+
+<!-- Create New Card -->
+
+<a href="cv-olusturucu.html" class="group flex flex-col items-center justify-center min-h-[320px] rounded-xl border-2 border-dashed border-[#dbdde6] dark:border-gray-700 hover:border-primary/50 dark:hover:border-primary/50 bg-transparent hover:bg-white dark:hover:bg-[#1e2130] transition-all cursor-pointer gap-4">
+
+<div class="w-16 h-16 rounded-full bg-background-light dark:bg-gray-800 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+
+<span class="material-symbols-outlined text-3xl text-[#616889] group-hover:text-primary transition-colors">add</span>
+
+</div>
+
+<div class="flex flex-col items-center gap-1">
+
+<span class="font-bold text-[#111218] dark:text-white">Yeni Oluştur</span>
+
+<span class="text-sm text-[#616889] dark:text-gray-400 text-center">AI ile saniyeler içinde<br/>belge hazırla</span>
+
+</div>
+
+</a>
+
+<!-- Document Card 1: Resume -->
+
+<div class="group flex flex-col bg-white dark:bg-[#1e2130] border border-[#dbdde6] dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+
+<div class="relative h-44 bg-gray-100 dark:bg-gray-800 overflow-hidden border-b border-[#dbdde6] dark:border-gray-700">
+
+<div class="absolute inset-0 bg-cover bg-top opacity-90 transition-transform duration-500 group-hover:scale-105" data-alt="Screenshot of a professional resume template with blue headers" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCqUDoznxzEVHyhum-V60BBQ7a4v__TxahPUETC809lM7fMwjZbDCHN-66CLdcdGT-wFRLoFz9valjdflBm3HpWf9Zo3mWuwY9jOovkCpp4QbMhgR_MkqE6L8YvmXnUkhTz5D9R7ZxF0I_jAdPedJbTUjt9we8kvZ28Xbp92rF8AvlLCl8IEX4xhG7f67h86MBYDzPWMXnyNCB-j664u3YDL4QWgDpf9wYEpqu-iPSA3vTtNUoQGsg6AnsN6C1q8XIKqXHeQI-ZEtjs');"></div>
+
+<div class="absolute top-3 left-3">
+
+<span class="px-2 py-1 rounded bg-white/90 dark:bg-gray-900/90 text-[10px] font-bold uppercase tracking-wider text-[#111218] dark:text-white shadow-sm backdrop-blur-sm">Özgeçmiş</span>
+
+</div>
+
+<div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+
+<button class="bg-white/90 dark:bg-gray-800/90 p-1.5 rounded-full shadow-sm hover:text-primary transition-colors">
+
+<span class="material-symbols-outlined text-sm">star</span>
+
+</button>
+
+</div>
+
+</div>
+
+<div class="p-4 flex flex-col flex-1">
+
+<div class="flex justify-between items-start mb-2">
+
+<h3 class="font-bold text-[#111218] dark:text-white text-base line-clamp-1 group-hover:text-primary transition-colors">Senior UX Designer CV</h3>
+
+<button class="text-gray-400 hover:text-[#111218] dark:hover:text-white">
+
+<span class="material-symbols-outlined text-xl">more_vert</span>
+
+</button>
+
+</div>
+
+<p class="text-xs text-[#616889] dark:text-gray-400 mb-4">Düzenlendi: 2 saat önce</p>
+
+<div class="mt-auto flex items-center justify-between gap-2">
+
+<span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400 border border-yellow-100 dark:border-yellow-800/30">
+
+<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+
+                                    Taslak
+
+                                </span>
+
+<div class="flex gap-1">
+
+<button class="p-2 text-[#616889] hover:bg-[#f0f1f4] dark:hover:bg-gray-700 rounded-lg transition-colors" title="İndir">
+
+<span class="material-symbols-outlined text-xl">download</span>
+
+</button>
+
+<a href="cv-olusturucu.html" class="p-2 text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors shadow-sm shadow-primary/30" title="Düzenle">
+
+<span class="material-symbols-outlined text-xl">edit</span>
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Document Card 2: Cover Letter -->
+
+<div class="group flex flex-col bg-white dark:bg-[#1e2130] border border-[#dbdde6] dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+
+<div class="relative h-44 bg-gray-100 dark:bg-gray-800 overflow-hidden border-b border-[#dbdde6] dark:border-gray-700">
+
+<div class="absolute inset-0 bg-cover bg-top opacity-90 transition-transform duration-500 group-hover:scale-105" data-alt="Abstract text document pattern representing a cover letter" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCLdrHSkGkqeZxcpc0VvL2uL66759YxDvcC9xFyu9GKq3II3fKUk7v6PPF8dMJErd3LrWs7s2RHJ-JZdEMK7120lvpuZQ1hfdDsLlJRmabKZtQafTUU6L7--shHsjir9Y--VqeVzqwjLCbpc-wOdADnO5lxk6QyvTXOHqX8NSdi8lmCZCvnXxTbDtDrfFyht5MbxusIsT9eSCdGQTKH1O6jgePfeKChSKE8dMkkXqtmtdMkG1FJTxxReV3DTMrl7aJwe3WXI3cEpMJN');"></div>
+
+<div class="absolute inset-0 bg-primary/5 mix-blend-multiply"></div>
+
+<div class="absolute top-3 left-3">
+
+<span class="px-2 py-1 rounded bg-white/90 dark:bg-gray-900/90 text-[10px] font-bold uppercase tracking-wider text-[#111218] dark:text-white shadow-sm backdrop-blur-sm">Ön Yazı</span>
+
+</div>
+
+<div class="absolute bottom-3 left-3">
+
+<span class="flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 text-[10px] font-bold backdrop-blur-sm">
+
+<span class="material-symbols-outlined text-[10px] icon-filled">auto_awesome</span> AI ile oluşturuldu
+
+                                 </span>
+
+</div>
+
+</div>
+
+<div class="p-4 flex flex-col flex-1">
+
+<div class="flex justify-between items-start mb-2">
+
+<h3 class="font-bold text-[#111218] dark:text-white text-base line-clamp-1 group-hover:text-primary transition-colors">Google Başvurusu</h3>
+
+<button class="text-gray-400 hover:text-[#111218] dark:hover:text-white">
+
+<span class="material-symbols-outlined text-xl">more_vert</span>
+
+</button>
+
+</div>
+
+<p class="text-xs text-[#616889] dark:text-gray-400 mb-4">Düzenlendi: Dün</p>
+
+<div class="mt-auto flex items-center justify-between gap-2">
+
+<span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border border-green-100 dark:border-green-800/30">
+
+                                    Tamamlandı
+
+                                </span>
+
+<div class="flex gap-1">
+
+<button class="p-2 text-[#616889] hover:bg-[#f0f1f4] dark:hover:bg-gray-700 rounded-lg transition-colors" title="İndir">
+
+<span class="material-symbols-outlined text-xl">download</span>
+
+</button>
+
+<a href="on-yazi-olusturucu.html" class="p-2 text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors shadow-sm shadow-primary/30" title="Düzenle">
+
+<span class="material-symbols-outlined text-xl">edit</span>
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Document Card 3: Portfolio -->
+
+<div class="group flex flex-col bg-white dark:bg-[#1e2130] border border-[#dbdde6] dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+
+<div class="relative h-44 bg-gray-100 dark:bg-gray-800 overflow-hidden border-b border-[#dbdde6] dark:border-gray-700">
+
+<div class="absolute inset-0 bg-cover bg-center opacity-90 transition-transform duration-500 group-hover:scale-105" data-alt="Colorful abstract shapes representing a design portfolio cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCrVpOU8ef4UPUTSAcwoCT1TU7HDCUxagvGuYp7jhc_TtxCAwNhsBseAaOjjj5BXB0V1BULOKm3KS9E-BR0YtVkfYdhNg9BBkDaMMdlLnxgDp4q9pUxYWf0aayM92xi8UmLFih645qbFkMxAjGKSUdCcbeEQpLgvQrbeARge-F_yujJxW8ulD5wjdBJErDPRxNxgQN0496WyQ7bchJIwuPFlRmMtq25-5-i5s0HBhipcMPpntlndoRGACzc7KPd2kzvpr_UAD_gd-Wa');"></div>
+
+<div class="absolute top-3 left-3">
+
+<span class="px-2 py-1 rounded bg-white/90 dark:bg-gray-900/90 text-[10px] font-bold uppercase tracking-wider text-[#111218] dark:text-white shadow-sm backdrop-blur-sm">Portfolyo</span>
+
+</div>
+
+</div>
+
+<div class="p-4 flex flex-col flex-1">
+
+<div class="flex justify-between items-start mb-2">
+
+<h3 class="font-bold text-[#111218] dark:text-white text-base line-clamp-1 group-hover:text-primary transition-colors">2024 Tasarım Çalışmaları</h3>
+
+<button class="text-gray-400 hover:text-[#111218] dark:hover:text-white">
+
+<span class="material-symbols-outlined text-xl">more_vert</span>
+
+</button>
+
+</div>
+
+<p class="text-xs text-[#616889] dark:text-gray-400 mb-4">Düzenlendi: 24 Ekim</p>
+
+<div class="mt-auto flex items-center justify-between gap-2">
+
+<span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border border-blue-100 dark:border-blue-800/30">
+
+                                    Yayında
+
+                                </span>
+
+<div class="flex gap-1">
+
+<button class="p-2 text-[#616889] hover:bg-[#f0f1f4] dark:hover:bg-gray-700 rounded-lg transition-colors" title="Ön İzleme">
+
+<span class="material-symbols-outlined text-xl">visibility</span>
+
+</button>
+
+<a href="portfolyo-olusturucu.html" class="p-2 text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors shadow-sm shadow-primary/30" title="Düzenle">
+
+<span class="material-symbols-outlined text-xl">edit</span>
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Document Card 4: Resume (Old) -->
+
+<div class="group flex flex-col bg-white dark:bg-[#1e2130] border border-[#dbdde6] dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+
+<div class="relative h-44 bg-gray-100 dark:bg-gray-800 overflow-hidden border-b border-[#dbdde6] dark:border-gray-700">
+
+<div class="absolute inset-0 bg-cover bg-top opacity-50 grayscale transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-90" data-alt="Minimalist clean text resume layout" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBjueZ2b_DvI3IAJqBADjWRQTshhERbBelNlQredfzAJHk6qoTicxSVKsYLmqixt3ora-OViwOf2vrd6Qt4nFPPCLULrlFuxYMuMqGPlj3GBaYwZcDGCBWhhxFGXFYmsMNVSgY7LyK_YUpQae8eCUJUXpAKR9cm-OgTD1awiRa2OanWeSoihrVnH3hNFf2u0C29U42ADho5B5rFwn8dGNopn2Yn48YpIiLHbWE3cU2gOMxMzylpl_3OuiGyg2R05VwtntpI3iqiQ-_I');"></div>
+
+<div class="absolute top-3 left-3">
+
+<span class="px-2 py-1 rounded bg-white/90 dark:bg-gray-900/90 text-[10px] font-bold uppercase tracking-wider text-[#111218] dark:text-white shadow-sm backdrop-blur-sm">Özgeçmiş</span>
+
+</div>
+
+</div>
+
+<div class="p-4 flex flex-col flex-1">
+
+<div class="flex justify-between items-start mb-2">
+
+<h3 class="font-bold text-[#111218] dark:text-white text-base line-clamp-1 group-hover:text-primary transition-colors">Yazılım Müh. (Eski)</h3>
+
+<button class="text-gray-400 hover:text-[#111218] dark:hover:text-white">
+
+<span class="material-symbols-outlined text-xl">more_vert</span>
+
+</button>
+
+</div>
+
+<p class="text-xs text-[#616889] dark:text-gray-400 mb-4">Düzenlendi: 10 Eylül</p>
+
+<div class="mt-auto flex items-center justify-between gap-2">
+
+<span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+
+                                    Arşiv
+
+                                </span>
+
+<div class="flex gap-1">
+
+<button class="p-2 text-[#616889] hover:bg-[#f0f1f4] dark:hover:bg-gray-700 rounded-lg transition-colors" title="İndir">
+
+<span class="material-symbols-outlined text-xl">download</span>
+
+</button>
+
+<a href="cv-olusturucu.html" class="p-2 text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors shadow-sm shadow-primary/30" title="Düzenle">
+
+<span class="material-symbols-outlined text-xl">edit</span>
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+</body></html>
+

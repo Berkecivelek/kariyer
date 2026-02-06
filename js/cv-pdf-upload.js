@@ -314,7 +314,11 @@
       
       // Write to SINGLE SOURCE OF TRUTH
       // 1. Personal info → cv-builder-data
+      // 🔒 KRİTİK: isSampleData: false flag'i ekle - Bu gerçek PDF upload sonrası veri
       const cvBuilderData = {
+        isSampleData: false, // 🔒 KRİTİK: Bu gerçek kullanıcı verisi (PDF upload)
+        isPreviewOnly: false, // Gerçek veri, sadece preview değil
+        isFromPDFUpload: true, // 🔒 KRİTİK: PDF upload ile geldiğini belirt
         'fullname-first': normalizedState['fullname-first'],
         'fullname-last': normalizedState['fullname-last'],
         email: normalizedState.email,
@@ -436,6 +440,8 @@
   // MAIN HANDLER: 4-PHASE FLOW
   // ============================================================
   async function handlePDFUpload(event) {
+    // 🔒 KRİTİK: SADECE kullanıcı PDF upload ettiğinde çalışmalı
+    // Default örnek CV'ler için bu fonksiyon ÇAĞRILMAMALI
     const file = event.target.files[0];
     if (!file) {
       return;

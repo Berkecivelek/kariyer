@@ -219,6 +219,50 @@
         return card;
     }
     
+    // 🔒 Yeni kullanıcı kontrolü - Hem cv-builder-data hem de cv-education kontrolü
+    // KRİTİK: Bu fonksiyon yeni kullanıcıyı tespit etmek için kullanılır
+    // Yeni kullanıcı = Sadece kayıt bilgileri var VE hiçbir CV verisi yok
+    function isNewUser() {
+        try {
+            const cvData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
+            const allowedFieldsForNewUser = ['fullname-first', 'fullname-last', 'email'];
+            
+            // cv-builder-data içinde sadece kayıt bilgileri var mı?
+            const hasOnlyRegistrationData = Object.keys(cvData).filter(k => 
+                !allowedFieldsForNewUser.includes(k) && cvData[k] && cvData[k] !== ''
+            ).length === 0;
+            
+            // cv-education boş mu?
+            const education = getEducation();
+            const hasNoEducation = !education || education.length === 0;
+            
+            // 🔒 KRİTİK: Eğer localStorage'da veri varsa ama bu veriler örnek veriler gibi görünüyorsa,
+            // yine de yeni kullanıcı olarak kabul et (örnek veriler form alanlarına doldurulmamalı)
+            if (hasNoEducation) {
+                // Eğitimler boş → Yeni kullanıcı
+                return hasOnlyRegistrationData;
+            } else {
+                // Eğitimler var → Kontrol et: Bu gerçek kullanıcı verisi mi yoksa örnek veri mi?
+                // Örnek veriler genellikle "Üniversite/Okul Adı", "Bölüm/Alan" gibi placeholder içerir
+                const hasSampleData = education.some(edu => 
+                    (edu.school && (edu.school.includes('Üniversite') && edu.school.includes('Adı'))) ||
+                    (edu.degree && (edu.degree.includes('Bölüm') || edu.degree.includes('Alan')))
+                );
+                
+                // Eğer örnek veri varsa, yeni kullanıcı olarak kabul et
+                if (hasSampleData) {
+                    console.log('🔒 Örnek veri tespit edildi, yeni kullanıcı olarak kabul ediliyor');
+                    return true;
+                }
+                
+                // Gerçek kullanıcı verisi var → Yeni kullanıcı değil
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
+    }
+    
     // Eğitim listesini render et
     function renderEducation() {
         const listContainer = document.getElementById('education-list');
@@ -227,30 +271,14 @@
         const education = getEducation();
         listContainer.innerHTML = '';
         
+        // 🔒 KRİTİK: Sadece localStorage'daki verileri göster
+        // isNewUser() kontrolünü burada YAPMA - Bu kontrol sadece init() içinde yapılmalı
+        
         if (education.length === 0) {
-            // Varsayılan örnek eğitimler
-            const defaultEducation = [
-                {
-                    school: 'İstanbul Teknik Üniversitesi',
-                    degree: 'Bilgisayar Mühendisliği',
-                    city: 'İstanbul',
-                    grade: '3.5/4.0',
-                    startMonth: 'Eylül',
-                    startYear: '2018',
-                    endMonth: 'Haziran',
-                    endYear: '2022',
-                    isCurrent: false,
-                    details: 'Yazılım geliştirme ve algoritma analizi üzerine odaklandım.\nWeb teknolojileri ve veritabanı yönetimi dersleri aldım.\nBitirme projesi olarak e-ticaret platformu geliştirdim.'
-                }
-            ];
-            
-            defaultEducation.forEach((edu, index) => {
-                const card = createEducationCard(edu, index);
-                listContainer.appendChild(card);
-            });
-            
-            saveEducationToStorage(defaultEducation);
+            // Eğitimler boş → Boş liste göster (örnek verileri YÜKLEME)
+            listContainer.innerHTML = '<p class="text-slate-500 text-sm italic">Eğitim bilgilerinizi eklemek için yukarıdaki formu kullanın.</p>';
         } else {
+            // localStorage'da eğitimler var → Göster (kullanıcı eklemiş veya CV yüklemiş)
             education.forEach((edu, index) => {
                 const card = createEducationCard(edu, index);
                 listContainer.appendChild(card);
@@ -625,6 +653,14 @@
     // Sayfa yüklendiğinde başlat
     function init() {
         populateYearSelects();
+        
+        // 🔒 KRİTİK: Yeni kullanıcı kontrolü - ÖNCE kontrol et ve temizle
+        const newUser = isNewUser();
+        if (newUser) {
+            console.log('🔒 Yeni kullanıcı tespit edildi: Eğitimler localStorage\'dan temizleniyor');
+            saveEducationToStorage([]); // localStorage'ı temizle
+        }
+        
         renderEducation();
         attachLivePreviewListeners();
         

@@ -420,8 +420,34 @@
     window.renderPreviewSkills = renderPreviewSkills;
     window.renderSkills = renderSkills;
     
+    // 🔒 Yeni kullanıcı kontrolü
+    function isNewUser() {
+        try {
+            const cvData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
+            const allowedFieldsForNewUser = ['fullname-first', 'fullname-last', 'email'];
+            
+            const hasOnlyRegistrationData = Object.keys(cvData).filter(k => 
+                !allowedFieldsForNewUser.includes(k) && cvData[k] && cvData[k] !== ''
+            ).length === 0;
+            
+            const skills = getSkills();
+            const hasNoSkills = !skills || skills.length === 0;
+            
+            return hasOnlyRegistrationData && hasNoSkills;
+        } catch (e) {
+            return false;
+        }
+    }
+    
     // Sayfa yüklendiğinde başlat
     function init() {
+        // 🔒 KRİTİK: Yeni kullanıcı kontrolü - ÖNCE kontrol et ve temizle
+        const newUser = isNewUser();
+        if (newUser) {
+            console.log('🔒 Yeni kullanıcı tespit edildi: Yetenekler localStorage\'dan temizleniyor');
+            saveSkillsToStorage([]); // localStorage'ı temizle
+        }
+        
         // Mevcut yetenekleri render et
         renderSkills();
         

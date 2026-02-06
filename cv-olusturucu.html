@@ -21,47 +21,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 
 <!-- Tailwind CSS -->
+<link rel="stylesheet" href="css/tailwind.css">
 
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
-<script id="tailwind-config">
-
-        tailwind.config = {
-
-            darkMode: "class",
-
-            theme: {
-
-                extend: {
-
-                    colors: {
-
-                        "primary": "#1337ec",
-
-                        "primary-dark": "#0f2cb8",
-
-                        "background-light": "#f6f6f8",
-
-                        "background-dark": "#101322",
-
-                    },
-
-                    fontFamily: {
-
-                        "display": ["Manrope", "sans-serif"]
-
-                    },
-
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-
-                },
-
-            },
-
-        }
-
-    </script>
-
+<!-- CV Responsive Fix -->
+<link rel="stylesheet" href="css/cv-responsive-fix.css">
 <style>
 
         /* Custom scrollbar for clean look */
@@ -210,33 +173,33 @@
 
 <!-- Step Item: Incomplete -->
 
-<a href="cv-olusturucu-egitim.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group transition-colors">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-50 group transition-colors">
 
 <span class="material-symbols-outlined text-[22px]">school</span>
 
 <p class="text-sm font-medium leading-normal">Eğitim</p>
 
-</a>
+</div>
 
 <!-- Step Item: Incomplete -->
 
-<a href="cv-olusturucu-yetenekler.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group transition-colors">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-50 group transition-colors">
 
 <span class="material-symbols-outlined text-[22px]">hotel_class</span>
 
 <p class="text-sm font-medium leading-normal">Yetenekler</p>
 
-</a>
+</div>
 
 <!-- Step Item: Incomplete -->
 
-<a href="cv-olusturucu-diller.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group transition-colors">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 cursor-not-allowed opacity-50 group transition-colors">
 
 <span class="material-symbols-outlined text-[22px]">language</span>
 
 <p class="text-sm font-medium leading-normal">Diller</p>
 
-</a>
+</div>
 
 </div>
 
@@ -266,7 +229,7 @@
 
 <div class="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12 pb-32">
 
-<div class="max-w-2xl mx-auto flex flex-col gap-8">
+<div class="max-w-xl mx-auto flex flex-col gap-8">
 
 <!-- Page Heading -->
 
@@ -537,7 +500,7 @@
 
 <!-- Right Sidebar: Live Preview -->
 
-<aside class="hidden xl:flex w-[950px] bg-slate-100 dark:bg-[#0c0e15] border-l border-slate-200 dark:border-slate-800 flex-col relative z-10 shadow-2xl">
+<aside id="cv-preview-root" class="cv-builder-preview hidden xl:flex bg-slate-100 dark:bg-[#0c0e15] border-l border-slate-200 dark:border-slate-800 flex-col relative z-10 shadow-2xl">
 
 <!-- Template Selection Carousel (Top) -->
 
@@ -718,8 +681,9 @@
 <script src="cv-template-zoom.js"></script>
 <script src="cv-preview-loader.js"></script>
 <script src="js/api-client.js"></script>
-<script src="cv-live-preview.js"></script>
+<script src="js/cv-clear-on-login.js"></script><script src="cv-live-preview.js"></script>
 <script src="cv-experience-manager.js"></script>
+<script src="js/cv-preview-updater.js"></script>
 <script src="js/cv-experience-ai.js"></script>
 <script src="cv-backend-sync.js"></script>
 <script src="cv-preview-button.js"></script>

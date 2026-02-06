@@ -793,9 +793,22 @@
       return;
     }
 
-    // CV bilgilerinden pozisyon ve şirket bilgisini çıkar
+    // CV bilgilerinden kullanıcı adını al
     const resumeId = resumeSelect ? resumeSelect.value : null;
     const jobDescription = jobDescriptionTextarea ? jobDescriptionTextarea.value.trim() : '';
+    
+    // Kullanıcı adını seçilen CV'den al
+    let userName = '';
+    if (selectedResumeData) {
+      const firstName = selectedResumeData.firstName || '';
+      const lastName = selectedResumeData.lastName || '';
+      userName = `${firstName} ${lastName}`.trim();
+      
+      // Eğer isim yoksa title'dan al
+      if (!userName && selectedResumeData.title) {
+        userName = selectedResumeData.title;
+      }
+    }
     
     // Pozisyon ve şirket bilgisini job description'dan çıkarmaya çalış
     let position = '';
@@ -815,10 +828,21 @@
       }
     }
 
-    // Başlık oluştur
-    const title = position 
-      ? `Ön Yazı - ${position}${company ? ` (${company})` : ''}`
-      : `Ön Yazı - ${new Date().toLocaleDateString('tr-TR')}`;
+    // Başlık oluştur: "Kullanıcı Adı - Şirket Adı" formatında
+    let title = '';
+    if (userName && company) {
+      title = `${userName} - ${company}`;
+    } else if (userName && position) {
+      title = `${userName} - ${position}`;
+    } else if (userName) {
+      title = `${userName} - Ön Yazı`;
+    } else if (company) {
+      title = `Ön Yazı - ${company}`;
+    } else if (position) {
+      title = `Ön Yazı - ${position}`;
+    } else {
+      title = `Ön Yazı - ${new Date().toLocaleDateString('tr-TR')}`;
+    }
 
     // Loading state
     if (saveBtn) {

@@ -20,6 +20,11 @@
         data[key] = value;
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            console.log('💾 cv-live-preview: Veri kaydedildi', {
+                key: key,
+                value: value,
+                fullData: data
+            });
         } catch (e) {
             console.error('Veri kaydedilemedi:', e);
         }
@@ -28,10 +33,13 @@
     // localStorage'dan veri yükle
     function loadStoredValue(input, previewType) {
         const data = getStoredData();
-        if (data[previewType] !== undefined) {
+        
+        // 🔒 KRİTİK: Sadece gerçek veri varsa yükle
+        if (data[previewType] !== undefined && data[previewType] !== '') {
             input.value = data[previewType];
             // Input değiştiğinde önizlemeyi güncelle
             input.dispatchEvent(new Event('input'));
+            console.log('✅ ' + previewType + ' yüklendi: ' + data[previewType]);
         }
     }
     
@@ -100,6 +108,13 @@
                         const value = input.value.trim();
                         const displayValue = value || input.placeholder || '';
                         
+                        console.log('🔄 cv-live-preview: updatePreview çağrıldı', {
+                            previewType: previewType,
+                            value: value,
+                            displayValue: displayValue,
+                            targetsCount: targets.length
+                        });
+                        
                         // Tüm target'ları güncelle (şablon değiştiğinde birden fazla olabilir)
                         targets.forEach(target => {
                             if (previewType === 'email' || previewType === 'phone' || previewType === 'location') {
@@ -117,12 +132,12 @@
                                 // Özet için özel işlem (çok satırlı metin)
                                 target.textContent = displayValue || 'Profesyonel özetinizi buraya yazın...';
                             } else {
-                                // Normal text güncelleme
+                                // Normal text güncelleme (profession dahil)
                                 target.textContent = displayValue;
                             }
                         });
                         
-                        // Veriyi kaydet
+                        // Veriyi kaydet - KRİTİK: value boş olsa bile kaydet (kullanıcı silmiş olabilir)
                         saveData(previewType, value);
                     }
                     

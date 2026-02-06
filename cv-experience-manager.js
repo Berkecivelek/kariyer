@@ -165,36 +165,13 @@
             const experiences = getExperiences();
             previewContainer.innerHTML = '';
             
+            // 🔒 KRİTİK: Örnek verileri YÜKLEME - Sadece gerçek kullanıcı verilerini göster
+            // Kullanıcı tüm deneyimleri sildiğinde, önizleme de boş kalmalı
             if (experiences.length === 0) {
-                // Varsayılan örnek deneyimler
-                const defaultExperiences = [
-                    {
-                        jobTitle: 'Kıdemli Yazılım Mühendisi',
-                        company: 'TechSolutions Inc.',
-                        startMonth: 'Ocak',
-                        startYear: '2021',
-                        endMonth: '',
-                        endYear: '',
-                        isCurrent: true,
-                        description: 'Mikroservis mimarisine geçiş projesine liderlik ederek sistem performansını %40 artırdım.\nJunior geliştiricilere mentorluk yaparak ekibin kod kalitesini yükselttim.\nCI/CD süreçlerini optimize ederek deployment süresini 15 dakikadan 3 dakikaya indirdim.'
-                    },
-                    {
-                        jobTitle: 'Frontend Geliştirici',
-                        company: 'Creative Web Agency',
-                        startMonth: 'Ocak',
-                        startYear: '2019',
-                        endMonth: 'Aralık',
-                        endYear: '2021',
-                        isCurrent: false,
-                        description: 'React ve Vue.js kullanarak responsive web uygulamaları geliştirdim.\nKullanıcı deneyimini iyileştirmek için A/B testleri yürüttüm.\nEkip içi code review süreçlerine aktif katılım sağladım.'
-                    }
-                ];
-                
-                defaultExperiences.forEach(exp => {
-                    const card = createPreviewExperienceCard(exp);
-                    previewContainer.appendChild(card);
-                });
+                // Deneyimler boş → Önizleme de boş (örnek verileri GÖSTERME)
+                previewContainer.innerHTML = '<p class="text-slate-400 text-xs italic text-center py-4">Deneyimlerinizi eklemek için yukarıdaki formu kullanın.</p>';
             } else {
+                // Gerçek kullanıcı deneyimleri var → Göster
                 experiences.forEach(exp => {
                     const card = createPreviewExperienceCard(exp);
                     previewContainer.appendChild(card);
@@ -249,46 +226,75 @@
         return card;
     }
     
+    // 🔒 Yeni kullanıcı kontrolü - Hem cv-builder-data hem de cv-experiences kontrolü
+    // KRİTİK: Bu fonksiyon yeni kullanıcıyı tespit etmek için kullanılır
+    // Yeni kullanıcı = Sadece kayıt bilgileri var VE hiçbir CV verisi yok
+    function isNewUser() {
+        try {
+            const cvData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
+            const allowedFieldsForNewUser = ['fullname-first', 'fullname-last', 'email'];
+            
+            // cv-builder-data içinde sadece kayıt bilgileri var mı?
+            const hasOnlyRegistrationData = Object.keys(cvData).filter(k => 
+                !allowedFieldsForNewUser.includes(k) && cvData[k] && cvData[k] !== ''
+            ).length === 0;
+            
+            // cv-experiences boş mu?
+            const experiences = getExperiences();
+            const hasNoExperiences = !experiences || experiences.length === 0;
+            
+            // 🔒 KRİTİK: Eğer localStorage'da veri varsa ama bu veriler örnek veriler gibi görünüyorsa,
+            // yine de yeni kullanıcı olarak kabul et (örnek veriler form alanlarına doldurulmamalı)
+            if (hasNoExperiences) {
+                // Deneyimler boş → Yeni kullanıcı
+                return hasOnlyRegistrationData;
+            } else {
+                // Deneyimler var → Kontrol et: Bu gerçek kullanıcı verisi mi yoksa örnek veri mi?
+                // Örnek veriler genellikle "Pozisyon Adı", "Şirket Adı" gibi placeholder içerir
+                const hasSampleData = experiences.some(exp => 
+                    (exp.jobTitle && (exp.jobTitle.includes('Pozisyon') || exp.jobTitle.includes('Adı'))) ||
+                    (exp.company && (exp.company.includes('Şirket') || exp.company.includes('Adı')))
+                );
+                
+                // Eğer örnek veri varsa, yeni kullanıcı olarak kabul et
+                if (hasSampleData) {
+                    console.log('🔒 Örnek veri tespit edildi, yeni kullanıcı olarak kabul ediliyor');
+                    return true;
+                }
+                
+                // Gerçek kullanıcı verisi var → Yeni kullanıcı değil
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
+    }
+    
     // Deneyim listesini render et
     function renderExperiences() {
         const listContainer = document.getElementById('experience-list');
         if (!listContainer) return;
         
+        // 🔒 KRİTİK: localStorage'dan veriyi oku - SADECE BİR KEZ
         const experiences = getExperiences();
+        console.log('🔧 CV Experience Manager: renderExperiences() called, experiences count:', experiences.length);
+        
+        // 🔒 KRİTİK: renderExperiences() içinde ÖRNEK VERİ KONTROLÜ YAPMA
+        // Çünkü kullanıcı manuel olarak "Kıdemli Yazılım Mühendisi" gibi bir deneyim ekleyebilir
+        // Örnek veri kontrolü SADECE init() içinde yapılmalı
+        
         listContainer.innerHTML = '';
         
+        // 🔒 KRİTİK: Sadece localStorage'daki verileri göster
+        // isNewUser() kontrolünü burada YAPMA - Bu kontrol sadece init() içinde yapılmalı
+        // Çünkü kullanıcı manuel olarak deneyimleri sildiğinde, bu fonksiyon tekrar çağrılıyor
+        // ve isNewUser() kontrolü yanlış sonuç verebilir
+        
         if (experiences.length === 0) {
-            // Varsayılan örnek deneyimler
-            const defaultExperiences = [
-                {
-                    jobTitle: 'Kıdemli Yazılım Mühendisi',
-                    company: 'TechSolutions Inc.',
-                    startMonth: 'Ocak',
-                    startYear: '2021',
-                    endMonth: '',
-                    endYear: '',
-                    isCurrent: true,
-                    description: 'Mikroservis mimarisine geçiş projesine liderlik ederek sistem performansını %40 artırdım.\nJunior geliştiricilere mentorluk yaparak ekibin kod kalitesini yükselttim.\nCI/CD süreçlerini optimize ederek deployment süresini 15 dakikadan 3 dakikaya indirdim.'
-                },
-                {
-                    jobTitle: 'Frontend Geliştirici',
-                    company: 'Creative Web Agency',
-                    startMonth: 'Ocak',
-                    startYear: '2019',
-                    endMonth: 'Aralık',
-                    endYear: '2021',
-                    isCurrent: false,
-                    description: 'React ve Vue.js kullanarak responsive web uygulamaları geliştirdim.\nKullanıcı deneyimini iyileştirmek için A/B testleri yürüttüm.\nEkip içi code review süreçlerine aktif katılım sağladım.'
-                }
-            ];
-            
-            defaultExperiences.forEach((exp, index) => {
-                const card = createExperienceCard(exp, index);
-                listContainer.appendChild(card);
-            });
-            
-            saveExperiences(defaultExperiences);
+            // Deneyimler boş → Boş liste göster (örnek verileri YÜKLEME)
+            listContainer.innerHTML = '<p class="text-slate-500 text-sm italic">Deneyimlerinizi eklemek için yukarıdaki formu kullanın.</p>';
         } else {
+            // localStorage'da deneyimler var → Göster (kullanıcı eklemiş veya CV yüklemiş)
             experiences.forEach((exp, index) => {
                 const card = createExperienceCard(exp, index);
                 listContainer.appendChild(card);
@@ -517,10 +523,53 @@
     // Deneyim sil
     function deleteExperience(index) {
         if (confirm('Bu deneyimi silmek istediğinize emin misiniz?')) {
+            // 🔒 KRİTİK: Önce mevcut durumu kaydet
             const experiences = getExperiences();
-            experiences.splice(index, 1);
-            saveExperiences(experiences);
-            renderExperiences();
+            console.log('🔧 CV Experience Manager: Deleting experience at index', index, 'Current count:', experiences.length);
+            console.log('🔧 CV Experience Manager: Current experiences:', JSON.stringify(experiences));
+            
+            if (index >= 0 && index < experiences.length) {
+                // Yeni array oluştur (splice mutasyon yapıyor, yeni array daha güvenli)
+                const updatedExperiences = experiences.filter((_, i) => i !== index);
+                console.log('🔧 CV Experience Manager: After deletion, new count:', updatedExperiences.length);
+                console.log('🔧 CV Experience Manager: Updated experiences:', JSON.stringify(updatedExperiences));
+                
+                // 🔒 KRİTİK: localStorage'a kaydet - BOŞ ARRAY BİLE OLSA KAYDET
+                saveExperiences(updatedExperiences);
+                
+                // 🔒 KRİTİK: Kayıt sonrası doğrula
+                const verifyExperiences = getExperiences();
+                console.log('🔧 CV Experience Manager: Verification after save, count:', verifyExperiences.length);
+                
+                if (verifyExperiences.length !== updatedExperiences.length) {
+                    console.error('❌ CV Experience Manager: Save verification failed! Expected:', updatedExperiences.length, 'Got:', verifyExperiences.length);
+                    // Tekrar kaydet
+                    saveExperiences(updatedExperiences);
+                    console.log('🔧 CV Experience Manager: Retrying save...');
+                } else {
+                    console.log('✅ CV Experience Manager: Save verified successfully');
+                }
+                
+                // 🔒 KRİTİK: UI'ı güncelle - SADECE localStorage'daki verileri göster
+                renderExperiences();
+                
+                // 🔒 KRİTİK: Render sonrası tekrar doğrula
+                const finalExperiences = getExperiences();
+                if (finalExperiences.length !== updatedExperiences.length) {
+                    console.error('❌ CV Experience Manager: Render sonrası verification failed! Expected:', updatedExperiences.length, 'Got:', finalExperiences.length);
+                    console.error('❌ CV Experience Manager: Final experiences:', JSON.stringify(finalExperiences));
+                    // Eğer başka bir script örnek verileri yüklediyse, tekrar temizle
+                    if (finalExperiences.length > updatedExperiences.length) {
+                        console.log('🔒 CV Experience Manager: Başka bir script örnek verileri yüklemiş, temizleniyor...');
+                        saveExperiences(updatedExperiences);
+                        renderExperiences();
+                    }
+                } else {
+                    console.log('✅ CV Experience Manager: Experience deletion completed successfully');
+                }
+            } else {
+                console.error('❌ CV Experience Manager: Invalid index for deletion:', index);
+            }
         }
     }
     
@@ -618,6 +667,30 @@
     // Sayfa yüklendiğinde başlat
     function init() {
         populateYearSelects();
+        
+        // 🔒 KRİTİK: Yeni kullanıcı kontrolü - SADECE sayfa ilk yüklendiğinde
+        // Bu kontrol sadece bir kez çalışmalı, renderExperiences() içinde çalışmamalı
+        const newUser = isNewUser();
+        if (newUser) {
+            console.log('🔒 Yeni kullanıcı tespit edildi: Deneyimler localStorage\'dan temizleniyor');
+            saveExperiences([]); // Yeni kullanıcı için localStorage'ı temizle
+        } else {
+            // Eski kullanıcı ama örnek veriler var mı kontrol et
+            const experiences = getExperiences();
+            const hasSampleData = experiences.some(exp => 
+                (exp.jobTitle && (exp.jobTitle.includes('Pozisyon') || exp.jobTitle.includes('Adı'))) ||
+                (exp.company && (exp.company.includes('Şirket') || exp.company.includes('Adı'))) ||
+                // "Kıdemli Yazılım Mühendisi" ve "TechSolutions Inc." gibi örnek verileri de tespit et
+                (exp.jobTitle === 'Kıdemli Yazılım Mühendisi' && exp.company === 'TechSolutions Inc.') ||
+                (exp.jobTitle === 'Frontend Geliştirici' && exp.company === 'Creative Web Agency')
+            );
+            
+            if (hasSampleData) {
+                console.log('🔒 Örnek veriler tespit edildi, temizleniyor');
+                saveExperiences([]); // Örnek verileri temizle
+            }
+        }
+        
         renderExperiences();
         attachLivePreviewListeners();
         

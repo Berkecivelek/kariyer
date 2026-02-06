@@ -85,7 +85,7 @@
             } else {
                 // URL'de resume yoksa, yeni CV oluşturuluyor
                 // Autosave yeni resume oluşturmaz, sadece localStorage'da tutar
-                console.log('ℹ️ Auto-save: No resume_id in URL, skipping database save');
+                // Bu normal bir durum, log mesajını kaldır
                 return; // Yeni CV için autosave yapma
             }
             
