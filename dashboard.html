@@ -832,9 +832,9 @@
                     ${resume.status === 'COMPLETED' ? '<span class="px-2 py-1 rounded text-[10px] font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">Tamamlandı</span>' : ''}
                     ${resume.status === 'ARCHIVED' ? '<span class="px-2 py-1 rounded text-[10px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400">Arşiv</span>' : ''}
                 </div>
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 dark:bg-black/30 z-10">
+                <a href="cv-onizle.html?resume=${resume.id}" class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 dark:bg-black/30 z-10 cursor-pointer">
                     <div class="text-xs text-white font-bold bg-primary/80 px-3 py-1 rounded">Önizle</div>
-                </div>
+                </a>
                 <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button class="bg-white/90 dark:bg-gray-800/90 p-1.5 rounded-full shadow-sm hover:text-primary transition-colors">
                         <span class="material-symbols-outlined text-sm">star</span>
@@ -851,9 +851,9 @@
                     <a href="cv-olusturucu-kisisel-bilgiler.html?resume=${resume.id}" class="p-2 text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors shadow-sm shadow-primary/30" title="Düzenle">
                         <span class="material-symbols-outlined text-base">edit</span>
                     </a>
-                    <button class="p-2 text-[#616889] dark:text-gray-400 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" onclick="downloadPDF('${resume.id}')" title="PDF İndir">
+                    <a href="cv-onizle.html?resume=${resume.id}" class="p-2 text-[#616889] dark:text-gray-400 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="PDF İndir">
                         <span class="material-symbols-outlined text-base">download</span>
-                    </button>
+                    </a>
                     <button class="p-2 text-[#616889] dark:text-gray-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" onclick="deleteResume('${resume.id}')" title="Sil">
                         <span class="material-symbols-outlined text-base">delete</span>
                     </button>
@@ -1216,6 +1216,9 @@
                 <div class="absolute top-4 left-4">
                     <span class="px-3 py-1.5 rounded-lg bg-white/95 dark:bg-gray-900/95 text-[11px] font-extrabold uppercase tracking-widest text-purple-600 shadow-lg backdrop-blur-sm border border-primary/10">Ön Yazı</span>
                 </div>
+                <a href="on-yazi-olusturucu.html?preview=${coverLetter.id}" class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 dark:bg-black/30 z-10 cursor-pointer">
+                    <div class="text-xs text-white font-bold bg-primary/80 px-3 py-1 rounded">Önizle</div>
+                </a>
             </div>
             <div class="p-4 flex flex-col gap-2 flex-1">
                 <h3 class="font-bold text-sm text-[#111218] dark:text-white line-clamp-1 group-hover:text-primary transition-colors">${escapeHtml(title)}</h3>
@@ -1226,6 +1229,9 @@
                             <span class="material-symbols-outlined text-sm">edit</span>
                             Düzenle
                         </a>
+                        <button onclick="window.downloadCoverLetterPDF('${coverLetter.id}')" class="p-2 text-[#616889] dark:text-gray-400 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="PDF İndir">
+                            <span class="material-symbols-outlined text-base">download</span>
+                        </button>
                         <button onclick="window.deleteCoverLetter('${coverLetter.id}')" class="flex items-center justify-center px-3 py-2 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-xs font-medium transition-colors">
                             <span class="material-symbols-outlined text-sm">delete</span>
                         </button>
@@ -1258,13 +1264,84 @@
         return card;
     }
     
-    // PDF indir
+    // PDF indir - Backend hatası durumunda önizleme sayfasına yönlendir
     window.downloadPDF = async function(resumeId) {
+        // Önce backend'den indirmeyi dene
+        const url = `${window.apiClient.baseURL}/resumes/${resumeId}/pdf`;
+        
         try {
-            await window.apiClient.downloadPDF(resumeId);
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${window.apiClient.token}`,
+                },
+            });
+
+            if (!response.ok) {
+                // Backend hatası durumunda önizleme sayfasına yönlendir
+                console.warn('⚠️ Backend PDF indirme başarısız, önizleme sayfasına yönlendiriliyor');
+                window.location.href = `cv-onizle.html?resume=${resumeId}`;
+                return;
+            }
+
+            const blob = await response.blob();
+            
+            // Blob boş mu kontrol et
+            if (blob.size === 0) {
+                console.warn('⚠️ PDF blob boş, önizleme sayfasına yönlendiriliyor');
+                window.location.href = `cv-onizle.html?resume=${resumeId}`;
+                return;
+            }
+            
+            const url_blob = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url_blob;
+            a.download = `ozgecmis-${resumeId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url_blob);
         } catch (error) {
             console.error('PDF indirme hatası:', error);
-            alert('PDF indirilemedi: ' + (error.message || 'Bilinmeyen hata'));
+            // Hata durumunda önizleme sayfasına yönlendir (frontend PDF generation kullanılacak)
+            console.log('🔄 Önizleme sayfasına yönlendiriliyor...');
+            window.location.href = `cv-onizle.html?resume=${resumeId}`;
+        }
+    };
+    
+    // Cover letter PDF indir
+    window.downloadCoverLetterPDF = async function(coverLetterId) {
+        const url = `${window.apiClient.baseURL}/cover-letters/${coverLetterId}/pdf`;
+        
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${window.apiClient.token}`,
+                },
+            });
+
+            if (!response.ok) {
+                let errorMessage = 'PDF indirilemedi';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error?.message || errorData.message || errorMessage;
+                } catch (e) {
+                    errorMessage = response.statusText || `HTTP ${response.status}`;
+                }
+                throw new Error(errorMessage);
+            }
+
+            const blob = await response.blob();
+            const url_blob = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url_blob;
+            a.download = `onyazi-${coverLetterId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url_blob);
+        } catch (error) {
+            console.error('Cover letter PDF indirme hatası:', error);
+            alert('PDF indirilemedi: ' + (error.message || 'Bilinmeyen bir hata oluştu'));
         }
     };
     

@@ -355,13 +355,24 @@
     // Geri dön butonu
     const backBtn = document.getElementById('back-btn');
     if (backBtn) {
+        // Buton metnini güncelle
+        const backBtnText = backBtn.querySelector('span.text-sm');
+        if (backBtnText) {
+            backBtnText.textContent = 'Geri Dön';
+        }
+        
         backBtn.addEventListener('click', function() {
             // Hangi sayfadan geldiğini kontrol et
             const referrer = document.referrer;
-            if (referrer && referrer.includes('cv-olusturucu')) {
+            if (referrer && (referrer.includes('dashboard') || referrer.includes('belgelerim'))) {
+                // Dashboard veya Belgelerim sayfasından geldiyse oraya dön
+                window.history.back();
+            } else if (referrer && referrer.includes('cv-olusturucu')) {
+                // CV oluşturucu sayfasından geldiyse oraya dön
                 window.history.back();
             } else {
-                window.location.href = 'cv-olusturucu-kisisel-bilgiler.html';
+                // Varsayılan olarak dashboard'a dön
+                window.location.href = 'dashboard.html';
             }
         });
     }
@@ -521,24 +532,86 @@
     }
     
     // CV'yi yükle ve render et
-    function loadAndRenderCV() {
+    async function loadAndRenderCV() {
         const container = document.getElementById('cv-preview-container');
         if (!container) return;
         
-        // Seçili şablonu al - kullanıcının seçtiği şablonu kullan
-        // Eğer şablon seçilmemişse varsayılan olarak 'modern' kullan
-        let selectedTemplate = localStorage.getItem('selected-template');
+        // URL'den resume ID'yi al
+        const urlParams = new URLSearchParams(window.location.search);
+        const resumeId = urlParams.get('resume');
         
-        // Eğer şablon seçilmemişse veya geçersizse, modern şablonu kullan
-        if (!selectedTemplate || selectedTemplate === '') {
-            selectedTemplate = 'modern';
-            localStorage.setItem('selected-template', selectedTemplate);
+        let cvData = {};
+        let selectedTemplate = 'modern';
+        
+        // Eğer resume ID varsa, API'den veriyi yükle
+        if (resumeId && window.apiClient && window.apiClient.token) {
+            try {
+                console.log('📥 CV Önizleme: Resume ID ile veri yükleniyor:', resumeId);
+                
+                // Önce localStorage'ı temizle (önceki CV verilerini temizle)
+                localStorage.removeItem('cv-builder-data');
+                localStorage.removeItem('cv-experiences');
+                localStorage.removeItem('cv-education');
+                localStorage.removeItem('cv-skills');
+                localStorage.removeItem('cv-languages');
+                
+                // API'den resume verisini yükle
+                const resumeResponse = await window.apiClient.getResume(resumeId);
+                
+                if (resumeResponse.success && resumeResponse.data.resume) {
+                    const resume = resumeResponse.data.resume;
+                    
+                    console.log('✅ CV Önizleme: Resume verisi yüklendi:', resume);
+                    
+                    // CV verilerini hazırla
+                    cvData = {
+                        'fullname-first': resume.firstName || '',
+                        'fullname-last': resume.lastName || '',
+                        email: resume.email || '',
+                        phone: resume.phone || '',
+                        location: resume.location || '',
+                        profession: resume.profession || '',
+                        summary: resume.summary || '',
+                        website: resume.website || '',
+                        experiences: Array.isArray(resume.experience) ? resume.experience : [],
+                        education: Array.isArray(resume.education) ? resume.education : [],
+                        skills: Array.isArray(resume.skills) ? resume.skills : [],
+                        languages: Array.isArray(resume.languages) ? resume.languages : [],
+                    };
+                    
+                    // Şablonu al (resume'dan veya varsayılan)
+                    selectedTemplate = resume.templateId || resume.template || 'modern';
+                    
+                    // localStorage'a kaydet (template renderer için)
+                    localStorage.setItem('cv-builder-data', JSON.stringify(cvData));
+                    localStorage.setItem('cv-experiences', JSON.stringify(cvData.experiences));
+                    localStorage.setItem('cv-education', JSON.stringify(cvData.education));
+                    localStorage.setItem('cv-skills', JSON.stringify(cvData.skills));
+                    localStorage.setItem('cv-languages', JSON.stringify(cvData.languages));
+                    localStorage.setItem('selected-template', selectedTemplate);
+                    localStorage.setItem('current-resume-id', resumeId);
+                    
+                    console.log('✅ CV Önizleme: Veriler localStorage\'a kaydedildi');
+                } else {
+                    console.error('❌ CV Önizleme: Resume verisi yüklenemedi');
+                    // Hata durumunda localStorage'dan yükle (fallback)
+                    cvData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
+                    selectedTemplate = localStorage.getItem('selected-template') || 'modern';
+                }
+            } catch (error) {
+                console.error('❌ CV Önizleme: Resume yükleme hatası:', error);
+                // Hata durumunda localStorage'dan yükle (fallback)
+                cvData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
+                selectedTemplate = localStorage.getItem('selected-template') || 'modern';
+            }
+        } else {
+            // Resume ID yoksa localStorage'dan yükle
+            console.log('📥 CV Önizleme: localStorage\'dan veri yükleniyor');
+            cvData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
+            selectedTemplate = localStorage.getItem('selected-template') || 'modern';
         }
         
-        // CV verilerini al ve birleştir
-        const cvData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
-        
-        // Deneyimleri localStorage'dan al - öncelik cv-builder-data içindeki verilere
+        // Deneyimleri localStorage'dan al (eğer cvData'da yoksa)
         if (!cvData.experiences || cvData.experiences.length === 0) {
             try {
                 const experiences = JSON.parse(localStorage.getItem('cv-experiences') || '[]');
@@ -550,7 +623,7 @@
             }
         }
         
-        // Eğitim bilgilerini al - öncelik cv-builder-data içindeki verilere
+        // Eğitim bilgilerini al (eğer cvData'da yoksa)
         if (!cvData.education || cvData.education.length === 0) {
             try {
                 const education = JSON.parse(localStorage.getItem('cv-education') || '[]');
@@ -562,7 +635,7 @@
             }
         }
         
-        // Yetenekleri al - öncelik cv-builder-data içindeki verilere
+        // Yetenekleri al (eğer cvData'da yoksa)
         if (!cvData.skills || cvData.skills.length === 0) {
             try {
                 const skills = JSON.parse(localStorage.getItem('cv-skills') || '[]');
@@ -574,7 +647,7 @@
             }
         }
         
-        // Dilleri al - öncelik cv-builder-data içindeki verilere
+        // Dilleri al (eğer cvData'da yoksa)
         if (!cvData.languages || cvData.languages.length === 0) {
             try {
                 const languages = JSON.parse(localStorage.getItem('cv-languages') || '[]');
@@ -588,25 +661,7 @@
         
         // CV template renderer'ı kullan
         if (window.CVTemplateRenderer && window.CVTemplateRenderer.render) {
-            // cvData'yı localStorage'a kaydet ki template renderer getDataWithExamples() kullanabilsin
-            // Bu, özgeçmiş oluşturucu sayfalarındaki canlı önizleme ile aynı mantık
-            try {
-                const existingData = JSON.parse(localStorage.getItem('cv-builder-data') || '{}');
-                // Tüm verileri birleştir
-                Object.assign(existingData, cvData);
-                // Eğer cvData'da experiences, education, skills, languages varsa onları da ekle
-                if (cvData.experiences && cvData.experiences.length > 0) existingData.experiences = cvData.experiences;
-                if (cvData.education && cvData.education.length > 0) existingData.education = cvData.education;
-                if (cvData.skills && cvData.skills.length > 0) existingData.skills = cvData.skills;
-                if (cvData.languages && cvData.languages.length > 0) existingData.languages = cvData.languages;
-                localStorage.setItem('cv-builder-data', JSON.stringify(existingData));
-            } catch (e) {
-                localStorage.setItem('cv-builder-data', JSON.stringify(cvData));
-            }
-            
-            // Seçili şablonu render et - kullanıcının seçtiği şablonu kullan
-            // cvData'yı geçiyoruz, template renderer fonksiyonları data || getDataWithExamples() kullanıyor
-            // Eğer cvData boşsa veya eksikse, template renderer getDataWithExamples() kullanacak
+            // Seçili şablonu render et
             const html = window.CVTemplateRenderer.render(selectedTemplate, cvData);
             container.innerHTML = html;
             

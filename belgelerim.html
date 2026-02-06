@@ -520,9 +520,12 @@
     function handleDownload(doc) {
         if (doc.type === 'resume') {
             window.downloadPDF(doc.id);
+        } else if (doc.type === 'cover-letter') {
+            window.downloadCoverLetterPDF(doc.id);
         } else {
             // TODO: Diğer belge tipleri için indirme
             console.log('İndir:', doc.type, doc.id);
+            alert('Bu belge tipi için indirme özelliği henüz mevcut değil.');
         }
     }
     
@@ -637,9 +640,53 @@
         });
     }
     
-    // PDF indir fonksiyonu (dashboard'dan kopyala)
+    // PDF indir fonksiyonu - Backend hatası durumunda önizleme sayfasına yönlendir
     window.downloadPDF = async function(resumeId) {
+        // Önce backend'den indirmeyi dene
         const url = `${window.apiClient.baseURL}/resumes/${resumeId}/pdf`;
+        
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${window.apiClient.token}`,
+                },
+            });
+
+            if (!response.ok) {
+                // Backend hatası durumunda önizleme sayfasına yönlendir
+                console.warn('⚠️ Backend PDF indirme başarısız, önizleme sayfasına yönlendiriliyor');
+                window.location.href = `cv-onizle.html?resume=${resumeId}`;
+                return;
+            }
+
+            const blob = await response.blob();
+            
+            // Blob boş mu kontrol et
+            if (blob.size === 0) {
+                console.warn('⚠️ PDF blob boş, önizleme sayfasına yönlendiriliyor');
+                window.location.href = `cv-onizle.html?resume=${resumeId}`;
+                return;
+            }
+            
+            const url_blob = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url_blob;
+            a.download = `ozgecmis-${resumeId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url_blob);
+        } catch (error) {
+            console.error('PDF indirme hatası:', error);
+            // Hata durumunda önizleme sayfasına yönlendir (frontend PDF generation kullanılacak)
+            console.log('🔄 Önizleme sayfasına yönlendiriliyor...');
+            window.location.href = `cv-onizle.html?resume=${resumeId}`;
+        }
+    };
+    
+    // Cover letter PDF indir
+    window.downloadCoverLetterPDF = async function(coverLetterId) {
+        const url = `${window.apiClient.baseURL}/cover-letters/${coverLetterId}/pdf`;
         
         try {
             const response = await fetch(url, {
@@ -663,13 +710,13 @@
             const url_blob = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url_blob;
-            a.download = `ozgecmis-${resumeId}.pdf`;
+            a.download = `onyazi-${coverLetterId}.pdf`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url_blob);
         } catch (error) {
-            console.error('PDF indirme hatası:', error);
+            console.error('Cover letter PDF indirme hatası:', error);
             alert('PDF indirilemedi: ' + (error.message || 'Bilinmeyen bir hata oluştu'));
         }
     };

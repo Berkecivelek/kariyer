@@ -164,9 +164,20 @@
             // Resume ID varsa, resume'u yükle
             if (resumeId) {
                 try {
+                    console.log('📥 CV Data Loader: Resume ID ile veri yükleniyor:', resumeId);
+                    
+                    // 🔒 KRİTİK: Önce localStorage'ı temizle (önceki CV verilerini temizle)
+                    localStorage.removeItem('cv-builder-data');
+                    localStorage.removeItem('cv-experiences');
+                    localStorage.removeItem('cv-education');
+                    localStorage.removeItem('cv-skills');
+                    localStorage.removeItem('cv-languages');
+                    
                     const resumeResponse = await window.apiClient.getResume(resumeId);
                     if (resumeResponse.success && resumeResponse.data.resume) {
                         const resume = resumeResponse.data.resume;
+                        
+                        console.log('✅ CV Data Loader: Resume verisi yüklendi:', resume);
                         
                         // CV verilerini localStorage'a kaydet
                         const cvData = {
@@ -177,6 +188,7 @@
                             location: resume.location || '',
                             profession: resume.profession || '',
                             summary: resume.summary || '',
+                            website: resume.website || '',
                         };
                         
                         localStorage.setItem('cv-builder-data', JSON.stringify(cvData));
@@ -210,8 +222,8 @@
                         }
                         
                         // Şablonu kaydet
-                        if (resume.templateId) {
-                            localStorage.setItem('selected-template', resume.templateId);
+                        if (resume.templateId || resume.template) {
+                            localStorage.setItem('selected-template', resume.templateId || resume.template);
                         }
                         
                         console.log('✅ CV data loaded from database (all sections):', {
